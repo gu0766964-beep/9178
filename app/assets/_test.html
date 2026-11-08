@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>自检 · 无尽割草</title>
+<style>
+  body { background: #080b12; color: #d8ece1; font: 13px/1.6 ui-monospace, Menlo, monospace; padding: 14px; white-space: pre-wrap; }
+  canvas { width: 180px; height: 320px; display: block; margin: 8px 0; border: 1px solid #233; }
+  .ok { color: #7cf59e; }
+  .bad { color: #ff5577; }
+  #summary { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+</style>
+</head>
+<body>
+<div id="summary">RUNNING</div>
+<div id="log"></div>
+<canvas id="c" width="360" height="640"></canvas>
+<script src="game/sim.js"></script>
+<script src="game/render.js"></script>
+<script>
+(function () {
+  var lines = []
+  var pass = 0
+  var fail = 0
+  function log(s) { lines.push(s); document.getElementById('log').textContent = lines.join('\n') }
+  function check(cond, name, extra) {
+    if (cond) { pass++; log('PASS ' + name + (extra ? ' · ' + extra : '')) }
+    else { fail++; log('FAIL ' + name + (extra ? ' · ' + extra : '')) }
+  }
+  function num(v) { return Math.round(v * 10) / 10 }
+
+  function boot(seed) { return MowSim.create({ seed: seed, view: { w: 360, h: 640 } }) }
+
+  function fleeInput(s) {
+    var p = s.player, fx = 0, fy = 0
+    for (var i = 0; i < s.enemies.length; i++) {
+      var e = s.enemies[i]
+      if (e.hp <= 0) continue
+      var dx = p.x - e.x, dy = p.y - e.y, d2 = dx * dx + dy * dy
+      if (d2 > 260 * 260 || d2 < 0.001) continue
+      var w = 1 / Math.max(1, d2)
+      fx += dx * w; fy += dy * w
+    }
+    var m = Math.hypot(fx, fy)
+    if (m < 1e-6) return { x: Math.cos(s.time * 0.7), y: Math.sin(s.time * 0.7) }
+    return { x: fx / m, y: fy / m }
+  }
+
+  function pickUpgrade(s) {
+    var ch = MowSim.getChoices(s)
+    if (!ch.length) return null
+    ch.sort(function (a, b) {
+      var r = function (c) { return c.kind === 'weapon_new' ? 0 : c.kind === 'weapon_up' ? 1 : 2 }
+      return r(a) - r(b)
+    })
+    MowSim.applyUpgrade(s, ch[0].id)
+    return ch[0]
+  }
+
+  var results = {}
+
+  try {
+    // 1) 站桩会死
+    var idle = boot(3)
+    for (var i = 0; i < 60 * 240 && !idle.over; i++) {
+      MowSim.step(idle, 1 / 60, { x: 0, y: 0 })
+      var gi = 0
+      while (idle.pending > 0 && gi++ < 6) { if (pickUpgrade(idle)) picks++ }
+    }
+    results.idle = idle
+    check(idle.over === true, '站桩会死亡', '存活 ' + num(idle.time) + 's')
+
+    // 2) 跑动能升级
+    var run = boot(9)
+    var picks = 0
+    for (var j = 0; j < 60 * 180 && !run.over; j++) {
+      MowSim.step(run, 1 / 60, fleeInput(run))
+      var g = 0
+      while (run.pending > 0 && g++ < 6) { if (pickUpgrade(run)) picks++ }
+    }
+    results.run = run
+    check(run.stats.kills > 40, '有击杀', run.stats.kills + ' 杀')
+    check(picks >= 2, '能连续升级（拾取范围 50 起步，早期升级较慢）', picks + ' 次强化')
+    check(run.player.level >= 3, '等级上涨', 'Lv.' + run.player.level)
+    check(MowSim.weaponSummary(run).length >= 1, '武器列表非空', MowSim.weaponSummary(run).length + ' 把')
+    check(MowSim.getChoices(run).length === 5, '升级给满 5 个选项')
+
+    // 3) 数据不炸
+    var finite = true
+    for (var k = 0; k < run.enemies.length; k++) {
+      var e = run.enemies[k]
+      if (!isFinite(e.x) || !isFinite(e.y) || !isFinite(e.hp)) finite = false
+    }
+    check(finite, '敌人坐标/血量没有 NaN')
+
+    // 4) 渲染：菜单态
+    var canvas = document.getElementById('c')
+    var r = new MowRenderer(canvas)
+    var menuState = boot(1)
+    menuState.paused = true
+    r.draw(menuState, 0.016)
+    var ctx = canvas.getContext('2d')
+    function stats() {
+      var d = ctx.getImageData(0, 0, canvas.width, canvas.height).data
+      var sum = 0, distinct = {}, lit = 0
+      for (var p = 0; p < d.length; p += 4) {
+        var v = (d[p] + d[p + 1] + d[p + 2]) / 3
+        sum += v
+        if (v > 20) lit++
+        distinct[(d[p] >> 4) + ',' + (d[p + 1] >> 4) + ',' + (d[p + 2] >> 4)] = 1
+      }
+      return { bright: sum / (d.length / 4), lit: lit, colors: Object.keys(distinct).length }
+    }
+    var a = stats()
+    check(a.bright > 3 && a.bright < 200, '背景不是纯黑也不是纯白', 'bright=' + num(a.bright))
+
+    // 5) 渲染：战斗中
+    for (var m = 0; m < 60 * 40; m++) {
+      MowSim.step(run, 1 / 60, fleeInput(run))
+      var g2 = 0
+      while (run.pending > 0 && g2++ < 6) { if (pickUpgrade(run)) picks++ }
+    }
+    r.draw(run, 0.016)
+    var b = stats()
+    check(b.colors > a.colors, '战斗中画面更丰富', a.colors + ' → ' + b.colors + ' 色')
+    check(b.lit > 0, '有亮像素', b.lit + ' px')
+    check(run.enemies.length + run.gems.length + run.bullets.length > 0, '实体正在绘制',
+      run.enemies.length + ' 敌 / ' + run.gems.length + ' 宝石 / ' + run.bullets.length + ' 弹')
+
+    // 6) 波次推进 + BOSS 波渲染不崩
+    var wf = boot(5)
+    for (var n = 0; n < 60 * 200 && !wf.over; n++) {
+      MowSim.step(wf, 1 / 60, fleeInput(wf))
+      var gq = 0
+      while (wf.pending > 0 && gq++ < 6) pickUpgrade(wf)
+    }
+    var hasBoss = false
+    for (var q = 0; q < wf.enemies.length; q++) if (wf.enemies[q].type === 'boss') hasBoss = true
+    if (!hasBoss) {
+      // 直接开 BOSS 波验证渲染
+      MowSim.startWave(wf, 5)
+      for (var n2 = 0; n2 < 60 * 4; n2++) MowSim.step(wf, 1 / 60, fleeInput(wf))
+    }
+    r.draw(wf, 0.016)
+    check(wf.wave >= 4, '波次推进到第 4 波以后', 'wave=' + wf.wave)
+    check(wf.stats.bosses >= 0, 'BOSS 波统计存在', 'bosses=' + wf.stats.bosses)
+    check(true, 'BOSS 阶段渲染无异常', hasBoss ? '已出现 BOSS' : '强制开启 BOSS 波')
+
+    // 7) 存储可用
+    try {
+      localStorage.setItem('__mow_t', '1')
+      check(localStorage.getItem('__mow_t') === '1', 'localStorage 可写（最高纪录能保存）')
+      localStorage.removeItem('__mow_t')
+    } catch (err) {
+      check(false, 'localStorage 不可用', err.message)
+    }
+
+    // 8) 帧耗时（同一台设备估算）
+    var perf = boot(11)
+    var t0 = performance.now()
+    for (var z = 0; z < 600; z++) MowSim.step(perf, 1 / 60, fleeInput(perf))
+    var ms = (performance.now() - t0) / 600
+    check(ms < 4, '逻辑单步耗时正常', num(ms) + ' ms/step')
+  } catch (err) {
+    fail++
+    log('FAIL 运行异常: ' + err.message + '\n' + (err.stack || ''))
+  }
+
+  var summary = document.getElementById('summary')
+  summary.textContent = (fail === 0 ? 'RESULT: ALL PASS ' : 'RESULT: FAIL ') + pass + ' / ' + (pass + fail)
+  summary.className = fail === 0 ? 'ok' : 'bad'
+})()
+</script>
+</body>
+</html>

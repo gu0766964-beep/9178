@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, orientation=landscape" />
+<meta name="theme-color" content="#080b12" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<title>无尽割草</title>
+<style>
+  :root {
+    --accent: #7cf59e;
+    --accent-2: #59dcff;
+    --danger: #ff5577;
+    --gold: #ffce5c;
+    --panel: rgba(14, 20, 30, 0.92);
+    --line: rgba(124, 245, 158, 0.18);
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; padding: 0; width: 100%; height: 100%;
+    background: #080b12; color: #e8f2ec; overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", "Helvetica Neue", Arial, sans-serif;
+    user-select: none; -webkit-user-select: none;
+    touch-action: none; overscroll-behavior: none;
+    /* 强制横屏提示（如果被拒绝） */
+  }
+  #app { position: fixed; inset: 0; overflow: hidden; }
+  #stage { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+
+  /* 横屏适配 */
+  @media (orientation: portrait) {
+    body::before {
+      content: "请横持手机以游戏";
+      position: fixed; inset: 0; z-index: 9999;
+      display: flex; align-items: center; justify-content: center;
+      background: #080b12; color: #fff; font-size: 24px; font-weight: 800; letter-spacing: 4px;
+    }
+  }
+
+  /* ---------- HUD（尽量薄，不挡战场） ---------- */
+  #hud { position: absolute; inset: 0; pointer-events: none; display: none; padding: calc(env(safe-area-inset-top, 0px) + 6px) 10px 6px; font-size: 14px; }
+  .hud-left { display: flex; flex-direction: column; gap: 3px; align-items: flex-start; }
+  .hud-meta { display: flex; align-items: baseline; gap: 8px; font-variant-numeric: tabular-nums; }
+  .timer {
+    font-size: 15px; font-weight: 800; letter-spacing: 1px; line-height: 1;
+    color: #fff; text-shadow: 0 0 12px rgba(124,245,158,0.4);
+    font-variant-numeric: tabular-nums;
+  }
+  .hud-meta .m { font-size: 9px; color: rgba(232,242,236,0.55); letter-spacing: 0.5px; line-height: 1; }
+  .hud-meta .m b { font-size: 11px; color: var(--accent); font-weight: 700; margin-right: 1px; }
+  .hud-meta .coin b { color: #ffce5c; }
+  #skipBtn {
+    display: none; padding: 9px 14px; font-size: 12px; font-weight: 700; line-height: 1.1;
+    color: var(--accent); background: rgba(124,245,158,0.10);
+    border: 1px solid rgba(124,245,158,0.4); border-radius: 999px;
+  }
+  #skipBtn.on { display: block; margin-bottom: 12px; }
+  #skipBtn:active { background: rgba(124,245,158,0.3); }
+
+  .hud-bar { display: flex; align-items: center; gap: 5px; width: 176px; }
+  .hud-bar .lab { font-size: 8px; font-weight: 800; color: rgba(232,242,236,0.6); letter-spacing: 0.5px; width: 15px; }
+  .hud-bar .num { font-size: 8px; font-weight: 700; color: rgba(232,242,236,0.8); min-width: 42px; text-align: right; font-variant-numeric: tabular-nums; }
+  .hud-bar .bar { margin-top: 0; flex: 1; }
+
+  .bar { position: relative; height: 7px; border-radius: 4px; background: rgba(255,255,255,0.08); overflow: hidden; }
+  .bar > i { position: absolute; inset: 0 auto 0 0; width: 100%; border-radius: 4px; transition: width 0.16s linear; }
+  .bar.hp > i { background: linear-gradient(90deg, #ff4d6d, #ff8fa3); }
+  .bar.xp { height: 4px; }
+  .bar.xp > i { background: linear-gradient(90deg, #59dcff, #7cf59e); }
+
+  #weaponRow { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 4px; font-size: 10px; max-width: 62%; }
+  .wchip {
+    font-size: 8px; padding: 1px 5px; border-radius: 999px; color: #cfeadd;
+    background: rgba(124,245,158,0.10); border: 1px solid var(--line); letter-spacing: 0.5px;
+  }
+  .wchip b { color: var(--accent); font-weight: 700; }
+
+  /* ---------- 摇杆 ---------- */
+  #joystick {
+    position: absolute; width: 96px; height: 96px; border-radius: 50%;
+    border: 1.5px solid rgba(124,245,158,0.3); background: rgba(124,245,158,0.04);
+    transform: translate(-50%, -50%); opacity: 0; transition: opacity 0.12s;
+    pointer-events: none; display: none;
+  }
+  #joystick.on { opacity: 1; }
+  #joystick .stick {
+    position: absolute; left: 50%; top: 50%; width: 40px; height: 40px; margin: -20px 0 0 -20px;
+    border-radius: 50%; background: radial-gradient(circle at 35% 30%, #b7ffd0, #4fd07a 70%);
+    box-shadow: 0 0 14px rgba(124,245,158,0.5);
+  }
+
+  /* ---------- 顶部按钮（缩小，少占战场） ---------- */
+  #topRight { position: absolute; top: calc(env(safe-area-inset-top, 0px) + 40px); right: 8px; display: flex; flex-direction: column; gap: 5px; z-index: 5; touch-action: manipulation; }
+  /* 按钮单独脱离画布的手势仲裁，确保边拖摇杆边点按钮时也能即时响应 */
+  #topRight button, #skipBtn, .btn, .backTop, .switch, .segBtns button { touch-action: manipulation; }
+  .iconBtn {
+    width: 30px; height: 30px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(16,22,32,0.62); color: #cfeadd; font-size: 12px; line-height: 1;
+    display: flex; align-items: center; justify-content: center; backdrop-filter: blur(6px);
+  }
+  .iconBtn:active { transform: scale(0.94); }
+
+  /* ---------- 弹层 ---------- */
+  .overlay {
+    position: absolute; inset: 0; z-index: 20; display: none;
+    align-items: center; justify-content: center; padding: 14px;
+    touch-action: pan-y manipulation;
+    background: radial-gradient(circle at 50% 35%, rgba(10,26,20,0.86), rgba(5,7,11,0.95));
+    backdrop-filter: blur(3px);
+    overflow-y: auto; -webkit-overflow-scrolling: touch;
+  }
+  /* 首页 UI 全透明：不挡背景视频（文字靠描边阴影保证可读） */
+  #startScreen, #overScreen {
+    background: transparent; backdrop-filter: none;
+  }
+  #startScreen .sheet, #overScreen .sheet { background: transparent; }
+  #startScreen .btn {
+    background: transparent; color: #eaf6ef; box-shadow: none;
+    border: 1px solid rgba(255,255,255,0.30);
+    -webkit-backdrop-filter: none; backdrop-filter: none;
+    text-shadow: 0 1px 6px rgba(0,0,0,0.9);
+  }
+  #startScreen .btn.gold {
+    background: transparent; border-color: rgba(255,206,92,0.55); color: #ffe9ae;
+  }
+  #startScreen .btn.ghost {
+    background: transparent; border-color: rgba(255,255,255,0.22);
+  }
+  #startScreen .logo, #startScreen .sub, #startScreen .hint, #startScreen .bestbox b {
+    text-shadow: 0 1px 8px rgba(0,0,0,0.95), 0 0 3px rgba(0,0,0,0.95);
+  }
+  #bgVideo { position: fixed; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; z-index: 0; display: none; background: #080b12; }
+  .overlay.on { display: flex; }
+  .sheet { position: relative; width: 100%; max-width: 560px; max-height: 100%; overflow-y: auto; text-align: center; }
+
+  .logo { font-size: 40px; font-weight: 900; letter-spacing: 4px; margin: 0 0 6px; line-height: 1.1; }
+  .logo em {
+    font-style: normal;
+    color: rgba(240,255,248,0.88);
+    text-shadow: 0 2px 14px rgba(0,0,0,0.95), 0 0 4px rgba(0,0,0,0.95);
+    filter: drop-shadow(0 0 22px rgba(124,245,158,0.25));
+  }
+  .sub { color: rgba(232,242,236,0.62); font-size: 13px; letter-spacing: 2px; margin-bottom: 26px; }
+  .bestbox {
+    display: flex; justify-content: center; gap: 20px; margin-bottom: 26px;
+    font-size: 12px; color: rgba(232,242,236,0.72);
+    background: transparent; border: none; padding: 0;
+  }
+  .bestbox b { display: block; font-size: 20px; color: var(--gold); margin-bottom: 2px; font-variant-numeric: tabular-nums; }
+
+  .btn {
+    display: block; width: 100%; padding: 15px; border: 0; border-radius: 16px;
+    font-size: 17px; font-weight: 800; letter-spacing: 3px; color: #06210f;
+    background: linear-gradient(180deg, #a6ffc4, #4fd07a);
+    box-shadow: 0 10px 30px rgba(79,208,122,0.28), inset 0 1px 0 rgba(255,255,255,0.6);
+  }
+  .btn:active { transform: translateY(1px) scale(0.995); }
+  .btn.ghost {
+    background: rgba(255,255,255,0.06); color: #d8ece1; box-shadow: none;
+    border: 1px solid rgba(255,255,255,0.14); font-size: 14px; font-weight: 600; letter-spacing: 2px;
+    margin-top: 10px; padding: 12px;
+  }
+  .hint { margin-top: 20px; font-size: 12px; line-height: 1.9; color: rgba(232,242,236,0.68); }
+  /* 首页次级按钮三列行（角色 / 商店 / 设置） */
+  .btnRow3 { display: flex; gap: 8px; width: 100%; margin-top: 10px; }
+  .btnRow3 .btn { flex: 1; margin-top: 0; padding: 10px 4px; font-size: 13px; letter-spacing: 1px; }
+  /* 职业选择卡片 */
+  .jobList { display: flex; flex-direction: column; gap: 9px; width: 100%; max-width: 340px; margin-top: 8px; }
+  .jobCard { display: block; width: 100%; text-align: left; padding: 10px 14px; border-radius: 13px;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09); color: inherit;
+    font: inherit; cursor: pointer; }
+  .jobCard.on { border-color: var(--accent); background: rgba(124,245,158,0.08); }
+  .jobCard.cant { opacity: 0.72; }
+  .jobCard:active { transform: translateY(1px); }
+  .jname { display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    font-weight: 700; font-size: 15px; }
+  .jtag { flex: none; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px;
+    background: rgba(124,245,158,0.14); color: var(--accent); }
+  .jtag.price { background: rgba(255,206,92,0.14); color: var(--gold); }
+  .jtag.lock { background: rgba(255,255,255,0.06); color: rgba(232,242,236,0.42); }
+  .jdesc { display: block; margin-top: 4px; font-size: 11.5px; line-height: 1.5; color: rgba(232,242,236,0.55); }
+  .curJobLine { margin-top: 14px; font-size: 12px; color: rgba(232,242,236,0.68); text-shadow: 0 1px 6px rgba(0,0,0,0.9); }
+  .curJobLine b { color: var(--accent-2); }
+  .hint kbd {
+    display: inline-block; padding: 1px 6px; margin: 0 2px; border-radius: 5px;
+    background: rgba(255,255,255,0.09); color: #cfeadd; font-family: inherit; font-size: 11px;
+  }
+
+.diffList { display:flex; flex-direction:column; gap:8px; width:100%; max-width:320px; }
+.diffBtn { display:flex; align-items:center; justify-content:space-between; gap:10px;
+  padding:10px 14px; border-radius:12px; background:rgba(255,255,255,0.05);
+  border:1px solid rgba(124,245,158,0.25); color:#dfe9ff; font-size:14px; font-weight:700; }
+.diffBtn .dd { font-size:11px; font-weight:400; color:#8fa3c4; text-align:right; }
+.diffBtn.d-easy { border-color:rgba(124,245,158,0.5); }
+.diffBtn.d-normal { border-color:rgba(120,200,255,0.45); }
+.diffBtn.d-hard { border-color:rgba(255,206,92,0.55); }
+.diffBtn.d-hell { border-color:rgba(255,120,90,0.6); }
+.diffBtn.d-night { border-color:rgba(200,107,255,0.65); }
+.diffBtn.d-god { border-color:rgba(255,60,110,0.75); background:rgba(255,60,110,0.08); }
+.diffBtn .tag { font-size:10px; padding:2px 8px; border-radius:999px; background:rgba(124,245,158,0.14); color:var(--accent); }
+.diffTip { margin-top:10px; font-size:11px; color:#8fa3c4; text-align:center; }
+
+  /* ---------- 升级三选一（横屏：三卡并排） ---------- */
+  #levelScreen { background: radial-gradient(circle at 50% 30%, rgba(20,40,30,0.9), rgba(4,7,10,0.97)); }
+  .lvlHead { font-size: 13px; letter-spacing: 5px; color: var(--accent); margin-bottom: 4px; }
+  .lvlTitle { font-size: 26px; font-weight: 900; margin: 0 0 4px; letter-spacing: 2px; }
+  .lvlSub { font-size: 12px; color: rgba(232,242,236,0.45); margin-bottom: 18px; }
+  #cards { display: flex; flex-direction: row; gap: 6px; }
+  @media (max-width: 520px) { #cards { flex-direction: column; } }
+  .card {
+    position: relative; text-align: left; padding: 9px 10px; border-radius: 12px;
+    background: linear-gradient(180deg, rgba(30,44,38,0.92), rgba(16,24,22,0.92));
+    border: 1px solid rgba(124,245,158,0.2);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+    color: #e8f2ec; width: 100%; font-family: inherit;
+  }
+  .card:active { transform: scale(0.985); border-color: rgba(124,245,158,0.55); }
+  .card .top { display: flex; align-items: center; gap: 5px; margin-bottom: 3px; }
+  .card .nm { font-size: 13px; font-weight: 800; letter-spacing: 0.5px; white-space: nowrap; }
+  .card .badge {
+    font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 999px;
+    background: rgba(124,245,158,0.14); color: var(--accent); letter-spacing: 0.3px;
+  }
+  .card .badge.new { background: rgba(255,206,92,0.16); color: var(--gold); }
+  .card .inf { font-size: 9px; color: var(--accent); letter-spacing: 0.3px; }
+  .card .ds { font-size: 10.5px; color: rgba(232,242,236,0.62); line-height: 1.4; }
+
+  /* ---------- 结束页 ---------- */
+  .overTitle { font-size: 30px; font-weight: 900; letter-spacing: 6px; color: var(--danger); margin: 0 0 18px; }
+  .resGrid { display: flex; gap: 10px; margin-bottom: 22px; }
+  .resGrid > div {
+    flex: 1; padding: 14px 8px; border-radius: 14px; background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .resGrid b { display: block; font-size: 22px; color: var(--accent); font-variant-numeric: tabular-nums; margin-bottom: 3px; }
+  .resGrid small { font-size: 11px; color: rgba(232,242,236,0.5); letter-spacing: 1px; }
+  .newBest { color: var(--gold); font-size: 13px; font-weight: 700; letter-spacing: 2px; margin-bottom: 14px; }
+  .reward { font-size: 13px; color: rgba(232,242,236,0.75); letter-spacing: 0.5px; margin-bottom: 20px; }
+  .reward b { color: var(--gold); font-size: 16px; }
+  .nowPlaying {
+    font-size: 14px; font-weight: 700; color: var(--accent-2, #59dcff);
+    letter-spacing: 0.5px; margin-bottom: 12px; text-align: center;
+  }
+
+  /* ---------- 暂停 / 设置 / 商店 ---------- */
+  .menuTitle { font-size: 26px; font-weight: 900; letter-spacing: 6px; margin: 0 0 20px; color: #fff; padding: 0 64px; }
+  .menuTitle.pause { color: var(--accent-2); }
+  .btnRow { display: flex; flex-direction: column; gap: 10px; }
+  .btnRow .btn { margin-top: 0; }
+  /* 返回按钮：sheet 左上角 */
+  .backTop { position: absolute; top: 10px; left: 12px; z-index: 2; padding: 6px 14px 6px 10px; font-size: 14px; font-weight: 700; color: var(--accent-2); background: rgba(255,255,255,0.06); border: 1px solid rgba(120,200,255,0.28); border-radius: 999px; }
+  .btn.danger {
+    background: linear-gradient(180deg, #ff8fa3, #ff4d6d); color: #2a050d;
+    box-shadow: 0 10px 30px rgba(255,77,109,0.28), inset 0 1px 0 rgba(255,255,255,0.5);
+  }
+  .btn.gold {
+    background: linear-gradient(180deg, #ffe49a, #ffce5c); color: #3a2606;
+    box-shadow: 0 10px 30px rgba(255,206,92,0.3), inset 0 1px 0 rgba(255,255,255,0.6);
+  }
+
+  .setRow {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 10px 14px; border-radius: 14px; background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.09); margin-bottom: 8px; text-align: left;
+  }
+  .setRow .lbl { font-size: 15px; font-weight: 700; letter-spacing: 1px; }
+  .setRow .sub2 { font-size: 11px; color: rgba(232,242,236,0.45); margin-top: 2px; }
+  .switch {
+    position: relative; width: 52px; height: 30px; border-radius: 999px; flex: none;
+    background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.16); cursor: pointer;
+    transition: background 0.18s;
+  }
+  .switch::after {
+    content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%;
+    background: #d8ece1; transition: transform 0.18s;
+  }
+  .switch.on { background: rgba(124,245,158,0.55); border-color: rgba(124,245,158,0.7); }
+  .switch.on::after { transform: translateX(22px); }
+  .segBtns { display: flex; gap: 6px; }
+  .segBtns button {
+    padding: 7px 12px; border-radius: 10px; font-size: 12px; font-weight: 700; letter-spacing: 1px;
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.14); color: #b9cfc3;
+    font-family: inherit;
+  }
+  .segBtns button.on { background: rgba(124,245,158,0.2); color: var(--accent); border-color: rgba(124,245,158,0.5); }
+  .segBtns button.add { margin-left: auto; color: var(--gold); border-color: rgba(255,206,92,0.4); background: rgba(255,206,92,0.1); }
+
+  /* 商店 */
+  .shopCoin { display: inline-flex; align-items: center; gap: 7px; font-size: 16px; font-weight: 800; color: var(--gold); letter-spacing: 1px; margin-bottom: 16px; }
+  .shopList { display: flex; flex-direction: column; gap: 9px; max-height: 56dvh; overflow-y: auto; padding: 2px; }
+  .shopItem {
+    display: flex; align-items: center; gap: 9px; text-align: left;
+    padding: 9px 12px; border-radius: 12px; width: 100%; font-family: inherit;
+    background: linear-gradient(180deg, rgba(30,44,38,0.95), rgba(16,24,22,0.95));
+    border: 1px solid rgba(124,245,158,0.18); color: #e8f2ec;
+  }
+  .shopItem:active { transform: scale(0.99); }
+  .shopItem .ico { font-size: 19px; width: 26px; text-align: center; flex: none; }
+  .shopItem .mid { flex: 1; min-width: 0; }
+  .shopItem .nm2 { font-size: 12.5px; font-weight: 800; letter-spacing: 0.5px; }
+  .shopItem .nm2 small { font-size: 10px; color: var(--accent); font-weight: 600; margin-left: 4px; }
+  .shopItem .ds2 { font-size: 10.5px; color: rgba(232,242,236,0.55); margin-top: 1px; line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .shopItem .cost { font-size: 12px; font-weight: 800; color: var(--gold); flex: none; white-space: nowrap; }
+  .shopItem .cost.small { font-size: 11px; color: rgba(232,242,236,0.4); }
+  .shopItem.maxed { opacity: 0.45; }
+  .shopItem.maxed .cost { color: var(--accent); }
+  .shopItem.cant { opacity: 0.55; }
+  .pipsRow { display: flex; gap: 3px; margin-top: 5px; }
+  .pipsRow i { width: 12px; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.14); }
+  .pipsRow i.f { background: var(--gold); }
+
+  /* ---------- 攻击键（关闭自动打怪后出现） ---------- */
+  #attackBtn {
+    position: absolute; right: calc(env(safe-area-inset-right, 0px) + 22px);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 26px);
+    width: 72px; height: 72px; border-radius: 50%;
+    display: none; z-index: 8; pointer-events: auto;
+    font-size: 26px; color: #06210f; line-height: 1;
+    background: radial-gradient(circle at 35% 30%, #ffd9e0, #ff5577 72%);
+    border: 2px solid rgba(255,255,255,0.35);
+    box-shadow: 0 6px 22px rgba(255,77,109,0.4), inset 0 2px 0 rgba(255,255,255,0.55);
+    touch-action: none; user-select: none; -webkit-user-select: none;
+  }
+  #attackBtn.on { display: block; }
+  #attackBtn:active { transform: scale(0.94); }
+  #attackBtn.hold { box-shadow: 0 2px 10px rgba(255,77,109,0.6), inset 0 2px 0 rgba(255,255,255,0.55); }
+
+  /* ---------- 播放列表条目 ---------- */
+  .track {
+    display: flex; align-items: center; gap: 10px; text-align: left;
+    padding: 11px 13px; border-radius: 14px; width: 100%; font-family: inherit;
+    background: linear-gradient(180deg, rgba(30,44,38,0.95), rgba(16,24,22,0.95));
+    border: 1px solid rgba(124,245,158,0.18); color: #e8f2ec;
+  }
+  .track .ico { font-size: 18px; flex: none; width: 26px; text-align: center; }
+  .track .mid { flex: 1; min-width: 0; }
+  .track .nm3 { font-size: 13px; font-weight: 700; letter-spacing: 0.4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .track .tag { font-size: 10px; color: rgba(232,242,236,0.4); margin-top: 1px; }
+  .track.playing { border-color: rgba(124,245,158,0.6); background: linear-gradient(180deg, rgba(36,64,48,0.95), rgba(20,34,28,0.95)); }
+  .track.playing .nm3 { color: var(--accent); }
+  .track .del {
+    flex: none; width: 30px; height: 30px; border-radius: 9px;
+    background: rgba(255,77,109,0.12); border: 1px solid rgba(255,77,109,0.35);
+    color: #ff8fa3; font-size: 13px; font-family: inherit;
+  }
+  .track .del:active { transform: scale(0.92); }
+
+  /* ---------- toast / 提示 ---------- */
+  #toast {
+    position: absolute; left: 50%; bottom: 14%; transform: translate(-50%, 8px);
+    background: rgba(8,12,18,0.92); border: 1px solid rgba(124,245,158,0.25); color: #d9f5e4;
+    padding: 9px 16px; border-radius: 999px; font-size: 12px; opacity: 0;
+    transition: opacity 0.2s, transform 0.2s; pointer-events: none; z-index: 40; white-space: nowrap;
+  }
+  #toast.on { opacity: 1; transform: translate(-50%, 0); }
+
+  /* ---------- 调试信息 ---------- */
+  #diag {
+    position: absolute; left: 8px; bottom: calc(env(safe-area-inset-bottom, 0px) + 6px);
+    font-size: 9px; line-height: 1.3; color: rgba(140,220,170,0.55);
+    font-family: ui-monospace, Menlo, monospace; pointer-events: none; display: none; z-index: 30;
+    white-space: pre; text-align: left;
+  }
+  #diag.on { display: block; }
+
+  @media (max-height: 640px) {
+    .logo { font-size: 34px; }
+    .sub { margin-bottom: 16px; }
+    .hint { margin-top: 12px; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <video id="bgVideo" autoplay playsinline preload="auto"></video>
+  <canvas id="stage"></canvas>
+
+  <div id="hud">
+    <div class="hud-left">
+      <div class="hud-meta">
+        <span class="timer" id="timer">00:00</span>
+        <span class="m"><b id="waveTop">1</b>波</span>
+        <span class="m"><b id="enemyLeft">0</b>剩</span>
+        <span class="m"><b id="kills">0</b>杀</span>
+        <span class="m coin"><b id="coins">0</b>◈</span>
+      </div>
+      <div class="hud-bar">
+        <span class="lab">HP</span>
+        <div class="bar hp"><i id="hpFill"></i></div>
+        <span class="num" id="hpText">100/100</span>
+      </div>
+      <div class="hud-bar">
+        <span class="lab">LV</span>
+        <div class="bar xp"><i id="xpFill"></i></div>
+        <span class="num" id="xpText">Lv.1 0/5</span>
+      </div>
+    </div>
+    <div id="weaponRow"></div>
+  </div>
+
+  <div id="joystick"><div class="stick"></div></div>
+
+  <!-- 手动攻击模式：按住朝操控方向一直打（设置里关闭自动打怪后出现） -->
+  <button id="attackBtn" aria-label="攻击">⚔</button>
+
+  <div id="topRight">
+    <button id="skipBtn">跳过 ▸</button>
+    <button class="iconBtn" id="pauseBtn" aria-label="暂停">❚❚</button>
+    <button class="iconBtn" id="musicBtn" aria-label="音乐">♪</button>
+    <button class="iconBtn" id="prevTrackBtn" aria-label="上一首">‹♪</button>
+    <button class="iconBtn" id="nextTrackBtn" aria-label="下一首">♪›</button>
+    <button class="iconBtn" id="modeTrackBtn" aria-label="播放模式">☰</button>
+    <button class="iconBtn" id="soundBtn" aria-label="音效">🔊</button>
+  </div>
+
+  <input type="file" id="musicFile" accept="audio/*" style="display:none" />
+
+  <div class="overlay" id="cheatScreen">
+    <div class="sheet">
+      <button class="backTop" id="cheatBackBtn">‹ 返回</button>
+      <div class="menuTitle">作 弊 码</div>
+      <div style="text-align:center;font-size:12px;color:#9aa7bd;margin-bottom:14px">输入作弊码以获取奖励（仅本机单机趣味）</div>
+      <input type="text" id="cheatInput" placeholder="输入作弊码…" autocomplete="off" autocapitalize="off" spellcheck="false"
+        style="width:100%;box-sizing:border-box;padding:12px 14px;border-radius:10px;border:1px solid #3a4660;background:#141a2a;color:#e8eefc;font-size:16px;outline:none;text-align:center;letter-spacing:1px" />
+      <div style="text-align:center;margin-top:14px">
+        <button class="btn" id="cheatOkBtn">确 认</button>
+      </div>
+      <div id="cheatMsg" style="text-align:center;font-size:12px;color:#ffce5c;margin-top:10px;min-height:16px"></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="pauseScreen">
+    <div class="sheet">
+      <div class="menuTitle pause">暂 停</div>
+      <div class="btnRow">
+        <button class="btn" id="resumeBtn">继 续 游 戏</button>
+        <button class="btn ghost" id="restartBtn">重 新 开 始</button>
+        <button class="btn ghost" id="setBtn">设 置</button>
+        <button class="btn ghost" id="quitBtn">返回首页</button>
+        <button class="btn danger" id="settleBtn">立即结算</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="settingsScreen">
+    <div class="sheet">
+      <button class="backTop" id="setBackBtn">‹ 返回</button>
+      <div class="menuTitle">设 置</div>
+      <div class="setRow">
+        <div><div class="lbl">音效</div><div class="sub2">击杀 / 升级 / 受击提示音</div></div>
+        <div class="switch on" id="swSfx" role="switch" aria-label="音效开关"></div>
+      </div>
+      <div class="setRow">
+        <div><div class="lbl">背景音乐</div><div class="sub2">到「音乐」卡片里点歌、选播放模式</div></div>
+        <div class="switch on" id="swMusic" role="switch" aria-label="音乐开关"></div>
+      </div>
+      <div class="setRow">
+        <div><div class="lbl">自动打怪</div><div class="sub2">关闭后出现攻击键：飞刀锁定最近敌人，其余技能自动开火</div></div>
+        <div class="switch on" id="swAuto" role="switch" aria-label="自动打怪开关"></div>
+      </div>
+      <div class="setRow" id="musicEntryRow">
+        <div><div class="lbl">音乐</div><div class="sub2">打开播放卡片：切歌 / 播放模式 / 导入</div></div>
+        <button class="btn ghost" id="musicEntry" style="padding:7px 16px;font-size:13px">播 放 卡 片</button>
+      </div>
+      <div class="setRow">
+        <div><div class="lbl">摇杆模式</div><div class="sub2">固定：常驻左下角 · 浮动：按哪出哪</div></div>
+        <div class="segBtns" id="segJoy">
+          <button data-v="float">浮动</button>
+          <button data-v="fixed">固定</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 音乐播放卡片（独立 UI）：当前曲 / 播放模式 / 列表 / 导入 -->
+  <div class="overlay" id="musicCard">
+    <div class="sheet">
+      <button class="backTop" id="musicBackBtn">‹ 返回</button>
+      <div class="menuTitle">♪ 音 乐</div>
+      <div class="nowPlaying" id="nowPlaying">未在播放</div>
+      <div class="segBtns" id="segMode" style="margin-bottom:12px">
+        <button data-m="order">顺序</button>
+        <button data-m="repeat">单循</button>
+        <button data-m="random">随机</button>
+        <button id="musicAddBtn" class="add">＋ 导入音乐</button>
+      </div>
+      <div class="shopList" id="playlist"></div>
+    </div>
+  </div>
+
+  <!-- 商店只在首页 -->
+  <div class="overlay" id="shopScreen">
+    <div class="sheet">
+      <button class="backTop" id="shopBackBtn">‹ 返回</button>
+      <div class="menuTitle">商 店</div>
+      <div class="shopCoin">◈ <span id="coinBal">0</span> 金币</div>
+      <div class="shopList" id="shopList"></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="diffScreen">
+    <div class="sheet">
+      <button class="backTop" id="diffBackBtn">‹ 返回</button>
+      <div class="menuTitle">选择难度</div>
+      <div class="diffList" id="diffList"></div>
+      <div class="diffTip" id="diffTip">选择一个难度开始</div>
+    </div>
+  </div>
+
+  <div class="overlay" id="jobScreen">
+    <div class="sheet">
+      <button class="backTop" id="jobBackBtn">‹ 返回</button>
+      <div class="menuTitle">选 择 职 业</div>
+      <div class="jobList" id="jobList"></div>
+    </div>
+  </div>
+
+  <div class="overlay on" id="startScreen">
+    <div class="sheet">
+      <h1 class="logo"><em>无尽割草</em></h1>
+      <div class="sub">ENDLESS MOW · 活到最后一秒</div>
+      <div class="bestbox">
+        <div><b id="bestTime">--:--</b>最佳存活</div>
+        <div><b id="bestKills">0</b>最高击杀</div>
+      </div>
+      <button class="btn" id="startBtn">新 游 戏</button>
+      <button class="btn gold" id="continueBtn" style="display:none;margin-top:10px">继 续 游 戏</button>
+      <div class="btnRow3">
+        <button class="btn ghost" id="jobBtn">角 色</button>
+        <button class="btn ghost" id="shopBtn1">商 店</button>
+        <button class="btn ghost" id="setBtn1">设 置</button>
+      </div>
+      <div class="hint">
+        摇杆移动 · 拾取经验升级三选一 · 一波清完休息 10 秒 · 每 5 波一个 BOSS<br />
+        <kbd>WASD</kbd> / <kbd>方向键</kbd> 也支持键盘
+      </div>
+      <div class="curJobLine">当前职业：<b id="curJob">游侠</b></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="levelScreen">
+    <div class="sheet">
+      <div class="lvlHead">LEVEL UP</div>
+      <div class="lvlTitle" id="lvlTitle">升 级</div>
+      <div class="lvlSub">选择一项强化</div>
+      <div id="cards"></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="overScreen">
+    <div class="sheet">
+      <div class="overTitle">已 阵 亡</div>
+      <div class="newBest" id="newBest" style="display:none">★ 新纪录 ★</div>
+      <div class="resGrid">
+        <div><b id="resTime">00:00</b><small>存活时间</small></div>
+        <div><b id="resKills">0</b><small>击杀</small></div>
+        <div><b id="resLevel">1</b><small>等级</small></div>
+      </div>
+      <div class="reward">本局结算 <b id="resCoins">◈ 0</b> 金币已存入商店</div>
+      <button class="btn" id="againBtn">再 来 一 局</button>
+      <button class="btn ghost" id="backBtn">返回首页</button>
+    </div>
+  </div>
+
+  <!-- 战斗商店：每 5 波出现一次，花本局金币（当局强化，与首页商店不互通） -->
+  <div class="overlay" id="gShopScreen">
+    <div class="sheet">
+      <div class="menuTitle">战 斗 商 店</div>
+      <div class="shopCoin">◈ <span id="gCoinBal">0</span> 本局金币</div>
+      <div class="shopList" id="gShopList"></div>
+      <button class="btn" id="gShopBackBtn">继 续 战 斗</button>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+  <div id="diag"></div>
+</div>
+
+<script src="game/sim.js"></script>
+<script src="game/render.js"></script>
+<script src="game/main.js"></script>
+</body>
+</html>
