@@ -6,6 +6,71 @@
 - **包名**：`com.mow.survivor`
 - **版本**：2.5.12（debug 签名，测试版）
 - **技术**：Android 原生壳（横屏全屏 WebView）+ HTML5 Canvas2D 游戏逻辑
+- **更新**：从 2.5.11 起支持「云端下发」——启动时自动从云端拉版本清单，发现新版本后静默下载文件、下次打开即玩新版（音乐/背景视频等大媒体不上传云端，留在 APK 本地）
+  - 云端清单：`https://raw.githubusercontent.com/gu0766964-beep/9178/main/cloud/manifest.json`（版本 `2.5.13` / versionCode `44`，含 6 个游戏文件）
+  - 热更文件：`_test.html`、`index.html`、`cloud.js`、`game/main.js`、`game/render.js`、`game/sim.js`（音乐/视频走 `window.__mowAsset()` 桥接，云端优先、本地兜底）
+
+## 云端下发怎么工作的
+
+## 云端下发怎么工作的
+
+> 核心思路：**APK 里只放一份代码，启动时去云端检查有没有新版——有新版本就把文件下载下来存到 IndexedDB，下次打开直接加载云端文件；没网络/下载失败就照旧玩本地老版本。**
+
+### 架构
+
+```
+main.js (游戏主逻辑)
+  ├── sim.js / render.js  → 俄罗斯方块/逻辑/渲染 → 云端列表里有的话从云端路径拿
+  ├── 音乐/视频地址        → window.__mowAsset('music/<x>.mp3') 桥接（云端优先、本地兜底）
+  └── cloud.js            → 负责"检查版本 → 下载 → 重装"，在 index.html 末尾单独加载
+```
+
+`cloud.js` 做了这些：
+
+1. **查版本**：游戏一启动就向云端拉 `manifest.json`（里面有版本号、每个文件的 md5、下载链接），和本地存的 `mow.cloud.version` 比较。
+2. **下资源**：云端版本更高时，按 `files` 列表逐文件下载，并存入 IndexedDB（`store=files`，`meta` 元数据）；进度条/promise 完成前的任何失败都不会让游戏崩掉。
+3. **重装**：下载完成后 `location.reload('?mowPatch=1')`，第二轮启动时因为 `state=patched`，直接从 IndexedDB 读云端文件（`game/sim.js`、`render.js`、`main.js`）加载。
+4. **兜底**：没有网络、拉取失败、或版本不高于本地时，一切照常从 APK 本地 assets 里取，游戏不回退、不闪退。
+
+### 怎么发版（给开发者的）
+
+```bash
+# 1. 改完代码、确认日志正常
+# 2. 跑工具算 md5、升版本、出清单
+python3 tools/gen_manifest.py --versionName 2.5.14
+# 3. 推 GitHub
+git add -A && git commit -m "v2.5.14" && git push origin main
+# 4. 云顶 raw 的地址会自动更新（CDN 指向 https://raw.githubusercontent.com/gu0766964-beep/9178/main/）
+# 5. 用户重启游戏，就会弹出更新提示并下载
+```
+
+`manifest.json` 自动生成，结构：
+
+```json
+{
+  "versionCode": 44,
+  "versionName": "2.5.13",
+  "cdn": "https://raw.githubusercontent.com/gu0766964-beep/9178/main/",
+  "files": {
+    "game/main.js": { "size": 70352, "md5": "1d6c003e…" , "url": "https://raw.githubusercontent.com/gu0766964-beep/9178/main/game/main.js" },
+    "game/sim.js":   { "size": 82616, "md5": "11d63319…" , "url": "https://raw.githubusercontent.com/gu0766964-beep/9178/main/game/sim.js" }
+  }
+}
+```
+
+- **只上传 git 追踪的文件**（通过 `git ls-files app/assets` 计算），所以 127MB 的背景视频和音乐不会被上传云、不会被计版本差——它们永远在 APK 本地。
+- **versionName/versionCode 自动 +1**（覆盖已有 manifest），`--version` 可强行指定。
+
+### 版本管理
+
+| 内容 | 存放位置 |
+|---|---|
+| 游戏逻辑（JS 源文件） | 云端（git 仓库的 `app/assets/` 目录） |
+| 音乐/背景视频 | 本地 APK（需要者自行替换 APK） |
+| 文档（README） | 云端（git 仓库） |
+| 存档/设置/金币 | 用户手机本地（localStorage + IndexedDB），**云端更新不会清存档** |
+
+> 如果用户的需求是「更新逻辑/数值就生效、不想重装 APK」，这就是最小方案。如果以后想更新音乐或视频，需要重新打 APK 给用户装（APK 约 160MB），或者走纯 CDN 方案让 APK 只留壳。
 
 ## 怎么装
 
