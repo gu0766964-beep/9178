@@ -4,10 +4,10 @@
 
 - **APK**：`dist/survivor-v2.5.12.apk`（约 160 MB（含 8 个首页背景视频），minSdk 24 / Android 7.0 及以上）
 - **包名**：`com.mow.survivor`
-- **版本**：2.5.12（debug 签名，测试版）
+- **版本**：2.5.13（debug 签名，测试版。云端 manifest 已升到 45）
 - **技术**：Android 原生壳（横屏全屏 WebView）+ HTML5 Canvas2D 游戏逻辑
 - **更新**：从 2.5.11 起支持「云端下发」——启动时自动从云端拉版本清单，发现新版本后静默下载文件、下次打开即玩新版（音乐/背景视频等大媒体不上传云端，留在 APK 本地）
-  - 云端清单：`https://raw.githubusercontent.com/gu0766964-beep/9178/main/cloud/manifest.json`（版本 `2.5.13` / versionCode `44`，含 6 个游戏文件）
+  - 云端清单：`https://raw.githubusercontent.com/gu0766964-beep/9178/main/cloud/manifest.json`（版本 `2.5.13` / versionCode `45`，含 6 个游戏文件）
   - 热更文件：`_test.html`、`index.html`、`cloud.js`、`game/main.js`、`game/render.js`、`game/sim.js`（音乐/视频走 `window.__mowAsset()` 桥接，云端优先、本地兜底）
 
 ## 云端下发怎么工作的
@@ -48,7 +48,7 @@ git add -A && git commit -m "v2.5.14" && git push origin main
 
 ```json
 {
-  "versionCode": 44,
+  "versionCode": 45,
   "versionName": "2.5.13",
   "cdn": "https://raw.githubusercontent.com/gu0766964-beep/9178/main/",
   "files": {
