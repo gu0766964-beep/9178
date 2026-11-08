@@ -255,6 +255,7 @@
 
   /* ------------------ 入口 ------------------ */
   async function init() {
+    console.log('[debug] init 被调用')
     var state = 'local'
     try { state = await metaGet(STATE_KEY) } catch (e) { }
     if (!state) state = 'local'
