@@ -3,6 +3,11 @@
   "versionName": "2.5.13",
   "cdn": "https://raw.githubusercontent.com/gu0766964-beep/survivor_patch/",
   "files": {
+    "_test.html": {
+      "size": 6581,
+      "md5": "401051509d144740db21d01a6e27748b",
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/survivor_patch/_test.html"
+    },
     "cloud.js": {
       "size": 10276,
       "md5": "2d6acd6c3081884b269b02108b8ea66c",
@@ -12,26 +17,6 @@
       "size": 29894,
       "md5": "9cf02e105b098f06ab317f75998bfee9",
       "url": "https://raw.githubusercontent.com/gu0766964-beep/survivor_patch/index.html"
-    },
-    "_test.html": {
-      "size": 6581,
-      "md5": "401051509d144740db21d01a6e27748b",
-      "url": "https://raw.githubusercontent.com/gu0766964-beep/survivor_patch/_test.html"
-    },
-    "game/sim.js": {
-      "size": 82616,
-      "md5": "11d633199ff27b7f54b4938cb84c1b57",
-      "url": "https://raw.githubusercontent.com/gu0766964-beep/survivor_patch/game/sim.js"
-    },
-    "game/render.js": {
-      "size": 46638,
-      "md5": "d1ce7b9688187b2fb486e7fec026911b",
-      "url": "https://raw.githubusercontent.com/gu0766964-beep/survivor_patch/game/render.js"
-    },
-    "game/main.js": {
-      "size": 70161,
-      "md5": "d0e4a0fc8e5229b3e40dd8f9145a2078",
-      "url": "https://raw.githubusercontent.com/gu0766964-beep/survivor_patch/game/main.js"
     },
     "music/yuai.mp3": {
       "size": 4140013,
@@ -122,6 +107,21 @@
       "size": 23400798,
       "md5": "2e0343b8995669d4f4789ea30f32e24e",
       "url": "https://raw.githubusercontent.com/gu0766964-beep/survivor_patch/bg/8.mp4"
+    },
+    "game/main.js": {
+      "size": 70161,
+      "md5": "d0e4a0fc8e5229b3e40dd8f9145a2078",
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/survivor_patch/game/main.js"
+    },
+    "game/render.js": {
+      "size": 46638,
+      "md5": "d1ce7b9688187b2fb486e7fec026911b",
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/survivor_patch/game/render.js"
+    },
+    "game/sim.js": {
+      "size": 82616,
+      "md5": "11d633199ff27b7f54b4938cb84c1b57",
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/survivor_patch/game/sim.js"
     }
   }
 }
