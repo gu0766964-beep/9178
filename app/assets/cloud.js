@@ -11,8 +11,8 @@
 
   /* ========= 可覆盖的云端地址（Android 打包时只关流逝这） ========= */
   var C = window.__mowCloudConfig || {}
-  var MANIFEST_URL = C.manifestUrl || 'https://raw.githubusercontent.com/gu0766964-beep/survivor_patch/main/cloud/manifest.json'
-  var CDN = C.cdn || 'https://raw.githubusercontent.com/gu0766964-beep/survivor_patch/main/'
+  var MANIFEST_URL = C.manifestUrl || 'https://raw.githubusercontent.com/gu0766964-beep/9178/main/cloud/manifest.json'
+  var CDN = C.cdn || 'https://raw.githubusercontent.com/gu0766964-beep/9178/main/'
 
   /* ========= 本地存储 Key ========= */
   var VERSION_KEY = 'mow.cloud.version'       // 已安装的云端版本

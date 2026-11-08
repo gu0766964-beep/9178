@@ -205,8 +205,8 @@ def build(root):
 
 
 def manifest_bytes(package='com.mow.survivor', label='无尽割草', version_code=1,
-                   version_name='1.0', activity='.MainActivity'):
-    """本项目使用的清单结构。"""
+                   version_name='1.0', activity='.MainActivity', permissions=()):
+    """本项目使用的清单结构。permissions 是要加给 <manifest> 的权限字符串列表。"""
     APPLICATION = Element('application', [
         S('label', label),
         # 图标：引用 res/drawable/icon.png（resources.arsc 中 ID = 0x7f010000）
@@ -231,15 +231,15 @@ def manifest_bytes(package='com.mow.survivor', label='无尽割草', version_cod
         )
     )
 
+    manifest_children = [Element('uses-sdk', [I('minSdkVersion', 24), I('targetSdkVersion', 34)]), APPLICATION]
+    for p in permissions:
+        manifest_children.insert(0, Element('uses-permission', [S('name', p)]))
     manifest = Element('manifest', [
         Attr('package', package, 'string', ns=None),
         I('versionCode', version_code),
         S('versionName', version_name),
-    ]).add(
-        Element('uses-sdk', [I('minSdkVersion', 24), I('targetSdkVersion', 34)]),
-        APPLICATION,
-    )
-    return build(manifest)
+    ])
+    return build(manifest.add(*manifest_children))
 
 
 if __name__ == '__main__':

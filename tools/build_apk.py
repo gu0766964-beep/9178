@@ -23,8 +23,18 @@ ASSETS = os.path.join(ROOT, 'app', 'assets')
 SRC = os.path.join(ROOT, 'android', 'src')
 APP_NAME = 'survivor-v2.5.12.apk'
 PACKAGE = 'com.mow.survivor'
-VERSION_NAME = '2.5.12'
-VERSION_CODE = 40
+# 从 cloud/manifest.json 取版本（云端 versionCode/versionName）
+import json
+import os
+try:
+    m = json.load(open(os.path.join(ROOT, 'cloud', 'manifest.json'), encoding='utf-8'))
+    VERSION_NAME = m['versionName']
+    VERSION_CODE = m['versionCode']
+    APP_NAME = 'survivor-%s.apk' % m['versionName']
+except Exception:
+    VERSION_NAME = '2.5.12'
+    VERSION_CODE = 40
+    APP_NAME = 'survivor-v2.5.12.apk'
 MIN_SDK = 24
 TARGET_SDK = 34
 
@@ -66,13 +76,15 @@ def step_clean():
 
 def step_manifest():
     data = axml.manifest_bytes(package=PACKAGE, label='无尽割草',
-                              version_code=VERSION_CODE,
-                              version_name=VERSION_NAME,
-                              activity='.MainActivity')
+                               version_code=VERSION_CODE,
+                               version_name=VERSION_NAME,
+                               activity='.MainActivity',
+                               permissions=['android.permission.INTERNET'])
     out = os.path.join(BUILD, 'AndroidManifest.xml')
     with open(out, 'wb') as f:
         f.write(data)
     print('manifest: %d bytes' % len(data))
+    return out
     return out
 
 
