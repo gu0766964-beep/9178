@@ -1,37 +1,37 @@
 {
-  "versionCode": 44,
+  "versionCode": 45,
   "versionName": "2.5.13",
-  "cdn": "https://raw.githubusercontent.com/gu0766964-beep/9178/main/",
+  "cdn": "https://raw.githubusercontent.com/gu0766964-beep/9178/main/app/assets/",
   "files": {
     "_test.html": {
       "size": 6581,
       "md5": "401051509d144740db21d01a6e27748b",
-      "url": "https://raw.githubusercontent.com/gu0766964-beep/9178/main/_test.html"
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/9178/main/app/assets/_test.html"
     },
     "cloud.js": {
       "size": 10538,
       "md5": "2671c203cb3276e1c38fd8d2d1e58546",
-      "url": "https://raw.githubusercontent.com/gu0766964-beep/9178/main/cloud.js"
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/9178/main/app/assets/cloud.js"
     },
     "index.html": {
       "size": 29909,
       "md5": "1fddaaaa75c04b5ad005cf27b9a52dd2",
-      "url": "https://raw.githubusercontent.com/gu0766964-beep/9178/main/index.html"
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/9178/main/app/assets/index.html"
     },
     "game/main.js": {
       "size": 70352,
       "md5": "1d6c003e2d42be4729ddde2b194ffb69",
-      "url": "https://raw.githubusercontent.com/gu0766964-beep/9178/main/game/main.js"
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/9178/main/app/assets/game/main.js"
     },
     "game/render.js": {
       "size": 46638,
       "md5": "d1ce7b9688187b2fb486e7fec026911b",
-      "url": "https://raw.githubusercontent.com/gu0766964-beep/9178/main/game/render.js"
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/9178/main/app/assets/game/render.js"
     },
     "game/sim.js": {
       "size": 82616,
       "md5": "11d633199ff27b7f54b4938cb84c1b57",
-      "url": "https://raw.githubusercontent.com/gu0766964-beep/9178/main/game/sim.js"
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/9178/main/app/assets/game/sim.js"
     }
   }
 }

@@ -19,7 +19,7 @@ ROOT = None
 OUT = 'cloud/manifest.json'
 VERSION_CODE = 0
 VERSION_NAME = ''
-CDN = 'https://raw.githubusercontent.com/gu0766964-beep/9178/main/'
+CDN = 'https://raw.githubusercontent.com/gu0766964-beep/9178/main/app/assets/'
 
 
 def md5_file(path):
