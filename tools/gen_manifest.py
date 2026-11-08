@@ -19,7 +19,7 @@ ROOT = None
 OUT = 'cloud/manifest.json'
 VERSION_CODE = 0
 VERSION_NAME = ''
-CDN = 'https://raw.githubusercontent.com/gu0766964-beep/survivor_patch/'
+CDN = 'https://raw.githubusercontent.com/gu0766964-beep/9178/main/'
 
 
 def md5_file(path):
@@ -30,13 +30,29 @@ def md5_file(path):
     return h.hexdigest()
 
 
+def scanned_files(root):
+    """git 追踪的文件集合（排除 .gitignore 里的大媒体/构建产物）"""
+    import subprocess
+    tracked = set()
+    try:
+        out = subprocess.run(['git', 'ls-files', root], capture_output=True, text=True, check=True)
+        # 相对于根路径去掉目录前缀
+        tracked = { t[len(root) + 1:] for t in out.stdout.strip().split('\n') if t.startswith(root) }
+    except Exception:
+        tracked = set(x[x.find(root) + len(root) + 1:] for x in out.stdout.strip().split('\n') if x.startswith(root))
+    return tracked
+
+
 def scan(root):
-    """把全部文件以相对路径为 key 扫描出来（只扫游戏资源，非资源不关心的不扫）"""
+    """扫描全部被 git 追踪的游戏资源（只上传这些文件，余下的大媒体留在 APK 本地）"""
+    tracked = scanned_files(root)
     out = {}
     for dp, _, names in os.walk(root):
         for n in names:
             p = os.path.join(dp, n)
             rel = os.path.relpath(p, root)
+            if rel not in tracked:
+                continue  # 未进版本控制的大文件不塞进云端
             out[rel] = {
                 'size': os.path.getsize(p),
                 'md5': md5_file(p),

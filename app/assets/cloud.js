@@ -213,7 +213,8 @@
     var list = []
     for (var i = 0; i < SCRIPTS.length; i++) {
       var p = SCRIPTS[i] + '.js'
-      var url = location.protocol + '//' + location.host + location.pathname + 'game/' + p
+      var dir = location.pathname.substring(0, location.pathname.lastIndexOf('/') + 1)
+      var url = location.protocol + '//' + location.host + dir + 'game/' + p
       var text = null
       try { text = await get(url, 'text') }
       catch (e) { console.warn('[cloud] 本地脚本加载失败: ' + p); continue }
@@ -250,12 +251,15 @@
 
   /* 标记状态 */
   function markState(s) {
-    try { metaPut(STATE_KEY, s) } catch (e) { }
+    try { localStorage.setItem(STATE_KEY, s) } catch (e) { }
+    try { window.__mowState = s } catch (e) { }
+    if (!db) return
+    var p = metaPut(STATE_KEY, s)
+    p.catch(function (e) { console.warn('[cloud] 状态写入 DB 失败: ' + e.message) })
   }
 
   /* ------------------ 入口 ------------------ */
   async function init() {
-    console.log('[debug] init 被调用')
     var state = 'local'
     try { state = await metaGet(STATE_KEY) } catch (e) { }
     if (!state) state = 'local'
@@ -278,9 +282,7 @@
     }
 
     /* ---- 正常本地启动 ---- */
-    try { await openDB() } catch (e) { return }
-    var m = null
-    try { m = await checkForUpdate() } catch (e) { m = null }
+    var m = await checkForUpdate()
     if (!m) {
       /* 没有更新或者无网络 → 本地启动 */
       markState('local')
@@ -289,6 +291,7 @@
     }
     /* 有更新 → 下载文件 */
     markState('cdn')
+    try { await openDB() } catch (e) { openErr(); return }
     var r = await downloadFiles(m)
     /* 关键文件下载失败就回滚 */
     if (r.bad.length > 0 && r.ok.length === 0) {
@@ -303,7 +306,7 @@
   function openErr() {
     /* IndexedDB 不可用 → 全部本地 */
     markState('local')
-    window.__mowState = 'local'
+    console.warn('[cloud] 状态不可用，降级为本地启动')
   }
 
   /* 页面加载完再启动 */

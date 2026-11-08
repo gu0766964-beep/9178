@@ -181,16 +181,16 @@
   var BUILTIN_ID = '__builtin__'
   var BUILTIN_TRACKS = [
     { id: BUILTIN_ID, name: '内置 · 极夜回廊', builtin: 'synth' },
-    { id: '__builtin_yuai__', name: '内置 · 雨爱', builtin: 'file', url: 'music/yuai.mp3' },
-    { id: '__builtin_onemore__', name: '内置 · One More Last Time', builtin: 'file', url: 'music/onemore.mp3' },
-    { id: '__builtin_geiniya__', name: '内置 · 给你呀', builtin: 'file', url: 'music/geiniya.mp3' },
-    { id: '__builtin_twg__', name: '内置 · 滕王阁小曲', builtin: 'file', url: 'music/tengwangge.mp3' },
-    { id: '__builtin_zhidui__', name: '内置 · 只对你有感觉', builtin: 'file', url: 'music/zhidui.mp3' },
-    { id: '__builtin_bjj__', name: '内置 · 不将就', builtin: 'file', url: 'music/bujiangjiu.m4a' },
-    { id: '__builtin_nzj__', name: '内置 · 你最近过的还好吗', builtin: 'file', url: 'music/nizuijin.mp3' },
-    { id: '__builtin_di57__', name: '内置 · 第57次取消发送', builtin: 'file', url: 'music/di57.mp3' },
-    { id: '__builtin_wml__', name: '内置 · 我们俩', builtin: 'file', url: 'music/womenlia.mp3' },
-    { id: '__builtin_mss__', name: '内置 · 魔术师', builtin: 'file', url: 'music/moshoushi.mp3' }
+    { id: '__builtin_yuai__', name: '内置 · 雨爱', builtin: 'file', url: window.__mowAsset('music/yuai.mp3') },
+    { id: '__builtin_onemore__', name: '内置 · One More Last Time', builtin: 'file', url: window.__mowAsset('music/onemore.mp3') },
+    { id: '__builtin_geiniya__', name: '内置 · 给你呀', builtin: 'file', url: window.__mowAsset('music/geiniya.mp3') },
+    { id: '__builtin_twg__', name: '内置 · 滕王阁小曲', builtin: 'file', url: window.__mowAsset('music/tengwangge.mp3') },
+    { id: '__builtin_zhidui__', name: '内置 · 只对你有感觉', builtin: 'file', url: window.__mowAsset('music/zhidui.mp3') },
+    { id: '__builtin_bjj__', name: '内置 · 不将就', builtin: 'file', url: window.__mowAsset('music/bujiangjiu.m4a') },
+    { id: '__builtin_nzj__', name: '内置 · 你最近过的还好吗', builtin: 'file', url: window.__mowAsset('music/nizuijin.mp3') },
+    { id: '__builtin_di57__', name: '内置 · 第57次取消发送', builtin: 'file', url: window.__mowAsset('music/di57.mp3') },
+    { id: '__builtin_wml__', name: '内置 · 我们俩', builtin: 'file', url: window.__mowAsset('music/womenlia.mp3') },
+    { id: '__builtin_mss__', name: '内置 · 魔术师', builtin: 'file', url: window.__mowAsset('music/moshoushi.mp3') },
   ]
   var musicEl = null
   var musicTrackId = ''
