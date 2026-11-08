@@ -19,7 +19,7 @@ ROOT = None
 OUT = 'cloud/manifest.json'
 VERSION_CODE = 0
 VERSION_NAME = ''
-CDN = 'https://gitee.com/mow-survivor/survivor_raw/main/cloud/patch/'
+CDN = 'https://raw.githubusercontent.com/gu0766964-beep/survivor_patch/'
 
 
 def md5_file(path):

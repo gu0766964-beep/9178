@@ -1,127 +1,127 @@
 {
   "versionCode": 41,
   "versionName": "2.5.13",
-  "cdn": "https://gitee.com/mow-survivor/survivor_raw/main/cloud/patch/",
+  "cdn": "https://raw.githubusercontent.com/gu0766964-beep/survivor_patch/",
   "files": {
     "cloud.js": {
-      "size": 10248,
-      "md5": "95f4c1de2d37001ffad4bcda0d6ae78d",
-      "url": "https://gitee.com/mow-survivor/survivor_raw/main/cloud/patch/cloud.js"
+      "size": 10276,
+      "md5": "2d6acd6c3081884b269b02108b8ea66c",
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/survivor_patch/cloud.js"
     },
     "index.html": {
       "size": 29894,
       "md5": "9cf02e105b098f06ab317f75998bfee9",
-      "url": "https://gitee.com/mow-survivor/survivor_raw/main/cloud/patch/index.html"
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/survivor_patch/index.html"
     },
     "_test.html": {
       "size": 6581,
       "md5": "401051509d144740db21d01a6e27748b",
-      "url": "https://gitee.com/mow-survivor/survivor_raw/main/cloud/patch/_test.html"
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/survivor_patch/_test.html"
     },
     "game/sim.js": {
       "size": 82616,
       "md5": "11d633199ff27b7f54b4938cb84c1b57",
-      "url": "https://gitee.com/mow-survivor/survivor_raw/main/cloud/patch/game/sim.js"
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/survivor_patch/game/sim.js"
     },
     "game/render.js": {
       "size": 46638,
       "md5": "d1ce7b9688187b2fb486e7fec026911b",
-      "url": "https://gitee.com/mow-survivor/survivor_raw/main/cloud/patch/game/render.js"
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/survivor_patch/game/render.js"
     },
     "game/main.js": {
       "size": 70161,
       "md5": "d0e4a0fc8e5229b3e40dd8f9145a2078",
-      "url": "https://gitee.com/mow-survivor/survivor_raw/main/cloud/patch/game/main.js"
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/survivor_patch/game/main.js"
     },
     "music/yuai.mp3": {
       "size": 4140013,
       "md5": "4af92bc97927cbc3f545a113e89acb74",
-      "url": "https://gitee.com/mow-survivor/survivor_raw/main/cloud/patch/music/yuai.mp3"
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/survivor_patch/music/yuai.mp3"
     },
     "music/onemore.mp3": {
       "size": 2044280,
       "md5": "77584e6e2cfdf21aa0d167e8082f7f64",
-      "url": "https://gitee.com/mow-survivor/survivor_raw/main/cloud/patch/music/onemore.mp3"
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/survivor_patch/music/onemore.mp3"
     },
     "music/geiniya.mp3": {
       "size": 2394081,
       "md5": "47a0151f69313081e41c045eeadbd257",
-      "url": "https://gitee.com/mow-survivor/survivor_raw/main/cloud/patch/music/geiniya.mp3"
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/survivor_patch/music/geiniya.mp3"
     },
     "music/tengwangge.mp3": {
       "size": 681345,
       "md5": "551600cf1e01e5547d3784edb28459dd",
-      "url": "https://gitee.com/mow-survivor/survivor_raw/main/cloud/patch/music/tengwangge.mp3"
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/survivor_patch/music/tengwangge.mp3"
     },
     "music/zhidui.mp3": {
       "size": 2678519,
       "md5": "563a83538bf18c5be44bbafefb30548c",
-      "url": "https://gitee.com/mow-survivor/survivor_raw/main/cloud/patch/music/zhidui.mp3"
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/survivor_patch/music/zhidui.mp3"
     },
     "music/bujiangjiu.m4a": {
       "size": 4457436,
       "md5": "2e54552c253cc94da8a72381748c48e1",
-      "url": "https://gitee.com/mow-survivor/survivor_raw/main/cloud/patch/music/bujiangjiu.m4a"
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/survivor_patch/music/bujiangjiu.m4a"
     },
     "music/nizuijin.mp3": {
       "size": 2689849,
       "md5": "82d9b335abef0fb10439c6c9104387ab",
-      "url": "https://gitee.com/mow-survivor/survivor_raw/main/cloud/patch/music/nizuijin.mp3"
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/survivor_patch/music/nizuijin.mp3"
     },
     "music/di57.mp3": {
       "size": 2890888,
       "md5": "1442c707d7489ea09e584df9eccd9e7e",
-      "url": "https://gitee.com/mow-survivor/survivor_raw/main/cloud/patch/music/di57.mp3"
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/survivor_patch/music/di57.mp3"
     },
     "music/womenlia.mp3": {
       "size": 3073605,
       "md5": "68469c5ed1e8d3ef4868125a59519a75",
-      "url": "https://gitee.com/mow-survivor/survivor_raw/main/cloud/patch/music/womenlia.mp3"
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/survivor_patch/music/womenlia.mp3"
     },
     "music/moshoushi.mp3": {
       "size": 2925759,
       "md5": "ed3ce408b02607fea4e8744e9bcf729d",
-      "url": "https://gitee.com/mow-survivor/survivor_raw/main/cloud/patch/music/moshoushi.mp3"
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/survivor_patch/music/moshoushi.mp3"
     },
     "bg/1.mp4": {
       "size": 36543633,
       "md5": "bf7d81e9727417581ab388d2a0198e8d",
-      "url": "https://gitee.com/mow-survivor/survivor_raw/main/cloud/patch/bg/1.mp4"
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/survivor_patch/bg/1.mp4"
     },
     "bg/2.mp4": {
       "size": 9894077,
       "md5": "59d4f32974c610d4378fa1ca25d3f84a",
-      "url": "https://gitee.com/mow-survivor/survivor_raw/main/cloud/patch/bg/2.mp4"
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/survivor_patch/bg/2.mp4"
     },
     "bg/3.mp4": {
       "size": 6121599,
       "md5": "2467f8b4d7c8ada67b81cb2b9b866f85",
-      "url": "https://gitee.com/mow-survivor/survivor_raw/main/cloud/patch/bg/3.mp4"
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/survivor_patch/bg/3.mp4"
     },
     "bg/5.mp4": {
       "size": 7622483,
       "md5": "736b592b0db2043238af53c2ccc25004",
-      "url": "https://gitee.com/mow-survivor/survivor_raw/main/cloud/patch/bg/5.mp4"
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/survivor_patch/bg/5.mp4"
     },
     "bg/7.mp4": {
       "size": 26395226,
       "md5": "cea57a661cd7e23098bd63038111fd96",
-      "url": "https://gitee.com/mow-survivor/survivor_raw/main/cloud/patch/bg/7.mp4"
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/survivor_patch/bg/7.mp4"
     },
     "bg/4.mp4": {
       "size": 14411649,
       "md5": "d78e16cb1f6c9f2acb91f8ec1fb9104e",
-      "url": "https://gitee.com/mow-survivor/survivor_raw/main/cloud/patch/bg/4.mp4"
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/survivor_patch/bg/4.mp4"
     },
     "bg/6.mp4": {
       "size": 7899031,
       "md5": "dc1b287213eb2c5cf0d40b979d9aaccd",
-      "url": "https://gitee.com/mow-survivor/survivor_raw/main/cloud/patch/bg/6.mp4"
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/survivor_patch/bg/6.mp4"
     },
     "bg/8.mp4": {
       "size": 23400798,
       "md5": "2e0343b8995669d4f4789ea30f32e24e",
-      "url": "https://gitee.com/mow-survivor/survivor_raw/main/cloud/patch/bg/8.mp4"
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/survivor_patch/bg/8.mp4"
     }
   }
 }
