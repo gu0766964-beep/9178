@@ -1,0 +1,42 @@
+{
+  "protocol": "方案二：平移/形变模拟行走",
+  "image": "/tmp/solution2_shift.png",
+  "frameCount": 4,
+  "fps": 12,
+  "animationType": "walking",
+  "effects": "bounce",
+  "frames": [
+    {
+      "id": 0,
+      "name": "walk_0",
+      "x": 0,
+      "y": 0,
+      "width": 128,
+      "height": 85
+    },
+    {
+      "id": 1,
+      "name": "walk_1",
+      "x": 128,
+      "y": 0,
+      "width": 128,
+      "height": 85
+    },
+    {
+      "id": 2,
+      "name": "walk_2",
+      "x": 256,
+      "y": 0,
+      "width": 128,
+      "height": 85
+    },
+    {
+      "id": 3,
+      "name": "walk_3",
+      "x": 384,
+      "y": 0,
+      "width": 128,
+      "height": 85
+    }
+  ]
+}

@@ -7,13 +7,14 @@
 # 从 APK assets 目录扫描全部游戏资源，算 md5，输出 cloud/manifest.json
 # 用于 cloud.js 做版本检测 + 文件热更。版本 code 从旧 manifest 自动 +1，
 # 除非用 --version 参数显式指定。
+#
+# 注意：音乐/视频等大媒体文件不上传云端，它们已内置在 APK 里。
 
 import os
 import sys
 import json
 import hashlib
 import argparse
-import glob
 
 ROOT = None
 OUT = 'cloud/manifest.json'
@@ -21,6 +22,15 @@ VERSION_CODE = 0
 VERSION_NAME = ''
 CDN = 'https://raw.githubusercontent.com/gu0766964-beep/9178/main/app/assets/'
 
+def exclude_asset(rel_path):
+    """不让大媒体文件上云：音乐/背景视频/音效。"""
+    rel = rel_path.replace('\\', '/')
+    if '/' in rel and rel.split('/')[1] in ('music', 'bg', 'audio'):
+        return True
+    for ext in ('.mp3', '.mp4', '.wav', '.ogg', '.wma', '.flac'):
+        if rel_path.lower().endswith(ext):
+            return True
+    return False
 
 def md5_file(path):
     h = hashlib.md5()
@@ -29,13 +39,8 @@ def md5_file(path):
             h.update(chunk)
     return h.hexdigest()
 
-
 def scan(root):
-    """扫描 app/assets 下的全部资源（含音乐与背景视频，全部上传云端）。
-
-    只排除以 _ 开头的开发期临时文件（_test.html / probe_*.html 等，
-    与 build_apk.py 的打包排除规则一致）。
-    """
+    """扫描 app/assets 下的游戏文件（排除音乐/视频等大媒体）。"""
     out = {}
     for dp, _, names in os.walk(root):
         for n in names:
@@ -43,13 +48,14 @@ def scan(root):
                 continue
             p = os.path.join(dp, n)
             rel = os.path.relpath(p, root)
+            if exclude_asset(rel):
+                continue
             out[rel] = {
                 'size': os.path.getsize(p),
                 'md5': md5_file(p),
                 'url': CDN + rel,
             }
     return out
-
 
 def gen():
     global ROOT, OUT, VERSION_CODE, VERSION_NAME, CDN
@@ -107,7 +113,6 @@ def gen():
 
     print('wrote %s (versionCode=%d, files=%d)' % (OUT, VERSION_CODE, len(files)))
     return manifest
-
 
 if __name__ == '__main__':
     gen()

@@ -1,0 +1,127 @@
+{
+  "versionCode": 48,
+  "versionName": "2.5.15-rc.1",
+  "cdn": "https://raw.githubusercontent.com/gu0766964-beep/9178/main/app/assets/",
+  "apkUrl": "http://127.0.0.1:4192/48.apk",
+  "notice": {
+    "add": [
+      "修复公告弹窗被首页遮罩挡住 ；加入漏洞测试",
+      "香蕉不支持显示的测试条目（含作弊码）"
+    ],
+    "fix": [
+      "修了一个 bug 含作弊码请不要乱试"
+    ]
+  },
+  "files": {
+    "index.html": {
+      "size": 29978,
+      "md5": "cc883863663216d32247006847fe21e5",
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/9178/main/app/assets/index.html"
+    },
+    "music/yuai.mp3": {
+      "size": 4140013,
+      "md5": "4af92bc97927cbc3f545a113e89acb74",
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/9178/main/app/assets/music/yuai.mp3"
+    },
+    "music/onemore.mp3": {
+      "size": 2044280,
+      "md5": "77584e6e2cfdf21aa0d167e8082f7f64",
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/9178/main/app/assets/music/onemore.mp3"
+    },
+    "music/geiniya.mp3": {
+      "size": 2394081,
+      "md5": "47a0151f69313081e41c045eeadbd257",
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/9178/main/app/assets/music/geiniya.mp3"
+    },
+    "music/tengwangge.mp3": {
+      "size": 681345,
+      "md5": "551600cf1e01e5547d3784edb28459dd",
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/9178/main/app/assets/music/tengwangge.mp3"
+    },
+    "music/zhidui.mp3": {
+      "size": 2678519,
+      "md5": "563a83538bf18c5be44bbafefb30548c",
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/9178/main/app/assets/music/zhidui.mp3"
+    },
+    "music/bujiangjiu.m4a": {
+      "size": 4457436,
+      "md5": "2e54552c253cc94da8a72381748c48e1",
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/9178/main/app/assets/music/bujiangjiu.m4a"
+    },
+    "music/nizuijin.mp3": {
+      "size": 2689849,
+      "md5": "82d9b335abef0fb10439c6c9104387ab",
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/9178/main/app/assets/music/nizuijin.mp3"
+    },
+    "music/di57.mp3": {
+      "size": 2890888,
+      "md5": "1442c707d7489ea09e584df9eccd9e7e",
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/9178/main/app/assets/music/di57.mp3"
+    },
+    "music/womenlia.mp3": {
+      "size": 3073605,
+      "md5": "68469c5ed1e8d3ef4868125a59519a75",
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/9178/main/app/assets/music/womenlia.mp3"
+    },
+    "music/moshoushi.mp3": {
+      "size": 2925759,
+      "md5": "ed3ce408b02607fea4e8744e9bcf729d",
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/9178/main/app/assets/music/moshoushi.mp3"
+    },
+    "bg/1.mp4": {
+      "size": 36543633,
+      "md5": "bf7d81e9727417581ab388d2a0198e8d",
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/9178/main/app/assets/bg/1.mp4"
+    },
+    "bg/2.mp4": {
+      "size": 9894077,
+      "md5": "59d4f32974c610d4378fa1ca25d3f84a",
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/9178/main/app/assets/bg/2.mp4"
+    },
+    "bg/3.mp4": {
+      "size": 6121599,
+      "md5": "2467f8b4d7c8ada67b81cb2b9b866f85",
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/9178/main/app/assets/bg/3.mp4"
+    },
+    "bg/5.mp4": {
+      "size": 7622483,
+      "md5": "736b592b0db2043238af53c2ccc25004",
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/9178/main/app/assets/bg/5.mp4"
+    },
+    "bg/7.mp4": {
+      "size": 26395226,
+      "md5": "cea57a661cd7e23098bd63038111fd96",
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/9178/main/app/assets/bg/7.mp4"
+    },
+    "bg/4.mp4": {
+      "size": 14411649,
+      "md5": "d78e16cb1f6c9f2acb91f8ec1fb9104e",
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/9178/main/app/assets/bg/4.mp4"
+    },
+    "bg/6.mp4": {
+      "size": 7899031,
+      "md5": "dc1b287213eb2c5cf0d40b979d9aaccd",
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/9178/main/app/assets/bg/6.mp4"
+    },
+    "bg/8.mp4": {
+      "size": 23400798,
+      "md5": "2e0343b8995669d4f4789ea30f32e24e",
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/9178/main/app/assets/bg/8.mp4"
+    },
+    "game/main.js": {
+      "size": 70162,
+      "md5": "90df1df8587c8621543ad83ff6dd58ab",
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/9178/main/app/assets/game/main.js"
+    },
+    "game/render.js": {
+      "size": 46638,
+      "md5": "d1ce7b9688187b2fb486e7fec026911b",
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/9178/main/app/assets/game/render.js"
+    },
+    "game/sim.js": {
+      "size": 82616,
+      "md5": "11d633199ff27b7f54b4938cb84c1b57",
+      "url": "https://raw.githubusercontent.com/gu0766964-beep/9178/main/app/assets/game/sim.js"
+    }
+  }
+}
