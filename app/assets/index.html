@@ -285,51 +285,95 @@
   #noticeScreen .btn { margin: 0 16px 6px; text-decoration: none; display: block; }
   #noticeScreen .btn.ghost { margin: 0 16px 8px; }
   /* 历史公告面板：居中弹窗 */
-  #noticeHistoryScreen { z-index: 22; }
-  #noticeHistoryScreen .sheet { width: 100%; max-width: 560px; border-radius: 14px; overflow: hidden; background: var(--panel); }
-  #noticeHistoryScreen .menuTitle { font-size: 22px; letter-spacing: 4px; color: #fff; margin: 0 0 12px; padding: 14px 16px; background: rgba(0,0,0,0.25); }
-  #noticeHistoryScreen .backTop {
-    position: relative; display: inline-block; top: 10px; left: 12px;
+  .histPanel { z-index: 22; }
+  /* 面板比屏幕高时，flex 居中最容易把顶部（返回按钮/标题）裁掉：
+     改成顶部对齐 + sheet margin:auto，既保持居中又可滚动 */
+  .histPanel, #updateScreen { align-items: flex-start; }
+  .histPanel .sheet, #updateScreen .sheet { margin: auto; max-height: calc(100% - 28px); }
+  .histPanel .sheet {
+    width: 100%; max-width: 560px; border-radius: 14px; background: var(--panel);
+    display: flex; flex-direction: column; overflow: hidden; max-height: calc(100% - 28px);
   }
-  #noticeHistoryScreen .noticeList { padding: 0 14px; }
-  #noticeHistoryScreen .hItem {
+  .histPanel .menuTitle {
+    flex: 0 0 auto; font-size: 22px; letter-spacing: 4px; color: #fff; margin: 0 0 12px;
+    padding: 14px 86px; background: rgba(0,0,0,0.25);
+  }
+  /* 返回按钮固定在弹窗左上角（原先 inline-block 会被父级 text-align 居中） */
+  .histPanel .backTop { position: absolute; top: 10px; left: 10px; z-index: 3; }
+  /* 列表可独立滚动，历史版本再多也能下滑 */
+  .histPanel .noticeList {
+    flex: 1 1 auto; min-height: 0; padding: 0 14px; overflow-y: auto;
+    -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
+  }
+  .histPanel .hTip, .histPanel .btn { flex: 0 0 auto; }
+  .histPanel .hItem {
     font-size: 13px; color: #c3cee0; line-height: 1.65; margin-bottom: 12px;
     padding: 12px; border-radius: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
   }
-  #noticeHistoryScreen .hItem .hHead {
+  .histPanel .hItem .hHead {
     display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px;
   }
-  #noticeHistoryScreen .hItem .hVer { font-size: 15px; font-weight: 800; color: var(--accent-2); letter-spacing: 1px; }
-  #noticeHistoryScreen .hItem .hTime { font-size: 10px; color: rgba(232,242,236,0.38); letter-spacing: 0.5px; }
-  #noticeHistoryScreen .hItem .hType { font-size: 10px; padding: 2px 6px; border-radius: 999px; background: rgba(124,245,158,0.14); color: var(--accent); }
-  #noticeHistoryScreen .hItem ul { padding-left: 18px; margin: 4px 0 0; }
-  #noticeHistoryScreen .hItem li { font-size: 12px; color: #b0bec5; margin-bottom: 3px; }
-  #noticeHistoryScreen .hEmpty { font-size: 15px; color: rgba(232,242,236,0.35); text-align: center; padding: 40px 0; }
+  .histPanel .hItem .hVer { font-size: 15px; font-weight: 800; color: var(--accent-2); letter-spacing: 1px; }
+  .histPanel .hItem .hTime { font-size: 10px; color: rgba(232,242,236,0.38); letter-spacing: 0.5px; }
+  .histPanel .hItem .hType { font-size: 10px; padding: 2px 6px; border-radius: 999px; background: rgba(124,245,158,0.14); color: var(--accent); }
+  .histPanel .hItem ul { padding-left: 18px; margin: 4px 0 0; }
+  .histPanel .hItem li { font-size: 12px; color: #b0bec5; margin-bottom: 3px; }
+  .histPanel .hEmpty { font-size: 15px; color: rgba(232,242,236,0.35); text-align: center; padding: 40px 0; }
   /* 历史公告条目：点版本号展开该版「更新内容 / 问题修复」 */
-  #noticeHistoryScreen .hItem { padding: 0; overflow: hidden; }
-  #noticeHistoryScreen .hItem .hHead {
+  .histPanel .hItem { padding: 0; overflow: hidden; }
+  .histPanel .hItem .hHead {
     padding: 11px 12px; margin: 0; cursor: pointer; align-items: center;
     background: rgba(255,255,255,0.02); transition: background 0.15s;
   }
-  #noticeHistoryScreen .hItem .hHead:hover { background: rgba(89,220,255,0.08); }
-  #noticeHistoryScreen .hItem .hVer { border-bottom: 1px dashed rgba(89,220,255,0.5); padding-bottom: 1px; }
-  #noticeHistoryScreen .hItem .hArrow {
+  .histPanel .hItem .hHead:hover { background: rgba(89,220,255,0.08); }
+  .histPanel .hItem .hVer { border-bottom: 1px dashed rgba(89,220,255,0.5); padding-bottom: 1px; }
+  .histPanel .hItem .hArrow {
     margin-left: auto; font-size: 11px; color: rgba(232,242,236,0.4); transition: transform 0.18s;
   }
-  #noticeHistoryScreen .hItem.open .hArrow { transform: rotate(90deg); }
-  #noticeHistoryScreen .hItem .hBrief {
+  .histPanel .hItem.open .hArrow { transform: rotate(90deg); }
+  .histPanel .hItem .hBrief {
     font-size: 11px; color: rgba(232,242,236,0.45); padding: 0 12px 10px; margin-top: -4px;
   }
-  #noticeHistoryScreen .hItem .hBody { display: none; padding: 2px 12px 12px; }
-  #noticeHistoryScreen .hItem.open .hBody { display: block; }
-  #noticeHistoryScreen .hItem .hBody .noticeSec { margin: 8px 0 4px; font-size: 11px; letter-spacing: 1px; }
-  #noticeHistoryScreen .hItem .hBody ul { padding-left: 18px; margin: 2px 0 0; }
-  #noticeHistoryScreen .hItem .hBody li { font-size: 12px; color: #b0bec5; margin-bottom: 3px; }
-  #noticeHistoryScreen .hTip { font-size: 11px; color: rgba(232,242,236,0.38); text-align: center; margin: 0 14px 10px; }
+  .histPanel .hItem .hBody { display: none; padding: 2px 12px 12px; }
+  .histPanel .hItem.open .hBody { display: block; }
+  .histPanel .hItem .hBody .noticeSec { margin: 8px 0 4px; font-size: 11px; letter-spacing: 1px; }
+  .histPanel .hItem .hBody ul { padding-left: 18px; margin: 2px 0 0; }
+  .histPanel .hItem .hBody li { font-size: 12px; color: #b0bec5; margin-bottom: 3px; }
+  .histPanel .hTip { font-size: 11px; color: rgba(232,242,236,0.38); text-align: center; margin: 0 14px 10px; }
   /* 公告入口：首页左上角 */
   .noticeTop { position: absolute; top: 10px; left: 12px; z-index: 2; padding: 6px 14px; font-size: 13px; font-weight: 700; letter-spacing: 1px; color: #d9e9ff; background: rgba(255,255,255,0.06); border: 1px solid rgba(120,200,255,0.35); border-radius: 999px; }
   .noticeTop .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--gold); margin-left: 6px; vertical-align: 1px; display: none; }
   .noticeTop.hasNew .dot { display: inline-block; }
+  /* ---------- 云公告入口：屏幕左侧垂直居中 ---------- */
+  .cloudNoticeBtn {
+    position: absolute; left: 0; top: 50%; transform: translateY(-50%); z-index: 4;
+    writing-mode: vertical-rl; letter-spacing: 3px; padding: 16px 7px;
+    font-size: 13px; font-weight: 700; color: #d9e9ff;
+    background: rgba(20,26,38,0.72); border: 1px solid rgba(120,200,255,0.35); border-left: none;
+    border-radius: 0 12px 12px 0;
+  }
+  .cloudNoticeBtn .dot {
+    display: none; width: 7px; height: 7px; border-radius: 50%; background: var(--gold); margin: 6px auto 0;
+  }
+  .cloudNoticeBtn.hasNew .dot { display: block; }
+  /* ---------- 居中更新/公告弹窗：自动弹出（版本更新 / 云公告 / 本版公告） ---------- */
+  #updateScreen { z-index: 30; }
+  #updateScreen .sheet {
+    width: 100%; max-width: 520px; padding: 18px 0 10px; border-radius: 16px;
+    background: var(--panel); border: 1px solid var(--line);
+    display: flex; flex-direction: column; overflow: hidden; max-height: calc(100% - 28px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.55);
+  }
+  #updateScreen .updTitle {
+    flex: 0 0 auto; font-size: 21px; font-weight: 900; letter-spacing: 4px; color: #fff; text-align: center;
+  }
+  #updateScreen .updBody {
+    flex: 1 1 auto; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch;
+    padding: 0 18px; overscroll-behavior: contain;
+  }
+  #updateScreen .noticeList { padding-left: 20px; }
+  #updateScreen .btn { flex: 0 0 auto; margin: 8px 16px 0; text-decoration: none; display: block; }
+  #updateScreen .btn.ghost { margin: 8px 16px 4px; }
   .btn.danger {
     background: linear-gradient(180deg, #ff8fa3, #ff4d6d); color: #2a050d;
     box-shadow: 0 10px 30px rgba(255,77,109,0.28), inset 0 1px 0 rgba(255,255,255,0.5);
@@ -531,7 +575,7 @@
     </div>
   </div>
   <!-- 历史版本：所有版本公告，点版本号展开该版「更新内容 / 问题修复」 -->
-  <div class="overlay" id="noticeHistoryScreen">
+  <div class="overlay histPanel" id="noticeHistoryScreen">
     <div class="sheet">
       <button class="backTop" id="noticeHistoryBackBtn">‹ 返回</button>
       <div class="menuTitle">历史版本</div>
@@ -539,6 +583,35 @@
       <div class="hTip">点版本号查看该版本的更新内容与修复项</div>
       <ul class="noticeList" id="noticeHistoryList" style="min-height:200px"></ul>
       <button class="btn ghost" id="noticeOkHistory">关 闭</button>
+    </div>
+  </div>
+
+  <!-- 云公告历史：云端下发过的公告记录（热更新内容），入口在屏幕左侧垂直居中 -->
+  <div class="overlay histPanel" id="cloudNoticeHistoryScreen">
+    <div class="sheet">
+      <button class="backTop" id="cloudHistoryBackBtn">‹ 返回</button>
+      <div class="menuTitle">云 公 告</div>
+      <div class="noticeVer" id="cloudHistoryVer">暂无记录</div>
+      <div class="hTip">云端下发过的公告历史 · 点版本号展开查看</div>
+      <ul class="noticeList" id="cloudHistoryList" style="min-height:200px"></ul>
+      <button class="btn ghost" id="cloudHistoryOk">关 闭</button>
+    </div>
+  </div>
+
+  <!-- 居中更新/公告弹窗：进游戏自动检测到新版本时弹出，带「下载完整安装包」入口 -->
+  <div class="overlay" id="updateScreen">
+    <div class="sheet">
+      <div class="updTitle" id="updTitle">版本更新</div>
+      <div class="noticeVer" id="updVer"></div>
+      <div class="noticeTags" id="updTags"></div>
+      <div class="updBody">
+        <div class="noticeSec" id="updAddHead">✦ 本版更新</div>
+        <ul class="noticeList" id="updAdd"></ul>
+        <div class="noticeSec" id="updFixHead">✦ 问题修复</div>
+        <ul class="noticeList" id="updFix"></ul>
+      </div>
+      <a class="btn" id="updDl" href="#" style="display:none">下载完整安装包</a>
+      <button class="btn ghost" id="updOk">稍后再说</button>
     </div>
   </div>
 
@@ -629,6 +702,7 @@
   </div>
 
   <div class="overlay on" id="startScreen">
+    <button class="cloudNoticeBtn" id="cloudNoticeBtn">云公告<span class="dot" id="cloudNoticeDot"></span></button>
     <div class="sheet">
       <button class="noticeTop" id="noticeEntryBtn">公告<span class="dot" id="noticeEntryDot"></span></button>
       <button class="updTop" id="updBtn">⟳ 检查更新</button>

@@ -23,6 +23,8 @@
     'noticeScreen', 'noticeVer', 'noticeAdd', 'noticeFix', 'noticeFixHead', 'noticeDl', 'noticeOk', 'noticeBackBtn', 'noticeTags', 'noticeHistoryBtn',
     'noticeHistoryScreen', 'noticeHistoryVer', 'noticeHistoryList', 'noticeHistoryBackBtn', 'noticeOkHistory',
     'noticeEntryBtn', 'noticeEntryDot',
+    'cloudNoticeBtn', 'cloudNoticeDot', 'cloudNoticeHistoryScreen', 'cloudHistoryVer', 'cloudHistoryList', 'cloudHistoryBackBtn', 'cloudHistoryOk',
+    'updateScreen', 'updTitle', 'updVer', 'updTags', 'updAdd', 'updFix', 'updAddHead', 'updFixHead', 'updDl', 'updOk',
     'updBtn',
     'diffScreen', 'diffList', 'diffTip', 'diffBackBtn',
     'jobScreen', 'jobList', 'jobBackBtn', 'jobBtn', 'curJob',
@@ -645,6 +647,9 @@
     show(el.jobScreen, false)
     show(el.cheatScreen, false)
     show(el.noticeScreen, false)
+    show(el.noticeHistoryScreen, false)
+    show(el.cloudNoticeHistoryScreen, false)
+    show(el.updateScreen, false)
   }
 
   function refreshBestLabels() {
@@ -1548,7 +1553,12 @@
       if (phase === 'diff') { closeDiff(); return true }
       if (phase === 'jobs') { closeJobs(); return true }
       if (phase === 'cheat') { closeCheat(); return true }
-      if (phase === 'notice') { closeNotice(); return true }
+      if (phase === 'notice') {
+        if (popupOpen) { closePopup(); return true }
+        if (el.cloudNoticeHistoryScreen.classList.contains('on')) { closeCloudHistory(); return true }
+        if (el.noticeHistoryScreen.classList.contains('on')) { closeNoticeHistory(); return true }
+        closeNotice(); return true
+      }
       return false
     }
     if (phase === 'levelup') return true
@@ -1929,12 +1939,147 @@
     saveSeenHistory(h)
   }
 
-  // ---- 主公告面板（右侧滑帘）：冷更新 + 热更新合并展示 ----
+  /* ---- 本地存储键：本版公告已弹版本 / 云公告已弹 id / 云公告历史 ---- */
+  var LOCAL_VC_KEY = 'mow.notice.localvc'    // 已弹过公告的 APK 版本号（装新包后弹一次）
+  var CLOUD_ID_KEY = 'mow.cloudnotice.id'    // 已弹过的云公告 id（云公告只弹最新一条且不重复）
+  var CLOUD_HIST_KEY = 'mow.cloudnotice.history'
+  var CLOUD_HIST_MAX = 60
+
+  function getStore(k) {
+    try { return localStorage.getItem(k) || '' } catch (e) { return '' }
+  }
+  function setStore(k, v) {
+    try { localStorage.setItem(k, v) } catch (e) {}
+  }
+  function storeJson(k) {
+    try {
+      var v = JSON.parse(getStore(k) || '[]')
+      return Object.prototype.toString.call(v) === '[object Array]' ? v : []
+    } catch (e) { return [] }
+  }
+
+  function loadCloudHistory() { return storeJson(CLOUD_HIST_KEY) }
+
+  // 每收到一条新的云公告就留档，供「云公告」历史面板翻看
+  function saveCloudHistory(rec) {
+    if (!rec || !rec.id) return
+    var list = loadCloudHistory(), out = [rec]
+    list.forEach(function (x) { if (x && String(x.id) !== String(rec.id)) out.push(x) })
+    if (out.length > CLOUD_HIST_MAX) out = out.slice(0, CLOUD_HIST_MAX)
+    setStore(CLOUD_HIST_KEY, JSON.stringify(out))
+  }
+
+  // 云公告历史合并：本地留档 < 内置（随包） < 云端清单，按 id 去重
+  function mergeCloudHistory(cloudHist) {
+    var byId = {}, order = []
+    function put(e, w) {
+      if (!e) return
+      var id = String(e.noticeId || e.id || ((e.versionCode || '') + '@' + (e.date || '')))
+      if (!id || id === '@') return
+      var add = noticeFilter(e.add, true)
+      var fix = noticeFilter(e.fix)
+      var rec = byId[id]
+      if (!rec) {
+        if (!add.length && !fix.length) return
+        byId[id] = {
+          id: id, versionCode: parseInt(e.versionCode, 10) || 0,
+          versionName: e.versionName || '', date: e.date || '', add: add, fix: fix, w: w
+        }
+        order.push(id)
+        return
+      }
+      if (w < rec.w) return
+      if (add.length) rec.add = add
+      if (fix.length) rec.fix = fix
+      if (e.versionName) rec.versionName = e.versionName
+      if (e.date) rec.date = e.date
+      rec.w = w
+    }
+    loadCloudHistory().forEach(function (e) { put(e, 0) })
+    ;(LOCAL_NOTICE.cloudHistory || []).forEach(function (e) { put(e, 1) })
+    ;(cloudHist || []).forEach(function (e) { put(e, 2) })
+    var out = []
+    order.forEach(function (id) { out.push(byId[id]) })
+    out.sort(function (a, b) { return (b.versionCode - a.versionCode) || String(b.date).localeCompare(String(a.date)) })
+    return out.map(function (r) {
+      return { id: r.id, versionCode: r.versionCode, versionName: r.versionName, date: r.date, add: r.add, fix: r.fix }
+    })
+  }
+
+  var cloudNoticeHistory = mergeCloudHistory(null)
+
+  /* ---- 通用：渲染可折叠历史条目（历史版本 / 云公告历史共用） ---- */
+  function renderHistoryList(listEl, verEl, hist, opts) {
+    opts = opts || {}
+    var list = hist || []
+    verEl.textContent = list.length
+      ? (opts.verText || ('共 ' + list.length + ' 个版本'))
+      : (opts.emptyVer || '暂无记录')
+    if (!list.length) {
+      listEl.innerHTML = '<div class="hEmpty">' + escHtml(opts.emptyText || '没有历史公告') + '</div>'
+      return
+    }
+    var html = ''
+    list.forEach(function (it) {
+      var isNew = it.versionCode > LOCAL_VC
+      var isCur = it.versionCode === LOCAL_VC
+      var add = it.add || [], fix = it.fix || []
+      var brief = add[0] || fix[0] || ''
+      html += '<li class="hItem" data-vc="' + it.versionCode + '">'
+      html += '<div class="hHead">'
+      html += '<span class="hVer">v' + escHtml(it.versionName || String(it.versionCode)) + '</span>'
+      if (it.date) html += '<span class="hTime">' + escHtml(fmtDate(it.date)) + '</span>'
+      if (opts.tagOf) html += opts.tagOf(it, isNew, isCur)
+      else if (isNew) html += '<span class="hType" style="background:rgba(255,206,92,0.16);color:#ffce5c">新版</span>'
+      else if (isCur) html += '<span class="hType" style="background:rgba(89,220,255,0.14);color:#59dcff">当前</span>'
+      else html += '<span class="hType">冷更新</span>'
+      html += '<span class="hArrow">›</span>'
+      html += '</div>'
+      if (brief) html += '<div class="hBrief">' + escHtml(brief) + '</div>'
+      html += '<div class="hBody">'
+      if (add.length) {
+        html += '<div class="noticeSec">✦ 更新内容</div><ul>'
+        add.forEach(function (t) { html += '<li>' + escHtml(t) + '</li>' })
+        html += '</ul>'
+      }
+      if (fix.length) {
+        html += '<div class="noticeSec">✦ 问题修复</div><ul>'
+        fix.forEach(function (t) { html += '<li>' + escHtml(t) + '</li>' })
+        html += '</ul>'
+      }
+      if (!add.length && !fix.length) html += '<div class="hEmpty" style="padding:8px">该版本无公告内容</div>'
+      html += '</div></li>'
+    })
+    listEl.innerHTML = html
+  }
+
+  // 点条目头展开/收起该版详情
+  function bindHistoryToggle(listEl) {
+    listEl.addEventListener('click', function (ev) {
+      var node = ev.target
+      while (node && node !== listEl && String(node.className || '').indexOf('hHead') < 0) node = node.parentNode
+      if (!node || node === listEl) return
+      var item = node.parentNode
+      if (!item || String(item.className || '').indexOf('hItem') < 0) return
+      item.className = item.className.indexOf('open') >= 0
+        ? item.className.replace(/\s*open/, '')
+        : item.className + ' open'
+      sfx.click()
+    })
+  }
+
+  /* ---- 主公告面板（右侧滑帘）：冷更新 + 热更新合并展示 ---- */
   function showNotice(j) {
+    j = j || {}
     hideMenuOverlays()
     phase = 'notice'
     var add = noticeFilter(j.notice && j.notice.add, true)
     var fix = noticeFilter(j.notice && j.notice.fix)
+    if (!add.length && !fix.length) {
+      // 无参数调用（首页手动看公告）时用 APK 内置的本版公告
+      add = noticeFilter(LOCAL_NOTICE.notice && LOCAL_NOTICE.notice.add, true)
+      fix = noticeFilter(LOCAL_NOTICE.notice && LOCAL_NOTICE.notice.fix)
+    }
     el.noticeAdd.innerHTML = add.length
       ? add.map(function (t) { return '<li>' + escHtml(t) + '</li>' }).join('')
       : '<li>本版以稳定性与性能优化为主</li>'
@@ -1942,8 +2087,8 @@
     el.noticeFixHead.style.display = fix.length ? '' : 'none'
     el.noticeFix.style.display = fix.length ? '' : 'none'
 
-    var vc = parseInt(j.versionCode, 10) || 0
-    var vn = j.versionName || String(vc)
+    var vc = parseInt(j.versionCode, 10) || LOCAL_VC
+    var vn = j.versionName || LOCAL_VN
     var needPkg = vc > LOCAL_VC
 
     // 标签：需要装包 -> 冷更新；公告本身已生效 -> 热更新
@@ -1965,7 +2110,7 @@
       el.noticeDl.style.display = 'none'
     }
 
-    noticeHistory = mergeNoticeHistory(null)
+    noticeHistory = mergeNoticeHistory(cloudManifest ? cloudManifest.history : null)
     el.noticeEntryBtn.classList.remove('hasNew') // 公告已展示 = 已读，首页红点熄灭
     show(el.noticeScreen, true)
     sfx.level()
@@ -1986,44 +2131,13 @@
     historyBackTo = from || 'start'
     hideMenuOverlays()
     show(el.startScreen, false)
+    phase = 'notice'
     var h = noticeHistory
-    el.noticeHistoryVer.textContent = h.length
-      ? '共 ' + h.length + ' 个版本 · 当前 v' + LOCAL_VN
-      : '暂无历史记录'
-    if (!h.length) {
-      el.noticeHistoryList.innerHTML = '<div class="hEmpty">没有历史公告</div>'
-    } else {
-      var html = ''
-      h.forEach(function (it) {
-        var isNew = it.versionCode > LOCAL_VC
-        var isCur = it.versionCode === LOCAL_VC
-        var brief = it.add[0] || it.fix[0] || ''
-        html += '<li class="hItem" data-vc="' + it.versionCode + '">'
-        html += '<div class="hHead">'
-        html += '<span class="hVer">v' + escHtml(it.versionName) + '</span>'
-        if (it.date) html += '<span class="hTime">' + escHtml(fmtDate(it.date)) + '</span>'
-        if (isNew) html += '<span class="hType" style="background:rgba(255,206,92,0.16);color:#ffce5c">新版</span>'
-        else if (isCur) html += '<span class="hType" style="background:rgba(89,220,255,0.14);color:#59dcff">当前</span>'
-        else html += '<span class="hType">冷更新</span>'
-        html += '<span class="hArrow">›</span>'
-        html += '</div>'
-        if (brief) html += '<div class="hBrief">' + escHtml(brief) + '</div>'
-        html += '<div class="hBody">'
-        if (it.add.length) {
-          html += '<div class="noticeSec">✦ 更新内容</div><ul>'
-          it.add.forEach(function (t) { html += '<li>' + escHtml(t) + '</li>' })
-          html += '</ul>'
-        }
-        if (it.fix.length) {
-          html += '<div class="noticeSec">✦ 问题修复</div><ul>'
-          it.fix.forEach(function (t) { html += '<li>' + escHtml(t) + '</li>' })
-          html += '</ul>'
-        }
-        if (!it.add.length && !it.fix.length) html += '<div class="hEmpty" style="padding:8px">该版本无公告内容</div>'
-        html += '</div></li>'
-      })
-      el.noticeHistoryList.innerHTML = html
-    }
+    renderHistoryList(el.noticeHistoryList, el.noticeHistoryVer, h, {
+      verText: '共 ' + h.length + ' 个版本 · 当前 v' + LOCAL_VN,
+      emptyVer: '暂无历史记录',
+      emptyText: '没有历史公告'
+    })
     show(el.noticeHistoryScreen, true)
     sfx.level()
   }
@@ -2032,6 +2146,7 @@
     show(el.noticeHistoryScreen, false)
     if (historyBackTo === 'notice') {
       // 从公告面板进来：返回公告面板，同时把首页恢复成背景（公告是覆盖在首页上的滑帘）
+      phase = 'notice'
       show(el.startScreen, true)
       show(el.noticeScreen, true)
     } else {
@@ -2039,6 +2154,104 @@
       show(el.startScreen, true)
     }
     sfx.click()
+  }
+
+  /* ================= 云公告历史（需求 6） =================
+     云端下发的公告单独留一份记录，入口在屏幕左侧垂直居中；
+     与「历史版本」分开：这里只看云端下发过的公告（热更新内容）。 */
+  function openCloudHistory() {
+    hideMenuOverlays()
+    show(el.startScreen, false)
+    phase = 'notice'
+    var h = cloudNoticeHistory
+    renderHistoryList(el.cloudHistoryList, el.cloudHistoryVer, h, {
+      verText: h.length ? '共 ' + h.length + ' 条 · 最新 v' + (h[0].versionName || h[0].versionCode) : '暂无云公告记录',
+      emptyVer: '暂无云公告记录',
+      emptyText: '还没有收到云端下发的公告',
+      tagOf: function (it, isNew, isCur) {
+        if (isCur) return '<span class="hType" style="background:rgba(89,220,255,0.14);color:#59dcff">当前</span>'
+        if (isNew) return '<span class="hType" style="background:rgba(255,206,92,0.16);color:#ffce5c">云下发</span>'
+        return '<span class="hType" style="background:rgba(255,206,92,0.12);color:#ffce5c">云下发</span>'
+      }
+    })
+    show(el.cloudNoticeHistoryScreen, true)
+    sfx.level()
+  }
+
+  function closeCloudHistory() {
+    show(el.cloudNoticeHistoryScreen, false)
+    phase = 'menu'
+    show(el.startScreen, true)
+    sfx.click()
+  }
+
+  /* ================= 居中弹窗（需求 3/4/5/7） =================
+     - 每次进游戏自动检测版本：有新版就居中弹「版本更新」，带「下载完整安装包」按钮
+     - 装新包后第一次进游戏：弹一次本版内置公告（冷更新）
+     - 云下发公告：必弹、只弹最新一条，弹过就不再弹；之后可在「云公告」里的历史查看 */
+  var popupOpen = false
+  var POPUP_QUEUE = []
+
+  function enqueuePopup(item) {
+    POPUP_QUEUE.push(item)
+  }
+
+  function renderPopup(it) {
+    popupOpen = true
+    hideMenuOverlays()
+    show(el.startScreen, false)
+    phase = 'notice'
+    el.updTitle.textContent = it.title || '游戏公告'
+    el.updVer.textContent = it.verText || ''
+    el.updTags.innerHTML = (it.tags || []).join('')
+    var add = it.add || [], fix = it.fix || []
+    el.updAdd.innerHTML = add.length
+      ? add.map(function (t) { return '<li>' + escHtml(t) + '</li>' }).join('')
+      : '<li>本版以稳定性与性能优化为主</li>'
+    el.updFix.innerHTML = fix.map(function (t) { return '<li>' + escHtml(t) + '</li>' }).join('')
+    el.updFixHead.style.display = fix.length ? '' : 'none'
+    el.updFix.style.display = fix.length ? '' : 'none'
+    if (it.apkUrl) {
+      var size = fmtSize(it.apkSize)
+      el.updDl.style.display = ''
+      el.updDl.href = it.apkUrl
+      el.updDl.textContent = '下载完整安装包' + (size ? ' · ' + size : '')
+      el.updOk.textContent = '稍后再说'
+    } else {
+      el.updDl.style.display = 'none'
+      el.updOk.textContent = '知 道 了'
+    }
+    // 弹过即标记已读：云公告按 noticeId 去重，本版公告按 versionCode 去重
+    if (it.markCloudId) {
+      setStore(CLOUD_ID_KEY, String(it.markCloudId))
+      el.cloudNoticeBtn.classList.remove('hasNew')
+    }
+    if (it.markLocalVc) {
+      setStore(LOCAL_VC_KEY, String(it.markLocalVc))
+      el.noticeEntryBtn.classList.remove('hasNew')
+    }
+    show(el.updateScreen, true)
+    sfx.level()
+  }
+
+  function pumpPopup() {
+    if (popupOpen) return
+    if (!POPUP_QUEUE.length) return
+    renderPopup(POPUP_QUEUE.shift())
+  }
+
+  function restoreAfterPopup() {
+    show(el.updateScreen, false)
+    if (phase === 'notice') phase = 'menu'
+    show(el.startScreen, true)
+  }
+
+  function closePopup() {
+    show(el.updateScreen, false)
+    popupOpen = false
+    sfx.click()
+    if (POPUP_QUEUE.length) { pumpPopup(); return }
+    restoreAfterPopup()
   }
 
   // ---- 检查更新：拉云端清单（只有公告与版本元数据可热更新） ----
@@ -2054,25 +2267,70 @@
         if (!j || !j.versionCode) throw new Error('bad manifest')
         cloudManifest = j
         noticeHistory = mergeNoticeHistory(j.history)
-        var sig = noticeSignature(j)
-        var readSig = ''
-        try { readSig = localStorage.getItem(NOTICE_SIG_KEY) || '' } catch (e) {}
-        var vc = parseInt(j.versionCode, 10) || 0
-        var needPkg = vc > LOCAL_VC
-        var noticeChanged = sig !== readSig
+        cloudNoticeHistory = mergeCloudHistory(j.noticeHistory)
 
-        if (needPkg || noticeChanged) {
+        var vc = parseInt(j.versionCode, 10) || 0
+        var vn = j.versionName || String(vc)
+        var dateTxt = j.date ? ' · ' + fmtDate(j.date) : ''
+        var needPkg = vc > LOCAL_VC
+
+        var cloudAdd = noticeFilter(j.notice && j.notice.add, true)
+        var cloudFix = noticeFilter(j.notice && j.notice.fix)
+        var hasCloud = !!(cloudAdd.length || cloudFix.length)
+        var cloudId = j.noticeId ? String(j.noticeId) : noticeSignature(j)
+
+        if (hasCloud) {
+          saveCloudHistory({ id: cloudId, versionCode: vc, versionName: vn, date: j.date || '', add: cloudAdd, fix: cloudFix })
+          cloudNoticeHistory = mergeCloudHistory(j.noticeHistory)
+        }
+
+        var cloudPending = hasCloud && getStore(CLOUD_ID_KEY) !== cloudId
+        var localPending = getStore(LOCAL_VC_KEY) !== String(LOCAL_VC)
+
+        if (needPkg) {
+          // 需求 3/7：有版本更新 -> 居中弹更新公告，必带下载入口
+          enqueuePopup({
+            title: '版本更新',
+            verText: '新版本 v' + vn + ' 已发布（当前 v' + LOCAL_VN + '）' + dateTxt,
+            tags: ['<span class="noticeTag cold">冷更新 · 需安装完整包</span>',
+                   '<span class="noticeTag hot">公告已即时生效</span>'],
+            add: cloudAdd, fix: cloudFix,
+            apkUrl: j.apkUrl || '', apkSize: j.apkSize || 0,
+            markCloudId: hasCloud ? cloudId : '',
+            markLocalVc: LOCAL_VC // 更新公告已含最新内容，不再重复弹本版公告
+          })
           el.noticeEntryBtn.classList.add('hasNew')
-          if (noticeChanged) {
-            // 有新公告：自动弹（手动检查时总是弹）
-            try { localStorage.setItem(NOTICE_SIG_KEY, sig) } catch (e) {}
-            markSeen(vc, j.versionName)
-            showNotice(j)
-            if (needPkg) toast('发现新版本 v' + (j.versionName || vc) + ' · 需安装完整包')
-            else toast('公告已热更新')
-          } else if (!quiet) {
-            toast('已有新版 v' + (j.versionName || vc) + ' · 请下载完整安装包')
-          }
+          if (cloudPending) el.cloudNoticeBtn.classList.add('hasNew')
+        } else if (cloudPending) {
+          // 需求 5：云公告必弹，只弹最新一条，弹完不再弹
+          enqueuePopup({
+            title: '游戏公告',
+            verText: '公告已更新 · v' + vn + dateTxt,
+            tags: ['<span class="noticeTag hot">热更新 · 公告已即时生效</span>'],
+            add: cloudAdd, fix: cloudFix,
+            markCloudId: cloudId
+          })
+          el.cloudNoticeBtn.classList.add('hasNew')
+        }
+        if (!needPkg && localPending) {
+          // 需求 4：装新包后第一次进游戏，弹一次本版内置公告（与云公告可以先后各弹一次）
+          var ln = LOCAL_NOTICE.notice || {}
+          var lAdd = noticeFilter(ln.add, true)
+          var lFix = noticeFilter(ln.fix)
+          enqueuePopup({
+            title: '游戏公告',
+            verText: '本版更新 · v' + LOCAL_VN + (LOCAL_NOTICE.date ? ' · ' + fmtDate(LOCAL_NOTICE.date) : ''),
+            tags: ['<span class="noticeTag cold">冷更新 · 随安装包下发</span>'],
+            add: lAdd, fix: lFix,
+            markLocalVc: LOCAL_VC
+          })
+          el.noticeEntryBtn.classList.add('hasNew')
+        }
+
+        if (POPUP_QUEUE.length) {
+          pumpPopup()
+          if (needPkg && !quiet) toast('发现新版本 v' + vn + ' · 请下载完整安装包')
+          else if (cloudPending && !needPkg) toast('公告已热更新')
         } else if (!quiet) {
           toast('当前已是最新版本 v' + LOCAL_VN)
         }
@@ -2084,10 +2342,13 @@
   }
 
   el.updBtn.addEventListener('click', function () { sfx.click(); checkUpdate(false) })
-  el.noticeEntryBtn.addEventListener('click', function () { sfx.click(); openNoticeHistory('start') })
+  el.noticeEntryBtn.addEventListener('click', function () { sfx.click(); showNotice(cloudManifest) })
   el.noticeOk.addEventListener('click', closeNotice)
   el.noticeBackBtn.addEventListener('click', closeNotice)
-  el.noticeDl.addEventListener('click', function () { sfx.click() })
+  el.noticeDl.addEventListener('click', function () {
+    sfx.click()
+    toast('正在下载安装包 · 完成后点通知栏安装')
+  })
   el.noticeHistoryBtn.addEventListener('click', function () {
     sfx.click()
     show(el.noticeScreen, false)
@@ -2095,20 +2356,21 @@
   })
   el.noticeHistoryBackBtn.addEventListener('click', function () { closeNoticeHistory() })
   el.noticeOkHistory.addEventListener('click', function () { closeNoticeHistory() })
-  // 历史版本：点版本号（或条目头）展开/收起该版详情
-  el.noticeHistoryList.addEventListener('click', function (ev) {
-    var node = ev.target
-    while (node && node !== el.noticeHistoryList && node.className.indexOf('hHead') < 0) node = node.parentNode
-    if (!node || node === el.noticeHistoryList) return
-    var item = node.parentNode
-    if (!item || item.className.indexOf('hItem') < 0) return
-    item.className = item.className.indexOf('open') >= 0
-      ? item.className.replace(/\s*open/, '')
-      : item.className + ' open'
+  bindHistoryToggle(el.noticeHistoryList)
+
+  // 居中弹窗 / 云公告历史的事件
+  el.updOk.addEventListener('click', closePopup)
+  el.updDl.addEventListener('click', function () {
     sfx.click()
+    toast('正在下载安装包 · 完成后点通知栏安装')
   })
-  // 启动后后台静默检查一次：有新版本或新公告才弹
-  setTimeout(function () { checkUpdate(true) }, 1500)
+  el.cloudNoticeBtn.addEventListener('click', function () { sfx.click(); openCloudHistory() })
+  el.cloudHistoryBackBtn.addEventListener('click', function () { closeCloudHistory() })
+  el.cloudHistoryOk.addEventListener('click', function () { closeCloudHistory() })
+  bindHistoryToggle(el.cloudHistoryList)
+
+  // 需求 7：每次进游戏自动检测一次；有版本更新或新云公告就居中弹出
+  if (!/[?&]uitest=1/.test(location.search)) setTimeout(function () { checkUpdate(true) }, 1500)
 
   el.setBtn.addEventListener('click', openSettings)
   el.shopBackBtn.addEventListener('click', closeShop)
@@ -2302,15 +2564,26 @@
   if (/[?&]uitest=1/.test(location.search)) {
     var uLog = []
     function uOn(node) { return node && node.className.indexOf('on') >= 0 }
+    function uRect(node) { return node ? node.getBoundingClientRect() : { left: -1, top: -1 } }
+    // 「返回按钮在面板左上角」是相对面板判断，不是相对视口
+    function uBackPos(btn, screen) {
+      var sheet = screen && screen.querySelector('.sheet')
+      if (!btn || !sheet) return 'nodom'
+      var b = uRect(btn), s = uRect(sheet)
+      var dx = Math.round(b.left - s.left), dy = Math.round(b.top - s.top)
+      return (dx >= 0 && dx < 70 && dy >= 0 && dy < 90) ? 'TL' : ('d' + dx + ',' + dy)
+    }
+
+    // 1) 历史版本：可滚动 + 返回按钮在左上角 + 折叠展开 + 禁词过滤
     setTimeout(function () {
-      // 1) 首页公告入口 -> 历史版本面板
       openNoticeHistory('start')
       uLog.push('hist=' + (uOn(el.noticeHistoryScreen) ? 'on' : 'off'))
       uLog.push('rows=' + el.noticeHistoryList.children.length)
+      uLog.push('scroll=' + (el.noticeHistoryList.scrollHeight > el.noticeHistoryList.clientHeight ? 1 : 0)
+        + '/' + (getComputedStyle(el.noticeHistoryList).overflowY || '-'))
+      uLog.push('backPos=' + uBackPos(el.noticeHistoryBackBtn, el.noticeHistoryScreen))
       var allText = el.noticeHistoryList.textContent || ''
-      uLog.push('forbidden=' + (allText.indexOf('作弊码') >= 0 ? 'FOUND' : 'none'))
-      uLog.push('clean=' + (allText.indexOf('作 弊 码') >= 0 ? 'FOUND' : 'none'))
-      // 2) 点第一个版本号展开 / 收起
+      uLog.push('forbidden=' + (allText.indexOf('作弊码') >= 0 || allText.indexOf('作 弊 码') >= 0 ? 'FOUND' : 'none'))
       var head = el.noticeHistoryList.querySelector('.hItem .hHead')
       var item = head ? head.parentNode : null
       if (head) head.click()
@@ -2318,39 +2591,60 @@
         + ' body=' + (item && item.querySelector('.hBody') && item.querySelector('.hBody').textContent.indexOf('更新内容') >= 0 ? '1' : '0'))
       if (head) head.click()
       uLog.push('collapse=' + (item && item.className.indexOf('open') >= 0 ? '0' : '1'))
-      // 3) 返回首页
       closeNoticeHistory()
       uLog.push('backHome=' + (uOn(el.startScreen) ? '1' : '0'))
     }, 400)
 
+    // 2) 云公告历史：独立面板 + 左上返回 + 折叠
     setTimeout(function () {
-      // 4) 公告面板（冷+热合并）-> 历史 -> 返回公告
-      showNotice({
-        versionCode: LOCAL_VC, versionName: LOCAL_VN, date: '2026-11-09',
-        notice: { add: ['自测公告条目A'], fix: ['自测修复条目B'] }, apkUrl: ''
-      })
-      uLog.push('notice=' + (uOn(el.noticeScreen) ? 'on' : 'off'))
-      uLog.push('tags=' + (el.noticeTags.textContent || '').replace(/\s+/g, '|'))
-      uLog.push('dl=' + (el.noticeDl.style.display || 'shown'))
-      el.noticeHistoryBtn.click()
-      uLog.push('fromNotice=' + (uOn(el.noticeHistoryScreen) ? 'hist' : 'bad'))
-      closeNoticeHistory()
-      uLog.push('backNotice=' + (uOn(el.noticeScreen) ? 'notice' : '-') + '/' + (uOn(el.startScreen) ? 'home' : '-'))
-      closeNotice()
-      uLog.push('closed=' + (uOn(el.startScreen) ? 'home' : '-'))
-      // 5) 需要装包的新版本：必须出现「冷更新 · 需安装完整包」与下载按钮
-      showNotice({
-        versionCode: LOCAL_VC + 1, versionName: '9.9.9', date: '2026-11-10',
-        apkUrl: 'https://example.com/survivor-9.9.9.apk', apkSize: 160000000,
-        notice: { add: ['新版本体内容'], fix: ['新版修复项'] }
-      })
-      uLog.push('cold=' + (el.noticeTags.textContent.indexOf('冷更新') >= 0 ? '1' : '0')
-        + ' pak=' + (el.noticeDl.style.display === 'none' ? '0' : '1')
-        + ' href=' + (/survivor-9\.9\.9\.apk$/.test(el.noticeDl.getAttribute('href') || '') ? 'ok' : 'bad')
-        + ' size=' + (/MB/.test(el.noticeDl.textContent) ? 'ok' : 'bad'))
-      closeNotice()
-    }, 1200)
+      openCloudHistory()
+      uLog.push('cloud=' + (uOn(el.cloudNoticeHistoryScreen) ? 'on' : 'off')
+        + '/rows=' + el.cloudHistoryList.children.length
+        + '/back=' + uBackPos(el.cloudHistoryBackBtn, el.cloudNoticeHistoryScreen))
+      var cText = el.cloudHistoryList.textContent || ''
+      uLog.push('cloudClean=' + (cText.indexOf('作弊码') >= 0 ? 'FOUND' : 'none'))
+      var chead = el.cloudHistoryList.querySelector('.hItem .hHead')
+      if (chead) chead.click()
+      var citem = chead ? chead.parentNode : null
+      uLog.push('cloudOpen=' + (citem && citem.className.indexOf('open') >= 0 ? '1' : '0'))
+      closeCloudHistory()
+      uLog.push('cloudBack=' + (uOn(el.startScreen) ? '1' : '0'))
+    }, 800)
 
+    // 3) 居中弹窗：本版公告 / 云公告 / 版本更新（带下载按钮）+ 队列依次弹
+    setTimeout(function () {
+      POPUP_QUEUE.length = 0
+      popupOpen = false
+      show(el.updateScreen, false)
+
+      // 本版公告（冷更新，无下载）
+      enqueuePopup({
+        title: '游戏公告', verText: '本版更新 · v' + LOCAL_VN,
+        tags: ['<span class="noticeTag cold">冷更新 · 随安装包下发</span>'],
+        add: ['自测本版条目'], fix: [], markLocalVc: LOCAL_VC
+      })
+      enqueuePopup({
+        title: '版本更新', verText: '新版本 v9.9.9 已发布（当前 v' + LOCAL_VN + '）',
+        tags: ['<span class="noticeTag cold">冷更新 · 需安装完整包</span>'],
+        add: ['新版本体内容'], fix: ['新版修复项'],
+        apkUrl: 'https://example.com/survivor-9.9.9.apk', apkSize: 160000000
+      })
+      pumpPopup()
+      uLog.push('pop=' + (uOn(el.updateScreen) ? 1 : 0)
+        + '/t=' + el.updTitle.textContent
+        + '/dl=' + (el.updDl.style.display === 'none' ? 'none' : 'shown'))
+      closePopup()
+      uLog.push('next=' + el.updTitle.textContent
+        + '/cold=' + (el.updTags.textContent.indexOf('冷更新') >= 0 ? 1 : 0)
+        + '/pak=' + (el.updDl.style.display === 'none' ? 0 : 1)
+        + '/href=' + (/survivor-9\.9\.9\.apk$/.test(el.updDl.getAttribute('href') || '') ? 'ok' : 'bad')
+        + '/size=' + (/MB/.test(el.updDl.textContent) ? 'ok' : 'bad')
+        + '/ok=' + el.updOk.textContent.replace(/\s/g, ''))
+      closePopup()
+      uLog.push('queueEnd=' + (uOn(el.startScreen) ? 'home' : 'bad') + '/' + (uOn(el.updateScreen) ? 'still' : 'closed'))
+    }, 1400)
+
+    // 4) 真实拉云端清单：只记录提示语，不参与断言（网络不可控）
     setTimeout(function () { checkUpdate(false) }, 2400)
     setTimeout(function () {
       uLog.push('updToast=' + (el.toast.textContent || '').replace(/\s+/g, ''))

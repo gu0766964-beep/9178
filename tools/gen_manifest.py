@@ -26,6 +26,7 @@ ASSETS = os.path.join(ROOT, 'app', 'assets')
 
 FORBIDDEN = ('作弊码', '作 弊 码')
 HISTORY_MAX = 200          # 历史公告保留条数（远大于实际版本数，等于全量保留）
+CLOUD_HISTORY_MAX = 60     # 云下发公告历史保留条数（「云公告」面板用）
 SKIP_HASH = {'game/notice-data.js'}
 
 
@@ -113,6 +114,43 @@ def merge_history(seed, old_history, new_entry):
     return clean[:HISTORY_MAX]
 
 
+def make_notice_id(vn, vc, date, add, fix):
+    """云公告唯一 id：每次下发都不一样，客户端据此判断「有没有新公告要弹」。
+
+    带上版本号与日期保证每次发版必然变化（下发多少次弹多少次）；
+    带内容摘要保证同版本重复打包同一份公告不会重复弹。
+    """
+    digest = hashlib.md5(('\n'.join(add) + '|' + '\n'.join(fix)).encode('utf-8')).hexdigest()[:6]
+    return 'v%s-%d-%s-%s' % (vn, vc, date, digest)
+
+
+def merge_cloud_history(old_history, new_entry):
+    """云公告历史：旧记录 + 本次下发，按 id 去重、版本号降序，保留最近 CLOUD_HISTORY_MAX 条。"""
+    by_id = {}
+    for src in (old_history or []):
+        if not isinstance(src, dict):
+            continue
+        nid = str(src.get('id') or src.get('noticeId') or '')
+        if not nid:
+            continue
+        add = notice_filter(src.get('add'), allow_split=True)
+        fix = notice_filter(src.get('fix'))
+        if not add and not fix:
+            continue
+        by_id[nid] = {
+            'id': nid,
+            'versionCode': int(src.get('versionCode') or 0),
+            'versionName': str(src.get('versionName') or ''),
+            'date': str(src.get('date') or ''),
+            'add': add,
+            'fix': fix,
+        }
+    if new_entry:
+        by_id[new_entry['id']] = new_entry
+    out = sorted(by_id.values(), key=lambda e: (-int(e.get('versionCode') or 0), str(e.get('date') or '')))
+    return out[:CLOUD_HISTORY_MAX]
+
+
 def build_notice_js(data):
     return (
         '/* 由 tools/gen_manifest.py 自动生成，请勿手改。\n'
@@ -195,6 +233,26 @@ def main():
         }
     history = merge_history(seed, old.get('history'), new_entry)
 
+    # 云公告：noticeId 每次下发唯一；noticeHistory 累积所有下发过的公告
+    if a.no_bump:
+        notice_id = str(old.get('noticeId') or '')
+        cloud_history = merge_cloud_history(old.get('noticeHistory'), None)
+        if not notice_id and cloud_history:
+            notice_id = str(cloud_history[0]['id'])
+    else:
+        notice_id = make_notice_id(vn, vc, date, add, fix) if (add or fix) else str(old.get('noticeId') or '')
+        cloud_entry = None
+        if add or fix:
+            cloud_entry = {
+                'id': notice_id,
+                'versionCode': vc,
+                'versionName': vn,
+                'date': date,
+                'add': add,
+                'fix': fix,
+            }
+        cloud_history = merge_cloud_history(old.get('noticeHistory'), cloud_entry)
+
     assets_hash, assets_count = scan_assets_hash(ASSETS)
 
     manifest = {
@@ -208,6 +266,8 @@ def main():
         'assetsHash': assets_hash,
         'assetsCount': assets_count,
         'notice': {'add': add, 'fix': fix},
+        'noticeId': notice_id,
+        'noticeHistory': cloud_history,
         'history': history,
     }
     os.makedirs(os.path.dirname(a.manifest), exist_ok=True)
@@ -221,6 +281,8 @@ def main():
         'date': date,
         'apkUrl': apk_url,
         'notice': {'add': add, 'fix': fix},
+        'noticeId': notice_id,
+        'cloudHistory': cloud_history,
         'history': history,
     }
     os.makedirs(os.path.dirname(NOTICE_JS), exist_ok=True)
@@ -230,6 +292,7 @@ def main():
     print('清单已更新: %s' % a.manifest)
     print('  版本: v%s (versionCode=%d)  日期: %s' % (vn, vc, date))
     print('  公告: 新增 %d 条 / 修复 %d 条；历史共 %d 个版本' % (len(add), len(fix), len(history)))
+    print('  云公告 id: %s；云公告历史 %d 条' % (notice_id or '(无)', len(cloud_history)))
     print('  资源: %d 个文件，指纹 %s' % (assets_count, assets_hash[:12]))
     print('  apkUrl: %s' % (apk_url or '(未设置)'))
     print('内置公告: %s' % NOTICE_JS)
