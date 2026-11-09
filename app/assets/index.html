@@ -29,6 +29,7 @@
   #stage { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
 
   /* 横屏适配 */
+  html.norotate body::before { content: none; display: none; }
   @media (orientation: portrait) {
     body::before {
       content: "请横持手机以游戏";
@@ -256,7 +257,79 @@
   .noticeSec { font-size: 13px; font-weight: 800; letter-spacing: 2px; color: #d8e2f2; margin: 12px 0 6px; text-align: left; }
   .noticeList { margin: 0 0 4px; padding-left: 20px; text-align: left; }
   .noticeList li { font-size: 13px; color: #c3cee0; line-height: 1.65; margin-bottom: 4px; }
-  #noticeScreen .btn { margin-top: 14px; text-decoration: none; display: block; }
+  /* ---------- 公告面板：屏幕右侧滑帘（冷更新 + 热更新同展示） ---------- */
+  #noticeScreen { align-items: flex-start; justify-content: flex-end; background: transparent; backdrop-filter: none; }
+  #noticeScreen .sheet {
+    width: 350px; max-width: 100%; height: 100%; overflow-y: auto;
+    background: var(--panel); border-left: 1px solid var(--line);
+    box-shadow: -8px 0 30px rgba(0,0,0,0.5); border-radius: 0; padding: 0;
+  }
+  #noticeScreen .backTop {
+    position: relative; display: inline-block; top: 12px; left: 14px;
+  }
+  #noticeScreen .menuTitle {
+    font-size: 22px; letter-spacing: 4px; color: #fff; margin: 0 0 8px; padding: 14px 16px;
+    background: rgba(0,0,0,0.25);
+  }
+  .noticeVer {
+    font-size: 15px; color: var(--accent-2); margin: 0 16px 12px;
+    font-weight: 800; letter-spacing: 1px;
+  }
+  .noticeTags { display: flex; gap: 6px; flex-wrap: wrap; margin: 0 16px 12px; }
+  .noticeTag {
+    font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px;
+    background: rgba(124,245,158,0.16); color: var(--accent); letter-spacing: 0.5px;
+  }
+  .noticeTag.cold { background: rgba(89,220,255,0.14); color: var(--accent-2); }
+  .noticeTag.hot { background: rgba(255,206,92,0.16); color: var(--gold); }
+  #noticeScreen .btn { margin: 0 16px 6px; text-decoration: none; display: block; }
+  #noticeScreen .btn.ghost { margin: 0 16px 8px; }
+  /* 历史公告面板：居中弹窗 */
+  #noticeHistoryScreen { z-index: 22; }
+  #noticeHistoryScreen .sheet { width: 100%; max-width: 560px; border-radius: 14px; overflow: hidden; background: var(--panel); }
+  #noticeHistoryScreen .menuTitle { font-size: 22px; letter-spacing: 4px; color: #fff; margin: 0 0 12px; padding: 14px 16px; background: rgba(0,0,0,0.25); }
+  #noticeHistoryScreen .backTop {
+    position: relative; display: inline-block; top: 10px; left: 12px;
+  }
+  #noticeHistoryScreen .noticeList { padding: 0 14px; }
+  #noticeHistoryScreen .hItem {
+    font-size: 13px; color: #c3cee0; line-height: 1.65; margin-bottom: 12px;
+    padding: 12px; border-radius: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+  }
+  #noticeHistoryScreen .hItem .hHead {
+    display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px;
+  }
+  #noticeHistoryScreen .hItem .hVer { font-size: 15px; font-weight: 800; color: var(--accent-2); letter-spacing: 1px; }
+  #noticeHistoryScreen .hItem .hTime { font-size: 10px; color: rgba(232,242,236,0.38); letter-spacing: 0.5px; }
+  #noticeHistoryScreen .hItem .hType { font-size: 10px; padding: 2px 6px; border-radius: 999px; background: rgba(124,245,158,0.14); color: var(--accent); }
+  #noticeHistoryScreen .hItem ul { padding-left: 18px; margin: 4px 0 0; }
+  #noticeHistoryScreen .hItem li { font-size: 12px; color: #b0bec5; margin-bottom: 3px; }
+  #noticeHistoryScreen .hEmpty { font-size: 15px; color: rgba(232,242,236,0.35); text-align: center; padding: 40px 0; }
+  /* 历史公告条目：点版本号展开该版「更新内容 / 问题修复」 */
+  #noticeHistoryScreen .hItem { padding: 0; overflow: hidden; }
+  #noticeHistoryScreen .hItem .hHead {
+    padding: 11px 12px; margin: 0; cursor: pointer; align-items: center;
+    background: rgba(255,255,255,0.02); transition: background 0.15s;
+  }
+  #noticeHistoryScreen .hItem .hHead:hover { background: rgba(89,220,255,0.08); }
+  #noticeHistoryScreen .hItem .hVer { border-bottom: 1px dashed rgba(89,220,255,0.5); padding-bottom: 1px; }
+  #noticeHistoryScreen .hItem .hArrow {
+    margin-left: auto; font-size: 11px; color: rgba(232,242,236,0.4); transition: transform 0.18s;
+  }
+  #noticeHistoryScreen .hItem.open .hArrow { transform: rotate(90deg); }
+  #noticeHistoryScreen .hItem .hBrief {
+    font-size: 11px; color: rgba(232,242,236,0.45); padding: 0 12px 10px; margin-top: -4px;
+  }
+  #noticeHistoryScreen .hItem .hBody { display: none; padding: 2px 12px 12px; }
+  #noticeHistoryScreen .hItem.open .hBody { display: block; }
+  #noticeHistoryScreen .hItem .hBody .noticeSec { margin: 8px 0 4px; font-size: 11px; letter-spacing: 1px; }
+  #noticeHistoryScreen .hItem .hBody ul { padding-left: 18px; margin: 2px 0 0; }
+  #noticeHistoryScreen .hItem .hBody li { font-size: 12px; color: #b0bec5; margin-bottom: 3px; }
+  #noticeHistoryScreen .hTip { font-size: 11px; color: rgba(232,242,236,0.38); text-align: center; margin: 0 14px 10px; }
+  /* 公告入口：首页左上角 */
+  .noticeTop { position: absolute; top: 10px; left: 12px; z-index: 2; padding: 6px 14px; font-size: 13px; font-weight: 700; letter-spacing: 1px; color: #d9e9ff; background: rgba(255,255,255,0.06); border: 1px solid rgba(120,200,255,0.35); border-radius: 999px; }
+  .noticeTop .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--gold); margin-left: 6px; vertical-align: 1px; display: none; }
+  .noticeTop.hasNew .dot { display: inline-block; }
   .btn.danger {
     background: linear-gradient(180deg, #ff8fa3, #ff4d6d); color: #2a050d;
     box-shadow: 0 10px 30px rgba(255,77,109,0.28), inset 0 1px 0 rgba(255,255,255,0.5);
@@ -377,6 +450,10 @@
     .hint { margin-top: 12px; }
   }
 </style>
+  <script>
+    /* 桌面/调试预览：URL 带 ?norotate=1 时跳过「请横持手机」遮罩（游戏内布局不变） */
+    if (/[?&]norotate=1/.test(location.search)) document.documentElement.className += ' norotate'
+  </script>
 </head>
 <body>
 <div id="app">
@@ -437,18 +514,31 @@
     </div>
   </div>
 
-  <!-- 游戏公告：检查更新发现有新版本时展示（内容来自云端清单，作作弊码相关条目不显示） -->
+  <!-- 游戏公告：屏幕右侧滑帘。冷更新（随安装包下发的公告）与热更新（运行时拉取的公告）合并展示 -->
   <div class="overlay" id="noticeScreen">
     <div class="sheet">
       <button class="backTop" id="noticeBackBtn">‹ 返回</button>
       <div class="menuTitle">游戏公告</div>
       <div class="noticeVer" id="noticeVer">检查中…</div>
-      <div class="noticeSec">✦ 本版更新</div>
-      <ul class="noticeList" id="noticeAdd"></ul>
-      <div class="noticeSec" id="noticeFixHead" style="display:none">✦ 问题修复</div>
-      <ul class="noticeList" id="noticeFix" style="display:none"></ul>
+      <div id="noticeTags" style="display:flex;gap:6px;flex-wrap:wrap;margin:0 16px 10px"></div>
+      <div class="noticeSec" style="margin-left:16px;margin-right:16px">✦ 本版更新</div>
+      <ul class="noticeList" id="noticeAdd" style="padding:0 16px 0 36px"></ul>
+      <div class="noticeSec" id="noticeFixHead" style="display:none;margin-left:16px;margin-right:16px">✦ 问题修复</div>
+      <ul class="noticeList" id="noticeFix" style="display:none;padding:0 16px 0 36px"></ul>
       <a class="btn" id="noticeDl" href="#" target="_blank" rel="noopener">下载新版 APK</a>
+      <button class="btn ghost" id="noticeHistoryBtn">查看历史版本</button>
       <button class="btn ghost" id="noticeOk">知 道 了</button>
+    </div>
+  </div>
+  <!-- 历史版本：所有版本公告，点版本号展开该版「更新内容 / 问题修复」 -->
+  <div class="overlay" id="noticeHistoryScreen">
+    <div class="sheet">
+      <button class="backTop" id="noticeHistoryBackBtn">‹ 返回</button>
+      <div class="menuTitle">历史版本</div>
+      <div class="noticeVer" id="noticeHistoryVer">暂无历史</div>
+      <div class="hTip">点版本号查看该版本的更新内容与修复项</div>
+      <ul class="noticeList" id="noticeHistoryList" style="min-height:200px"></ul>
+      <button class="btn ghost" id="noticeOkHistory">关 闭</button>
     </div>
   </div>
 
@@ -540,6 +630,7 @@
 
   <div class="overlay on" id="startScreen">
     <div class="sheet">
+      <button class="noticeTop" id="noticeEntryBtn">公告<span class="dot" id="noticeEntryDot"></span></button>
       <button class="updTop" id="updBtn">⟳ 检查更新</button>
       <h1 class="logo"><em>无尽割草</em></h1>
       <div class="sub">ENDLESS MOW · 活到最后一秒</div>
@@ -600,8 +691,8 @@
   <div id="diag"></div>
 </div>
 
-<!-- 云下发检测 + 热更新 -->
-<script src="cloud.js"></script>
+<!-- 公告数据：随安装包内置（冷更新）；运行时再拉云端清单覆盖（只有公告可热更新） -->
+<script src="game/notice-data.js"></script>
 <!-- 角色精灵与动画系统 -->
 <script src="game/sprite.js"></script>
 <script src="game/character.js"></script>

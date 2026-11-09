@@ -4,11 +4,11 @@
 
 | | |
 |---|---|
-| **安装包** | `dist/survivor-2.5.15.apk`（约 160 MB · 已含 8 个首页背景视频） |
-| **版本** | 2.5.15 · versionCode 47 · minSdk 24（Android 7.0+） |
+| **安装包** | `dist/survivor-2.5.18.apk`（约 160 MB · 已含 8 个首页背景视频） |
+| **版本** | 2.5.18 · versionCode 50 · minSdk 24（Android 7.0+） |
 | **包名 / 签名** | `com.mow.survivor` · debug keystore（v2/v3 签名，2.1.1 起固定） |
 | **技术栈** | Android 原生壳（横屏全屏 WebView）+ 纯本地 Canvas2D 游戏逻辑 |
-| **更新方式** | **冷更新** — 所有资源内置在 APK 里，运行时不发任何网络请求，装新 APK = 更新 |
+| **更新方式** | **全冷更新 + 公告热更新** — 游戏本体全部内置在 APK 里，装新 APK 才更新；只有「公告」会运行时从云端拉取，改公告不必发版 |
 
 ---
 
@@ -21,14 +21,15 @@
 - **两个商店**：首页商店（永久金币）+ 战斗商店（每 5 波，本局金币）
 - **8 种 BOSS**：巨战王 / 水晶法师 / 重炮王 / 影杀王 / 泰坦巨像 / 瘟疫使者 / 育母 / 风暴领主，随机生成、各有技能
 - **11 首内置曲** + 自由导入（IndexedDB 持久化）+ 顺序 / 单循 / 随机三种模式
-- **首页右上角「检查更新」**：一键连通云端清单，查看公告与新版 APK 下载链接
+- **右侧滑出公告面板**：冷更新 / 热更新标签合并展示，可翻看全部历史版本，点版本号展开该版的更新内容与修复项
+- **首页「公告」入口 + 启动自动检查**：有新版本或新公告时右上角亮红点，点「检查更新」可手动刷新
 - **零依赖运行**：一个 APK 就是全部，无网络也能完整游玩
 
 ---
 
 ## 📲 安装
 
-1. 把 `dist/survivor-2.5.15.apk` 传到手机（微信传文件 / 数据线 / 网盘都行）。
+1. 把 `dist/survivor-2.5.18.apk` 传到手机（微信传文件 / 数据线 / 网盘都行）。
 2. 点击安装；系统提示「未知来源应用」属正常（自签名测试包）。
 3. 桌面出现「无尽割草」图标（你上传的那张图），点开直接进游戏。
 
@@ -88,33 +89,47 @@
 
 ---
 
-## 📡 云端版本声明（冷更新）
+## 📡 更新机制（全冷更新 + 只有公告可热更新）
 
-**一个 APK = 一个完整版本**。`index.html` 用普通 `<script>` 顺序加载本地 `game/sim.js` → `game/render.js` → `game/main.js`，音乐 / 视频直接写本地相对路径，全程零网络请求。
+**游戏本体 = 一个完整 APK**。`index.html` 用普通 `<script>` 顺序加载本地 `game/sim.js` → `game/render.js` → `game/main.js`，音乐 / 视频直接写本地相对路径；脚本、界面、素材任何改动都必须重新打包、让玩家装新包（**冷更新**）。
+
+**只有「公告」能热更新**：启动 1.5 秒后静默拉取 `cloud/manifest.json`，只要云端版本号更高或公告内容有变化，就把新公告刷进游戏并亮红点 —— 不用重新装包即可看到新公告，同时提示去下载完整安装包。
+
+| 内容 | 更新方式 | 位置 |
+|---|---|---|
+| 游戏脚本 / 界面 / 音乐 / 背景视频 | 冷更新（下载并安装完整 APK） | APK 内 `app/assets/` |
+| 本版公告（更新内容 + 问题修复） | 冷更新 + 热更新 | APK 内 `game/notice-data.js`（离线可看） ← 云端 `cloud/manifest.json` 实时覆盖 |
+| 历史版本公告 | 冷更新 + 热更新 | `cloud/notice-history.json`（构建时并入 APK） ← 云端 `history` 覆盖 |
+| 存档 / 金币 / 设置 | — | 用户手机（localStorage + IndexedDB），**覆盖安装不清** |
+
+### 一键发版（开发者）
+
+改完 `app/assets/` 里的任何东西，**一条命令**完成「升版本 → 打完整包 → 写公告 → 提交推送 → 建 Release → 上传 APK → 校验云端」：
 
 ```bash
-# 发版流程（开发者）
-# 1. 改代码 app/assets/
-# 2. 升版本：扫描全部资源 + 写公告
-python3 tools/gen_manifest.py --version 47 --versionName 2.5.15 \
-  --apk-url 'https://github.com/xxx/repo/releases/download/v2.5.15/survivor-2.5.15.apk' \
-  --add '修复...' --add '功能...' --fix '修了...'
-# 3. 打包：自动读 manifest.json 的版本并写进 AXML
-python3 tools/build_apk.py
-# 4. 把 dist/survivor-2.5.15.apk 发给用户安装，在云端清单里写好 apkUrl 与公告
+python3 tools/release.py                        # 公告自动取自最近一次提交 / 改动文件
+python3 tools/release.py --add "新增 X" --fix "修复 Y"
+python3 tools/release.py --dry-run              # 只打印计划，不动仓库与网络
+python3 tools/release.py --skip-build --force   # 复用已有 APK 重发
+python3 tools/release.py --resume               # Release 建好了但 APK 没传完，只补传
+python3 tools/release.py --no-bump --skip-build --force  # 不升版本，重发当前版本的安装包
 ```
 
-| 内容 | 存放位置 |
-|---|---|
-| 代码 / 音乐 / 背景视频 | 全部在 APK 内（`app/assets/`） |
-| 版本声明 + 公告 + 新版 APK 下载链接 | `cloud/manifest.json`（由 `gen_manifest.py` 生成，全量遍历 app/assets，md5 校验） |
-| 存档 / 金币 / 设置 | 用户手机（localStorage + IndexedDB），**覆盖安装不清** |
+发布后玩家下次开游戏：装新 APK（冷更新）+ 立刻看到公告（热更新）。
 
-音乐 / 视频全部写死 APK 内路径：从 2.5.14 起停用热更新，不依赖网络、版本与 APK 一一对应、无补丁回滚问题。`assets/` 里写死的文件列表 **由云端 `manifest.json` 兜底**；以后换托管地址只改云端清单，无需重打包 APK。
+**公告内容规则**：凡提到「作弊码」的条目一律不显示 —— 正文条目整条屏蔽；标题式条目（含 ` + ` 并列）只丢掉含该词的并列段，保留其余。历史数据来自本 README 的更新历史，由 `tools/parse_readme_history.py` 解析成 `cloud/notice-history.json`（39 条历史 + 本版，v1.4 ~ 当前）。
 
 ---
 
 ## 📜 更新历史
+
+### v2.5.18 · 全冷更新 + 公告热更新 + 一键发版
+
+- **公告系统重做**：右侧滑出面板合并展示「冷更新 · 需安装完整包」与「热更新 · 公告已即时生效」两个标签；首页左上角新增「公告」入口，启动后自动检查、有新内容亮红点
+- **只有公告可热更新**：游戏脚本 / 界面 / 音乐 / 背景全部冷更新，删掉 `cloud.js` 的 IndexedDB 文件级热更与 `?mowPatch=1` 分支，运行时不再可能加载云端脚本
+- **历史版本**：内置 42 个版本的公告（v1.4 ~ 当前），点版本号展开该版本的「更新内容 / 问题修复」，当前版本与新版有徽章区分；凡提及「作弊码」的条目全部过滤
+- **一键发版** `tools/release.py`：升版本 → `gen_manifest.py` 写清单与内置公告 → `build_apk.py` 打完整包 → 提交推送 → 建 GitHub Release 并上传 APK → 轮询云端清单确认生效
+- `build_apk.py` 打包前校验 `notice-data.js` 与 `manifest.json` 版本一致，避免「装上新包、公告还是旧的」
 
 ### v2.5.15 · 音乐/背景视频上传云端 + 首页「检查更新」+ 游戏公告
 
@@ -237,14 +252,19 @@ survivor/
 │       └── main.js                # 状态机、输入、音乐 + IndexedDB、存档、返回键、作弊码
 ├── android/src/com/mow/survivor/MainActivity.java   # 安卓壳：横屏全屏 WebView + 返回键 + 文件选择器 + 外链拦截
 ├── res/drawable/icon.png          # 启动器图标（用户上传的图，192×192）
-├── cloud/manifest.json            # 版本声明 + 公告 + apkUrl + 全部 assets 文件的 md5
+│       └── notice-data.js         # 内置公告（构建时由 gen_manifest.py 生成，冷更新）
+├── cloud/
+│   ├── manifest.json              # 版本声明 + 公告 + apkUrl + 资源指纹（热更新入口）
+│   └── notice-history.json        # 历史版本公告种子（parse_readme_history.py 从 README 解析）
 ├── tools/
 │   ├── axml.py                    # 手写 AndroidManifest.xml 的二进制 AXML 编码器
 │   ├── arsc.py                    # 手写 resources.arsc（只登记一个 drawable/icon）
 │   ├── build_apk.py               # 打包：AXML → arsc → javac → d8 → zip(4字节对齐) → apksigner
-│   ├── gen_manifest.py            # 生成 cloud/manifest.json（全量扫描 app/assets，记录 md5）
+│   ├── gen_manifest.py            # 生成 cloud/manifest.json + game/notice-data.js（版本、公告、历史）
+│   ├── parse_readme_history.py    # 把 README 更新历史解析成 cloud/notice-history.json
+│   ├── release.py                 # 一键发版：升版本 → 打包 → 提交 → Release → 上传 APK
 │   └── test_sim.js                # Node 无头回归测试
-└── dist/survivor-2.5.15.apk       # 产物
+└── dist/survivor-2.5.18.apk       # 产物
 ```
 
 ## 🛠 开发者
@@ -253,17 +273,20 @@ survivor/
 - **改界面/配色**：`app/assets/index.html` 的 CSS 变量（`--accent` 等）。
 - **改手感/逻辑**：`app/assets/game/main.js` 的固定步长循环、摇杆死区、攻击键、音乐。
 - **换图标**：替换 `res/drawable/icon.png`（192×192 PNG）后重打包。
-- **快速试玩（不装机）**：`python3 -m http.server 4190 -d app/assets`，浏览器开 `http://127.0.0.1:4190/`；`?debug=1` 显示帧率/实体数；`?autotest=1` 自动跑全流程并把结果写到页面标题。
+- **快速试玩（不装机）**：`python3 -m http.server 4190 -d app/assets`，浏览器开 `http://127.0.0.1:4190/`；`?debug=1` 显示帧率/实体数；`?autotest=1` 自动跑全流程并把结果写到页面标题；`?uitest=1` 自动跑公告面板/历史面板断言（含禁词检查、折叠展开、冷更新下载按钮）并把结果写到页面标题；`?norotate=1` 关掉「请横持手机」竖屏遮罩，方便在桌面浏览器调试。
 - **无头回归**：`node tools/test_sim.js`（ALL PASS 才值得打包）。
-- **打包**：`python3 tools/build_apk.py`（需要 `/root/projects/.sdk` 下的 JDK 17 与 android-sdk）。
+- **发版**：`python3 tools/release.py --add "..." --fix "..."`（自动升版本、打包、上传、发公告）。
+- **只打包**：`python3 tools/build_apk.py`（需要 `/root/projects/.sdk` 下的 JDK 17 与 android-sdk；打包前会校验公告版本一致）。
+- **改公告**：直接改 `cloud/manifest.json` 的 `notice` 后在云端提交即可热更新，不需要发版；历史版本改 `cloud/notice-history.json`。
 - **校验产物**：`apkanalyzer apk summary` + `apksigner verify --verbose`（JDK 见上）。
 
 > **为什么打包是手写的**：构建机是 aarch64，SDK 自带的 `aapt2` / `zipalign` 只有 x86-64 版本跑不动，所以不跑 Gradle —— 清单用 `axml.py` 编码二进制 AXML，`resources.arsc` 用 `arsc.py` 手写，dex 用纯 Java 的 `d8.jar`，清单/dex/arsc 在 zip 里不压缩且 4 字节对齐，最后 `apksigner` 签名，并用纯 Java 的 `apkanalyzer` 做过第三方校验。
 
 ## ⚠️ 已知限制（测试版）
 
-- 检查更新和公告内容（首页右上角的「⟳」）需要联网才能获取；断网时toast提示「检查更新失败」不影响游戏。
-- 公告与下载链接只在云端 `cloud/manifest.json` 写（`apkUrl`），游戏内统一从云端拉取，不需要长代码。
+- 公告热更新需要联网；断网时用 APK 内置的 `game/notice-data.js`，历史版本仍可离线翻看，只是看不到云端新公告。
+- 联网状态下首个自动检查在启动后 1.5 秒进行，冷启动太快可能看到红点晚一两秒出现。
+- 游戏本体没有热更新：脚本/界面/素材改动必须发新 APK，玩家装包才算更新（这是刻意的，避免版本撕裂）。
 - 数值偏「能玩」而非精调：前 2~3 波轻松，第 5 波 BOSS 起压力明显，可继续改。
 - 开发机浏览器里 rAF 会被节流（后台标签页尤其），本地试玩可能比真机慢；真机 60fps 无此问题。
 - 只有一张地图、一个角色形象；商店复活每局只能用一次。
@@ -271,4 +294,4 @@ survivor/
 
 ---
 
-_本项目为私人测试版，持续以「改代码 → 升版本 → 重打包 → 发 APK」的方式迭代。_
+_本项目为私人测试版，持续以「改代码 → `tools/release.py` → 自动升版本/打包/发版/公告」的方式迭代。_

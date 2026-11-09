@@ -38,6 +38,39 @@ except Exception:
 MIN_SDK = 24
 TARGET_SDK = 34
 
+# 公告数据：由 gen_manifest.py 写进 assets，随 APK 冷更新下发
+NOTICE_DATA = os.path.join(ASSETS, 'game', 'notice-data.js')
+
+
+def verify_notice_data():
+    """打包前校验：内置公告的版本号必须与 cloud/manifest.json 完全一致。
+
+    公告是随包下发的（冷更新），版本号对不上会导致「装的是新包、公告还停在旧版」。
+    """
+    if not os.path.exists(NOTICE_DATA):
+        raise SystemExit('缺少 %s\n先运行: python3 tools/gen_manifest.py' % NOTICE_DATA)
+    import re
+    with open(NOTICE_DATA, encoding='utf-8') as f:
+        text = f.read()
+    m = re.search(r'window\.__MOW_NOTICE__\s*=\s*(\{.*\});', text, re.S)
+    if not m:
+        raise SystemExit('%s 里找不到 window.__MOW_NOTICE__' % NOTICE_DATA)
+    try:
+        data = json.loads(m.group(1))
+    except Exception as e:
+        raise SystemExit('%s 解析失败: %s' % (NOTICE_DATA, e))
+    if int(data.get('versionCode') or 0) != int(VERSION_CODE):
+        raise SystemExit(
+            '公告版本不一致：notice-data.js=%s / manifest.json=%s\n'
+            '先运行: python3 tools/gen_manifest.py' % (data.get('versionCode'), VERSION_CODE))
+    if str(data.get('versionName') or '') != str(VERSION_NAME):
+        raise SystemExit(
+            '公告版本名不一致：notice-data.js=%s / manifest.json=%s\n'
+            '先运行: python3 tools/gen_manifest.py' % (data.get('versionName'), VERSION_NAME))
+    print('公告校验通过: v%s (%d) / 历史 %d 个版本'
+          % (VERSION_NAME, VERSION_CODE, len(data.get('history') or [])))
+    return data
+
 sys.path.insert(0, os.path.join(ROOT, 'tools'))
 import axml  # noqa: E402
 
@@ -229,6 +262,7 @@ def step_verify(signed):
     with zipfile.ZipFile(signed) as z:
         names = z.namelist()
         for need in ('AndroidManifest.xml', 'classes.dex', 'assets/index.html',
+                     'assets/game/notice-data.js',
                      'assets/game/sim.js', 'assets/game/render.js', 'assets/game/main.js'):
             if need not in names:
                 raise SystemExit('APK 缺少 ' + need)
@@ -238,6 +272,8 @@ def step_verify(signed):
 
 
 def main():
+    print('打包 v%s (%d) -> dist/%s' % (VERSION_NAME, VERSION_CODE, APP_NAME))
+    verify_notice_data()
     step_clean()
     man = step_manifest()
     classes = step_javac()
