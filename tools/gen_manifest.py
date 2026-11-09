@@ -170,10 +170,17 @@ def main():
 
     add = notice_filter(a.add, allow_split=True)
     fix = notice_filter(a.fix)
-    if not add and not fix and not a.no_bump:
-        # 没写公告时沿用旧清单当前公告，保证公告面板不为空
+    if not add and not fix:
+        # 没写公告时沿用旧清单的当前公告（--no-bump 回填 APK 元信息时必须保留，
+        # 否则会把本版公告清空）；旧清单公告为空时再回退到 history 中同版本的条目。
         add = notice_filter(old.get('notice', {}).get('add'), allow_split=True)
         fix = notice_filter(old.get('notice', {}).get('fix'))
+        if not add and not fix:
+            for e in (old.get('history') or []):
+                if int(e.get('versionCode') or 0) == vc:
+                    add = notice_filter(e.get('add'), allow_split=True)
+                    fix = notice_filter(e.get('fix'))
+                    break
 
     date = a.date or datetime.date.today().isoformat()
     seed = load_json(a.seed, [])
