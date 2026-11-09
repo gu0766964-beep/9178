@@ -20,6 +20,8 @@
     'musicBtn', 'musicEntry', 'musicCard', 'musicBackBtn', 'segMode', 'nowPlaying',
     'prevTrackBtn', 'nextTrackBtn', 'modeTrackBtn',
     'cheatScreen', 'cheatInput', 'cheatOkBtn', 'cheatBackBtn', 'cheatMsg',
+    'noticeScreen', 'noticeVer', 'noticeAdd', 'noticeFix', 'noticeFixHead', 'noticeDl', 'noticeOk', 'noticeBackBtn',
+    'updBtn',
     'diffScreen', 'diffList', 'diffTip', 'diffBackBtn',
     'jobScreen', 'jobList', 'jobBackBtn', 'jobBtn', 'curJob',
     'bgVideo',
@@ -181,16 +183,16 @@
   var BUILTIN_ID = '__builtin__'
   var BUILTIN_TRACKS = [
     { id: BUILTIN_ID, name: '内置 · 极夜回廊', builtin: 'synth' },
-    { id: '__builtin_yuai__', name: '内置 · 雨爱', builtin: 'file', url: window.__mowAsset('music/yuai.mp3') },
-    { id: '__builtin_onemore__', name: '内置 · One More Last Time', builtin: 'file', url: window.__mowAsset('music/onemore.mp3') },
-    { id: '__builtin_geiniya__', name: '内置 · 给你呀', builtin: 'file', url: window.__mowAsset('music/geiniya.mp3') },
-    { id: '__builtin_twg__', name: '内置 · 滕王阁小曲', builtin: 'file', url: window.__mowAsset('music/tengwangge.mp3') },
-    { id: '__builtin_zhidui__', name: '内置 · 只对你有感觉', builtin: 'file', url: window.__mowAsset('music/zhidui.mp3') },
-    { id: '__builtin_bjj__', name: '内置 · 不将就', builtin: 'file', url: window.__mowAsset('music/bujiangjiu.m4a') },
-    { id: '__builtin_nzj__', name: '内置 · 你最近过的还好吗', builtin: 'file', url: window.__mowAsset('music/nizuijin.mp3') },
-    { id: '__builtin_di57__', name: '内置 · 第57次取消发送', builtin: 'file', url: window.__mowAsset('music/di57.mp3') },
-    { id: '__builtin_wml__', name: '内置 · 我们俩', builtin: 'file', url: window.__mowAsset('music/womenlia.mp3') },
-    { id: '__builtin_mss__', name: '内置 · 魔术师', builtin: 'file', url: window.__mowAsset('music/moshoushi.mp3') },
+    { id: '__builtin_yuai__', name: '内置 · 雨爱', builtin: 'file', url: 'music/yuai.mp3' },
+    { id: '__builtin_onemore__', name: '内置 · One More Last Time', builtin: 'file', url: 'music/onemore.mp3' },
+    { id: '__builtin_geiniya__', name: '内置 · 给你呀', builtin: 'file', url: 'music/geiniya.mp3' },
+    { id: '__builtin_twg__', name: '内置 · 滕王阁小曲', builtin: 'file', url: 'music/tengwangge.mp3' },
+    { id: '__builtin_zhidui__', name: '内置 · 只对你有感觉', builtin: 'file', url: 'music/zhidui.mp3' },
+    { id: '__builtin_bjj__', name: '内置 · 不将就', builtin: 'file', url: 'music/bujiangjiu.m4a' },
+    { id: '__builtin_nzj__', name: '内置 · 你最近过的还好吗', builtin: 'file', url: 'music/nizuijin.mp3' },
+    { id: '__builtin_di57__', name: '内置 · 第57次取消发送', builtin: 'file', url: 'music/di57.mp3' },
+    { id: '__builtin_wml__', name: '内置 · 我们俩', builtin: 'file', url: 'music/womenlia.mp3' },
+    { id: '__builtin_mss__', name: '内置 · 魔术师', builtin: 'file', url: 'music/moshoushi.mp3' },
   ]
   var musicEl = null
   var musicTrackId = ''
@@ -640,6 +642,7 @@
     show(el.musicCard, false)
     show(el.jobScreen, false)
     show(el.cheatScreen, false)
+    show(el.noticeScreen, false)
   }
 
   function refreshBestLabels() {
@@ -1534,7 +1537,7 @@
       togglePause()
       return true
     }
-    if (phase === 'paused' || phase === 'settings' || phase === 'shop' || phase === 'gshop' || phase === 'music' || phase === 'diff' || phase === 'jobs' || phase === 'cheat') {
+    if (phase === 'paused' || phase === 'settings' || phase === 'shop' || phase === 'gshop' || phase === 'music' || phase === 'diff' || phase === 'jobs' || phase === 'cheat' || phase === 'notice') {
       // 弹层一层一层退回
       if (phase === 'settings') { closeSettings(); return true }
       if (phase === 'shop') { closeShop(); return true }
@@ -1543,6 +1546,7 @@
       if (phase === 'diff') { closeDiff(); return true }
       if (phase === 'jobs') { closeJobs(); return true }
       if (phase === 'cheat') { closeCheat(); return true }
+      if (phase === 'notice') { closeNotice(); return true }
       return false
     }
     if (phase === 'levelup') return true
@@ -1798,6 +1802,76 @@
     openSettings()
   })
 
+  /* ---------------- 检查更新与游戏公告（全程冷更新：不在应用内下载文件） ---------------- */
+  // 云端清单：版本号 + 公告 + 新版 APK 下载地址。换托管地址只改云端清单，无需重打包。
+  var CLOUD_URL = 'https://raw.githubusercontent.com/gu0766964-beep/9178/main/cloud/manifest.json'
+  var LOCAL_VC = 47 // 与 build_apk.py 打包时的 versionCode 必须一致
+  var NOTICE_KEY = 'mow.notice.v1' // 已读公告的版本号（每个版本只自动弹一次）
+
+  // 公告条目再做一次客户端过滤：含「作弊码」的一律不显示
+  function noticeFilter(list) {
+    return (list || []).filter(function (t) {
+      if (!t) return false
+      return t.indexOf('作弊码') < 0 && t.indexOf('作 弊 码') < 0
+    })
+  }
+
+  function showNotice(j) {
+    hideMenuOverlays()
+    phase = 'notice'
+    var add = noticeFilter(j.notice && j.notice.add)
+    var fix = noticeFilter(j.notice && j.notice.fix)
+    el.noticeAdd.innerHTML = add.length
+      ? add.map(function (t) { return '<li>' + t + '</li>' }).join('')
+      : '<li>本版为小更新</li>'
+    el.noticeFix.innerHTML = fix.map(function (t) { return '<li>' + t + '</li>' }).join('')
+    el.noticeFixHead.style.display = fix.length ? '' : 'none'
+    el.noticeFix.style.display = fix.length ? '' : 'none'
+    el.noticeVer.textContent = '新版本 ' + (j.versionName || ('v' + j.versionCode)) + ' 已发布'
+    el.noticeDl.href = j.apkUrl || '#'
+    show(el.noticeScreen, true)
+    sfx.level()
+  }
+
+  function closeNotice() {
+    show(el.noticeScreen, false)
+    if (phase === 'notice') {
+      phase = 'menu'
+      show(el.startScreen, true) // hideMenuOverlays 关掉了首页，需恢复
+    }
+    sfx.click()
+  }
+
+  function checkUpdate(quiet) {
+    // quiet=true：启动时后台静默检查，每个新版本只自动弹一次
+    // quiet=false：用户点了「检查更新」，总给个结果
+    fetch(CLOUD_URL, { cache: 'no-cache' })
+      .then(function (r) { return r.json() })
+      .then(function (j) {
+        if (!j || !j.versionCode) throw new Error('bad manifest')
+        if (j.versionCode > LOCAL_VC) {
+          var readVc = 0
+          try { readVc = parseInt(localStorage.getItem(NOTICE_KEY) || '0', 10) || 0 } catch (e) {}
+          if (!quiet || readVc < j.versionCode) {
+            try { localStorage.setItem(NOTICE_KEY, String(j.versionCode)) } catch (e) {}
+            showNotice(j)
+          } else if (!quiet) {
+            toast('已有新版 ' + (j.versionName || ('v' + j.versionCode)) + ' · 公告已在首页弹出')
+          }
+        } else if (!quiet) {
+          toast('当前已是最新版本')
+        }
+      })
+      .catch(function () { if (!quiet) toast('检查更新失败 · 请稍后再试') })
+  }
+
+  el.updBtn.addEventListener('click', function () { sfx.click(); checkUpdate(false) })
+  el.noticeOk.addEventListener('click', closeNotice)
+  el.noticeBackBtn.addEventListener('click', closeNotice)
+  el.noticeDl.addEventListener('click', function () { sfx.click() })
+  // 启动后后台静默检查一次（有新版本且尚未读过该版本时才弹公告）
+  setTimeout(function () { checkUpdate(true) }, 1500)
+
   el.setBtn.addEventListener('click', openSettings)
   el.shopBackBtn.addEventListener('click', closeShop)
   el.gShopBackBtn.addEventListener('click', closeGShop)
@@ -1924,6 +1998,8 @@
           autoLog.push('menuBack=' + phase)
         }
         if (ticks === 27 && phase === 'menu') {
+          // 首页右上角「检查更新」按钮与公告 overlay 的状态
+          autoLog.push('upd=' + (el.updBtn ? el.updBtn.textContent.trim() : 'MISSING') + ' notice=' + (el.noticeScreen.className.indexOf('on') < 0 ? 'hidden' : 'shown'))
           // 难度选择：首页点「新游戏」先弹难度面板，选「地狱」开局
           openDiff()
           autoLog.push('diffOpen=' + phase)

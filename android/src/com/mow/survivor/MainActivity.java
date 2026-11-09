@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Message;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -15,6 +16,7 @@ import android.webkit.ConsoleMessage;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -74,11 +76,45 @@ public class MainActivity extends Activity {
             s.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
         }
 
-        web.setWebViewClient(new WebViewClient());
+        web.setWebViewClient(new WebViewClient() {
+            // 冷更新外链（GitHub / 下载页等）一律交给系统浏览器，绝不在 WebView 里跳走
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                if (url == null || url.startsWith("file://")) return false;
+                openExternal(url);
+                return true;
+            }
+
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest req) {
+                String url = req.getUrl() != null ? req.getUrl().toString() : null;
+                if (url == null || url.startsWith("file://")) return false;;
+                openExternal(url);
+                return true;
+            }
+        });
+        // a target=_blank（如公告里的「下载新版 APK」）也会走 onCreateWindow
+        s.setSupportMultipleWindows(true);
         web.setWebChromeClient(new WebChromeClient() {
             @Override
             public boolean onConsoleMessage(ConsoleMessage cm) {
                 android.util.Log.d("MOW", cm.message() + " @" + cm.lineNumber());
+                return true;
+            }
+
+            // target=_blank 的链接交给系统浏览器：把加载回吐给当前 WebView，
+            // 由上面 shouldOverrideUrlLoading 统一拦截到外链逻辑
+            @Override
+            public boolean onCreateWindow(WebView view, boolean isDialog,
+                                          boolean isUserGesture, Message resultMsg) {
+                if (resultMsg != null) {
+                    try {
+                        WebView.WebViewTransport transport = (WebView.WebViewTransport) resultMsg.obj;
+                        transport.setWebView(view);
+                        resultMsg.sendToTarget();
+                    } catch (Throwable ignored) {
+                    }
+                }
                 return true;
             }
 
@@ -136,6 +172,16 @@ public class MainActivity extends Activity {
             return;
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    /** 把外部 URL（下载 APK、公告链接等）交给系统浏览器打开。 */
+    private void openExternal(String url) {
+        try {
+            Intent it = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(it);
+        } catch (Throwable ignored) {
+        }
     }
 
     private void applyFullscreenFlags() {

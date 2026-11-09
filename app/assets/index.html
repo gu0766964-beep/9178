@@ -251,6 +251,12 @@
   .btnRow .btn { margin-top: 0; }
   /* 返回按钮：sheet 左上角 */
   .backTop { position: absolute; top: 10px; left: 12px; z-index: 2; padding: 6px 14px 6px 10px; font-size: 14px; font-weight: 700; color: var(--accent-2); background: rgba(255,255,255,0.06); border: 1px solid rgba(120,200,255,0.28); border-radius: 999px; }
+  .updTop { position: absolute; top: 10px; right: 12px; z-index: 2; padding: 6px 14px; font-size: 13px; font-weight: 700; letter-spacing: 1px; color: #d9ffe9; background: rgba(255,255,255,0.06); border: 1px solid rgba(140,255,190,0.35); border-radius: 999px; }
+  .noticeVer { font-size: 15px; color: var(--accent-2); margin-bottom: 14px; }
+  .noticeSec { font-size: 13px; font-weight: 800; letter-spacing: 2px; color: #d8e2f2; margin: 12px 0 6px; text-align: left; }
+  .noticeList { margin: 0 0 4px; padding-left: 20px; text-align: left; }
+  .noticeList li { font-size: 13px; color: #c3cee0; line-height: 1.65; margin-bottom: 4px; }
+  #noticeScreen .btn { margin-top: 14px; text-decoration: none; display: block; }
   .btn.danger {
     background: linear-gradient(180deg, #ff8fa3, #ff4d6d); color: #2a050d;
     box-shadow: 0 10px 30px rgba(255,77,109,0.28), inset 0 1px 0 rgba(255,255,255,0.5);
@@ -431,6 +437,21 @@
     </div>
   </div>
 
+  <!-- 游戏公告：检查更新发现有新版本时展示（内容来自云端清单，作作弊码相关条目不显示） -->
+  <div class="overlay" id="noticeScreen">
+    <div class="sheet">
+      <button class="backTop" id="noticeBackBtn">‹ 返回</button>
+      <div class="menuTitle">游戏公告</div>
+      <div class="noticeVer" id="noticeVer">检查中…</div>
+      <div class="noticeSec">✦ 本版更新</div>
+      <ul class="noticeList" id="noticeAdd"></ul>
+      <div class="noticeSec" id="noticeFixHead" style="display:none">✦ 问题修复</div>
+      <ul class="noticeList" id="noticeFix" style="display:none"></ul>
+      <a class="btn" id="noticeDl" href="#" target="_blank" rel="noopener">下载新版 APK</a>
+      <button class="btn ghost" id="noticeOk">知 道 了</button>
+    </div>
+  </div>
+
   <div class="overlay" id="pauseScreen">
     <div class="sheet">
       <div class="menuTitle pause">暂 停</div>
@@ -519,6 +540,7 @@
 
   <div class="overlay on" id="startScreen">
     <div class="sheet">
+      <button class="updTop" id="updBtn">⟳ 检查更新</button>
       <h1 class="logo"><em>无尽割草</em></h1>
       <div class="sub">ENDLESS MOW · 活到最后一秒</div>
       <div class="bestbox">
@@ -578,7 +600,9 @@
   <div id="diag"></div>
 </div>
 
-<!-- 云端版本检测 + 资源加载：cloud.js 接管后续所有脚本和资源路径 -->
-<script src="cloud.js"></script>
+<!-- 冷更新：所有资源都内置在 APK 里，更新 = 下载安装新包 -->
+<script src="game/sim.js"></script>
+<script src="game/render.js"></script>
+<script src="game/main.js"></script>
 </body>
 </html>

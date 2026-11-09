@@ -1,8 +1,6 @@
 # 排除大文件和不需要的目录
 dist/
 build/
-app/assets/music/*
-app/assets/bg/*
 *.apk
 *.keystore
 *.zip

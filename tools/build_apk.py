@@ -21,7 +21,7 @@ BUILD = os.path.join(ROOT, 'build')
 DIST = os.path.join(ROOT, 'dist')
 ASSETS = os.path.join(ROOT, 'app', 'assets')
 SRC = os.path.join(ROOT, 'android', 'src')
-APP_NAME = 'survivor-v2.5.12.apk'
+APP_NAME = 'survivor-2.5.14.apk'
 PACKAGE = 'com.mow.survivor'
 # 从 cloud/manifest.json 取版本（云端 versionCode/versionName）
 import json
@@ -32,9 +32,9 @@ try:
     VERSION_CODE = m['versionCode']
     APP_NAME = 'survivor-%s.apk' % m['versionName']
 except Exception:
-    VERSION_NAME = '2.5.12'
-    VERSION_CODE = 40
-    APP_NAME = 'survivor-v2.5.12.apk'
+    VERSION_NAME = '2.5.15'
+    VERSION_CODE = 47
+    APP_NAME = 'survivor-2.5.15.apk'
 MIN_SDK = 24
 TARGET_SDK = 34
 
