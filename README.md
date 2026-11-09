@@ -4,8 +4,8 @@
 
 | | |
 |---|---|
-| **安装包** | `dist/survivor-2.5.18.apk`（约 160 MB · 已含 8 个首页背景视频） |
-| **版本** | 2.5.18 · versionCode 50 · minSdk 24（Android 7.0+） |
+| **安装包** | `dist/survivor-2.5.19.apk`（约 160 MB · 已含 8 个首页背景视频） |
+| **版本** | 2.5.19 · versionCode 51 · minSdk 24（Android 7.0+） |
 | **包名 / 签名** | `com.mow.survivor` · debug keystore（v2/v3 签名，2.1.1 起固定） |
 | **技术栈** | Android 原生壳（横屏全屏 WebView）+ 纯本地 Canvas2D 游戏逻辑 |
 | **更新方式** | **全冷更新 + 公告热更新** — 游戏本体全部内置在 APK 里，装新 APK 才更新；只有「公告」会运行时从云端拉取，改公告不必发版 |
@@ -29,7 +29,7 @@
 
 ## 📲 安装
 
-1. 把 `dist/survivor-2.5.18.apk` 传到手机（微信传文件 / 数据线 / 网盘都行）。
+1. 把 `dist/survivor-2.5.19.apk` 传到手机（微信传文件 / 数据线 / 网盘都行）。
 2. 点击安装；系统提示「未知来源应用」属正常（自签名测试包）。
 3. 桌面出现「无尽割草」图标（你上传的那张图），点开直接进游戏。
 
@@ -121,6 +121,8 @@ python3 tools/release.py --no-bump --skip-build --force  # 不升版本，重发
 
 发布后玩家下次开游戏：装新 APK（冷更新）+ 立刻看到公告（热更新）。
 
+> 公告面板里的「下载完整安装包」在安卓上走系统下载管理器（通知栏进度，下完点通知覆盖安装，存档不丢），不跳浏览器；桌面浏览器试玩时则是普通链接。
+
 > 网络提示：本机访问 `github.com:443` 偶发不通，`release.py` 在 `git push` 失败时会自动改用 GitHub Git Data API 直接提交到 `main`（走 `api.github.com`，同样上传后校验云端清单），不需要手工补救。
 > `--no-bump` 用于「同一版本重发」：`gen_manifest.py` 在只回填 APK 大小/sha256 时会保留本版公告，不会把公告清空。
 
@@ -129,6 +131,13 @@ python3 tools/release.py --no-bump --skip-build --force  # 不升版本，重发
 ---
 
 ## 📜 更新历史
+
+### v2.5.19 · 修复「点下载新版 APK 闪退」
+
+- **修复点「下载新版 APK」闪退**：2.5.15 里该按钮走 `target="_blank"` → `onCreateWindow` 把正在加载的 WebView 塞进 `WebViewTransport`，部分机型上直接让 WebView 渲染进程崩溃。现在彻底删掉这条路径
+- **安装包改走系统下载管理器**：识别到 `.apk` / `/releases/download/` 链接就交给 `DownloadManager` 下载到「下载」目录，通知栏显示进度，下载完点通知即可覆盖安装（存档保留），不跳浏览器、不离开游戏
+- **外链兜底**：非安装包链接仍交系统浏览器；打不开时只弹一句提示，不再崩溃
+- `build_apk.py` 的清单新增 `REQUEST_INSTALL_PACKAGES` 权限（Android 8+ 安装 APK 需要）
 
 ### v2.5.18 · 全冷更新 + 公告热更新 + 一键发版
 

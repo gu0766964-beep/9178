@@ -2,23 +2,27 @@ package com.mow.survivor;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.DownloadManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Message;
+import android.os.Environment;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.ConsoleMessage;
+import android.webkit.DownloadListener;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
 
 /**
  * 无尽割草 · 安卓壳。
@@ -77,44 +81,35 @@ public class MainActivity extends Activity {
         }
 
         web.setWebViewClient(new WebViewClient() {
-            // 冷更新外链（GitHub / 下载页等）一律交给系统浏览器，绝不在 WebView 里跳走
+            // 外链一律不在 WebView 里打开：安装包走系统下载管理器，其它交给系统浏览器。
+            // 注意：绝不能把正在加载的 WebView 塞进 WebViewTransport 去抢新窗口，
+            // 那样会在部分机型上直接让 WebView 渲染进程崩溃（表现为点「下载新版 APK」闪退）。
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                if (url == null || url.startsWith("file://")) return false;
-                openExternal(url);
-                return true;
+                return handleUrl(url);
             }
 
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest req) {
-                String url = req.getUrl() != null ? req.getUrl().toString() : null;
-                if (url == null || url.startsWith("file://")) return false;;
-                openExternal(url);
-                return true;
+                return handleUrl(req.getUrl() != null ? req.getUrl().toString() : null);
             }
         });
-        // a target=_blank（如公告里的「下载新版 APK」）也会走 onCreateWindow
-        s.setSupportMultipleWindows(true);
+        // WebView 决定「下载」而不是「渲染」时（附件 / 安装包）走同一条处理
+        web.setDownloadListener(new DownloadListener() {
+            @Override
+            public void onDownloadStart(String url, String userAgent, String contentDisposition,
+                                        String mimeType, long contentLength) {
+                if (isApkUrl(url) || (mimeType != null && mimeType.contains("android.package-archive"))) {
+                    startApkDownload(url);
+                } else {
+                    openExternal(url);
+                }
+            }
+        });
         web.setWebChromeClient(new WebChromeClient() {
             @Override
             public boolean onConsoleMessage(ConsoleMessage cm) {
                 android.util.Log.d("MOW", cm.message() + " @" + cm.lineNumber());
-                return true;
-            }
-
-            // target=_blank 的链接交给系统浏览器：把加载回吐给当前 WebView，
-            // 由上面 shouldOverrideUrlLoading 统一拦截到外链逻辑
-            @Override
-            public boolean onCreateWindow(WebView view, boolean isDialog,
-                                          boolean isUserGesture, Message resultMsg) {
-                if (resultMsg != null) {
-                    try {
-                        WebView.WebViewTransport transport = (WebView.WebViewTransport) resultMsg.obj;
-                        transport.setWebView(view);
-                        resultMsg.sendToTarget();
-                    } catch (Throwable ignored) {
-                    }
-                }
                 return true;
             }
 
@@ -174,12 +169,76 @@ public class MainActivity extends Activity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    /** 把外部 URL（下载 APK、公告链接等）交给系统浏览器打开。 */
+    /** 统一处理外部链接：安装包交给系统下载管理器，其它交给系统浏览器。 */
+    private boolean handleUrl(String url) {
+        if (url == null || url.startsWith("file://")) return false;
+        if (isApkUrl(url)) {
+            startApkDownload(url);
+            return true;
+        }
+        openExternal(url);
+        return true;
+    }
+
+    /** 判断是不是「要下载安装包」的链接。 */
+    private boolean isApkUrl(String url) {
+        if (url == null) return false;
+        String u = url.toLowerCase();
+        int q = u.indexOf('?');
+        if (q > 0) u = u.substring(0, q);
+        return u.endsWith(".apk") || u.contains("/releases/download/");
+    }
+
+    /**
+     * 用系统下载管理器下载新版本 APK：下载完点通知栏即可安装（覆盖安装，存档不丢），
+     * 不离开游戏、也不依赖系统浏览器 —— 老版本「点下载闪退」就是浏览器跳转那条路引发的。
+     */
+    private void startApkDownload(String url) {
+        try {
+            DownloadManager dm = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+            if (dm == null) {
+                openExternal(url);
+                return;
+            }
+            String name = "survivor-update.apk";
+            String u = url;
+            int q = u.indexOf('?');
+            if (q > 0) u = u.substring(0, q);
+            int slash = u.lastIndexOf('/');
+            if (slash >= 0 && slash + 1 < u.length()) {
+                String tail = u.substring(slash + 1);
+                if (tail.toLowerCase().endsWith(".apk")) name = tail;
+            }
+            DownloadManager.Request req = new DownloadManager.Request(Uri.parse(url));
+            req.setMimeType("application/vnd.android.package-archive");
+            req.setTitle("无尽割草 · 新版本");
+            req.setDescription("下载完成后点通知栏安装，覆盖安装不会丢存档");
+            req.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+            req.setAllowedOverMetered(true);
+            req.setAllowedOverRoaming(true);
+            req.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, name);
+            dm.enqueue(req);
+            toast("已开始下载新版本，完成后点通知栏安装");
+        } catch (Throwable t) {
+            // 个别机型没有可用的下载器，退回浏览器
+            openExternal(url);
+        }
+    }
+
+    /** 把外部 URL（公告链接、发布页等）交给系统浏览器打开；失败给一句提示，绝不崩。 */
     private void openExternal(String url) {
         try {
             Intent it = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(it);
+        } catch (Throwable t) {
+            toast("无法打开链接，请在浏览器访问 github.com/gu0766964-beep/9178/releases");
+        }
+    }
+
+    private void toast(String msg) {
+        try {
+            Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
         } catch (Throwable ignored) {
         }
     }

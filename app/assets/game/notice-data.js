@@ -1,23 +1,34 @@
 /* 由 tools/gen_manifest.py 自动生成，请勿手改。
    作用：把公告与历史版本内置进 APK（冷更新），随安装包一起下发。*/
 window.__MOW_NOTICE__ = {
- "versionCode": 50,
- "versionName": "2.5.18",
+ "versionCode": 51,
+ "versionName": "2.5.19",
  "date": "2026-11-09",
- "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.18/survivor-2.5.18.apk",
+ "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.19/survivor-2.5.19.apk",
  "notice": {
   "add": [
-   "全自动发版：游戏更新后一键生成完整安装包并自动下发新版本",
-   "公告改为右侧滑出面板：冷更新与热更新合并展示，只有公告支持热更新",
-   "内置历史公告：点版本号即可查看该版本更新内容与修复项",
-   "首页左上角新增「公告」入口，随时回看全部历史版本"
+   "修复 2.5.15 点「下载新版 APK」闪退的问题",
+   "安装包改走系统下载管理器：下载完点通知栏覆盖安装，存档不丢",
+   "外链打开失败只提示不崩溃"
   ],
   "fix": [
-   "移除 cloud.js 文件级热更，脚本与资源只能随安装包下发",
-   "统一 manifest 与 APK 的版本号来源，修复版本号错乱"
+   "修复 WebView 新窗口处理不当导致的崩溃"
   ]
  },
  "history": [
+  {
+   "versionCode": 51,
+   "versionName": "2.5.19",
+   "date": "2026-11-09",
+   "add": [
+    "修复 2.5.15 点「下载新版 APK」闪退的问题",
+    "安装包改走系统下载管理器：下载完点通知栏覆盖安装，存档不丢",
+    "外链打开失败只提示不崩溃"
+   ],
+   "fix": [
+    "修复 WebView 新窗口处理不当导致的崩溃"
+   ]
+  },
   {
    "versionCode": 50,
    "versionName": "2.5.18",

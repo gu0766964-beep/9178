@@ -112,7 +112,9 @@ def step_manifest():
                                version_code=VERSION_CODE,
                                version_name=VERSION_NAME,
                                activity='.MainActivity',
-                               permissions=['android.permission.INTERNET'])
+                               permissions=['android.permission.INTERNET',
+                                            # Android 8+ 安装 APK 需要；下载完点通知安装时系统会引导开启
+                                            'android.permission.REQUEST_INSTALL_PACKAGES'])
     out = os.path.join(BUILD, 'AndroidManifest.xml')
     with open(out, 'wb') as f:
         f.write(data)
