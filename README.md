@@ -102,7 +102,11 @@
 - 没有新版本但云端公告变了，弹「游戏公告」热更新弹窗；
 - 两者同时存在时排队依次弹，不会互相盖掉。
 
-<img src="docs/notice-history-ui.png" width="360" alt="历史版本面板：点版本号展开该版的更新内容与修复项">
+<p align="center">
+  <img src="docs/update-popup-ui.png" width="240" alt="进游戏自动检测更新：居中弹出公告，带下载完整安装包按钮">
+  <img src="docs/cloud-notice-ui.png" width="240" alt="云公告面板：云端每次下发过的公告历史，点版本号展开">
+  <img src="docs/notice-history-ui.png" width="240" alt="历史版本面板：点版本号展开该版的更新内容与修复项">
+</p>
 
 公告面板在游戏首页右侧滑出；「查看历史版本」里每个版本号可点开，展开该版的「更新内容 / 问题修复」，含禁词的条目一律不展示。
 
