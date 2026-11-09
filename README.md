@@ -117,6 +117,9 @@ python3 tools/release.py --no-bump --skip-build --force  # 不升版本，重发
 
 发布后玩家下次开游戏：装新 APK（冷更新）+ 立刻看到公告（热更新）。
 
+> 网络提示：本机访问 `github.com:443` 偶发不通，`release.py` 在 `git push` 失败时会自动改用 GitHub Git Data API 直接提交到 `main`（走 `api.github.com`，同样上传后校验云端清单），不需要手工补救。
+> `--no-bump` 用于「同一版本重发」：`gen_manifest.py` 在只回填 APK 大小/sha256 时会保留本版公告，不会把公告清空。
+
 **公告内容规则**：凡提到「作弊码」的条目一律不显示 —— 正文条目整条屏蔽；标题式条目（含 ` + ` 并列）只丢掉含该词的并列段，保留其余。历史数据来自本 README 的更新历史，由 `tools/parse_readme_history.py` 解析成 `cloud/notice-history.json`（39 条历史 + 本版，v1.4 ~ 当前）。
 
 ---
@@ -130,6 +133,7 @@ python3 tools/release.py --no-bump --skip-build --force  # 不升版本，重发
 - **历史版本**：内置 42 个版本的公告（v1.4 ~ 当前），点版本号展开该版本的「更新内容 / 问题修复」，当前版本与新版有徽章区分；凡提及「作弊码」的条目全部过滤
 - **一键发版** `tools/release.py`：升版本 → `gen_manifest.py` 写清单与内置公告 → `build_apk.py` 打完整包 → 提交推送 → 建 GitHub Release 并上传 APK → 轮询云端清单确认生效
 - `build_apk.py` 打包前校验 `notice-data.js` 与 `manifest.json` 版本一致，避免「装上新包、公告还是旧的」
+- 发布脚本健壮性：`git push` 失败自动降级走 Git Data API；`--no-bump` 重发同版本时保留本版公告（修掉「回填 APK 元信息把公告清空」的坑）
 
 ### v2.5.15 · 音乐/背景视频上传云端 + 首页「检查更新」+ 游戏公告
 
