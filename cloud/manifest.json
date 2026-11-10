@@ -1,23 +1,33 @@
 {
   "schema": 2,
-  "versionCode": 62,
-  "versionName": "2.5.30",
+  "versionCode": 63,
+  "versionName": "2.5.31",
   "date": "2026-11-10",
-  "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.30/survivor-2.5.30.apk",
+  "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.31/survivor-2.5.31.apk",
   "apkSize": 160454895,
-  "apkSha256": "541ed5df1422b49aa92cf077488496fb00f52b8f1e22c352908fca7200b2065a",
-  "assetsHash": "e3ff1521adcdfa639f26ecfc57f1d624",
+  "apkSha256": "ed048dc7088c0ec4f0dc42eb301da8f7338f07d1e5906bedfcd4f610ae05a961",
+  "assetsHash": "99bda4937fe49cdb6e765759d70b1b6f",
   "assetsCount": 26,
   "notice": {
     "add": [
-      "公告栏禁止左右滑动"
+      "公告弹窗按钮收窄更紧凑",
+      "更新弹窗下载按钮同步收窄"
     ],
-    "fix": [
-      "修复公告内容可横向拖动的问题"
-    ]
+    "fix": []
   },
-  "noticeId": "v2.5.30-62-2026-11-10-efc82c",
+  "noticeId": "v2.5.31-63-2026-11-10-0d7168",
   "noticeHistory": [
+    {
+      "id": "v2.5.31-63-2026-11-10-0d7168",
+      "versionCode": 63,
+      "versionName": "2.5.31",
+      "date": "2026-11-10",
+      "add": [
+        "公告弹窗按钮收窄更紧凑",
+        "更新弹窗下载按钮同步收窄"
+      ],
+      "fix": []
+    },
     {
       "id": "v2.5.30-62-2026-11-10-efc82c",
       "versionCode": 62,
@@ -165,6 +175,16 @@
     }
   ],
   "history": [
+    {
+      "versionCode": 63,
+      "versionName": "2.5.31",
+      "date": "2026-11-10",
+      "add": [
+        "公告弹窗按钮收窄更紧凑",
+        "更新弹窗下载按钮同步收窄"
+      ],
+      "fix": []
+    },
     {
       "versionCode": 62,
       "versionName": "2.5.30",

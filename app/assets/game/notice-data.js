@@ -1,20 +1,30 @@
 /* 由 tools/gen_manifest.py 自动生成，请勿手改。
    作用：把公告与历史版本内置进 APK（冷更新），随安装包一起下发。*/
 window.__MOW_NOTICE__ = {
- "versionCode": 62,
- "versionName": "2.5.30",
+ "versionCode": 63,
+ "versionName": "2.5.31",
  "date": "2026-11-10",
- "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.30/survivor-2.5.30.apk",
+ "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.31/survivor-2.5.31.apk",
  "notice": {
   "add": [
-   "公告栏禁止左右滑动"
+   "公告弹窗按钮收窄更紧凑",
+   "更新弹窗下载按钮同步收窄"
   ],
-  "fix": [
-   "修复公告内容可横向拖动的问题"
-  ]
+  "fix": []
  },
- "noticeId": "v2.5.30-62-2026-11-10-efc82c",
+ "noticeId": "v2.5.31-63-2026-11-10-0d7168",
  "cloudHistory": [
+  {
+   "id": "v2.5.31-63-2026-11-10-0d7168",
+   "versionCode": 63,
+   "versionName": "2.5.31",
+   "date": "2026-11-10",
+   "add": [
+    "公告弹窗按钮收窄更紧凑",
+    "更新弹窗下载按钮同步收窄"
+   ],
+   "fix": []
+  },
   {
    "id": "v2.5.30-62-2026-11-10-efc82c",
    "versionCode": 62,
@@ -162,6 +172,16 @@ window.__MOW_NOTICE__ = {
   }
  ],
  "history": [
+  {
+   "versionCode": 63,
+   "versionName": "2.5.31",
+   "date": "2026-11-10",
+   "add": [
+    "公告弹窗按钮收窄更紧凑",
+    "更新弹窗下载按钮同步收窄"
+   ],
+   "fix": []
+  },
   {
    "versionCode": 62,
    "versionName": "2.5.30",

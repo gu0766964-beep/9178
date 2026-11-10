@@ -325,6 +325,14 @@
   .noticeTag.hot { background: rgba(255,206,92,0.16); color: var(--gold); }
   #noticeScreen .btn { margin: 0 16px 6px; text-decoration: none; display: block; }
   #noticeScreen .btn.ghost { margin: 0 16px 8px; }
+  /* 弹窗底部按钮收窄：宽度只包住文字，水平居中、各占一行 */
+  #noticeScreen #noticeHistoryBtn.btn, #noticeScreen #noticeOk.btn,
+  #updateScreen #updDl.btn {
+    display: table; width: auto; min-width: 0;
+    margin-left: auto; margin-right: auto;
+    padding-left: 34px; padding-right: 34px;
+  }
+  #updateScreen #updDl.btn { margin-top: 8px; }
   /* 历史公告面板：居中弹窗 */
   .histPanel { z-index: 22; }
   /* 面板比屏幕高时，flex 居中最容易把顶部（返回按钮/标题）裁掉：
