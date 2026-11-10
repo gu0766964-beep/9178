@@ -4,8 +4,8 @@
 
 | | |
 |---|---|
-| **安装包** | `dist/survivor-2.5.20.apk`（约 160 MB · 已含 8 个首页背景视频） |
-| **版本** | 2.5.20 · versionCode 52 · minSdk 24（Android 7.0+） |
+| **安装包** | `dist/survivor-2.5.22.apk`（约 160 MB · 已含 8 个首页背景视频） |
+| **版本** | 2.5.22 · versionCode 54 · minSdk 24（Android 7.0+） |
 | **包名 / 签名** | `com.mow.survivor` · debug keystore（v2/v3 签名，2.1.1 起固定） |
 | **技术栈** | Android 原生壳（横屏全屏 WebView）+ 纯本地 Canvas2D 游戏逻辑 |
 | **更新方式** | **全冷更新 + 公告热更新** — 游戏本体全部内置在 APK 里，装新 APK 才更新；只有「公告」会运行时从云端拉取，改公告不必发版 |
@@ -31,7 +31,7 @@
 
 ## 📲 安装
 
-1. 把 `dist/survivor-2.5.20.apk` 传到手机（微信传文件 / 数据线 / 网盘都行）。
+1. 把 `dist/survivor-2.5.22.apk` 传到手机（微信传文件 / 数据线 / 网盘都行）。
 2. 点击安装；系统提示「未知来源应用」属正常（自签名测试包）。
 3. 桌面出现「无尽割草」图标（你上传的那张图），点开直接进游戏。
 
@@ -143,6 +143,17 @@ python3 tools/release.py --no-bump --skip-build --force  # 不升版本，重发
 ---
 
 ## 📜 更新历史
+
+### v2.5.22 · 结算音乐暂停恢复 + 云公告移入公告面板 + 首页增加关于面板
+
+- **结算界面暂停音乐、再来一局恢复**：死亡结算时调用 `pauseMenuMusic()` 停音乐；点「再来一局」→`newGame()` → `resumeMusic()` 续播（`continueGame()` 同理）；回首页也停，`resumeMusic` 同时兼容合成曲（`__toneStart/Stop`）与本地图文件（`play/pause`）
+- **云公告入口移入公告面板**：不再在最左侧悬浮；公告面板左上角“返回”左侧新增了「云公告」字样按钮，侧边带红点，点开后是云端所有下发的公告历史
+- **首页右侧增加“关 于”按钮**：点开后弹出关于面板，列出产品来源作者列表与版权声明
+
+### v2.5.21 · 公告面板改为全屏居中弹窗，修复历史版本返回遮挡
+
+- 公告面板从原来的右侧滑帘改为居中弹窗（`z-index: 21` 固定在首页上层），历史版本面板修复了收起后游戏首页挡住公告、无法关闭的问题
+- 同时修复了 Android 壳：点「下载新版 APK」时从 `target="_blank"` + `WebViewTransport` 改为 `DownloadManager` 系统下载，不再闪退
 
 ### v2.5.20 · 云公告面板 + 居中更新弹窗
 
@@ -302,7 +313,7 @@ survivor/
 │   ├── parse_readme_history.py    # 把 README 更新历史解析成 cloud/notice-history.json
 │   ├── release.py                 # 一键发版：升版本 → 打包 → 提交 → Release → 上传 APK
 │   └── test_sim.js                # Node 无头回归测试
-└── dist/survivor-2.5.20.apk       # 产物
+└── dist/survivor-2.5.22.apk       # 产物
 ```
 
 ## 🛠 开发者
