@@ -4,8 +4,8 @@
 
 | | |
 |---|---|
-| **安装包** | `dist/survivor-2.5.23.apk`（约 160 MB · 已含 8 个首页背景视频） |
-| **版本** | 2.5.23 · versionCode 55 · minSdk 24（Android 7.0+） |
+| **安装包** | `dist/survivor-2.5.25.apk`（约 160 MB · 已含 8 个首页背景视频） |
+| **版本** | 2.5.25 · versionCode 57 · minSdk 24（Android 7.0+） |
 | **包名 / 签名** | `com.mow.survivor` · debug keystore（v2/v3 签名，2.1.1 起固定） |
 | **技术栈** | Android 原生壳（横屏全屏 WebView）+ 纯本地 Canvas2D 游戏逻辑 |
 | **更新方式** | **全冷更新 + 公告热更新** — 游戏本体全部内置在 APK 里，装新 APK 才更新；只有「公告」会运行时从云端拉取，改公告不必发版 |
@@ -31,7 +31,7 @@
 
 ## 📲 安装
 
-1. 把 `dist/survivor-2.5.23.apk` 传到手机（微信传文件 / 数据线 / 网盘都行）。
+1. 把 `dist/survivor-2.5.25.apk` 传到手机（微信传文件 / 数据线 / 网盘都行）。
 2. 点击安装；系统提示「未知来源应用」属正常（自签名测试包）。
 3. 桌面出现「无尽割草」图标（你上传的那张图），点开直接进游戏。
 
@@ -143,6 +143,17 @@ python3 tools/release.py --no-bump --skip-build --force  # 不升版本，重发
 ---
 
 ## 📜 更新历史
+### v2.5.25 · 玻璃化调透亮 + 下载页UI不缩放
+
+- **玻璃化 UI 更透亮**：把全屏模糊从 12px 降为 3px（滚动时可透出背景视频），面板 Sheet 保留磨碙（blur 14px），按钮 .btn .gold .ghost 去掉自身 blur；背景视频不再被糟死
+- **起始页 UI 停止缩放**：旋转时界面矩形缩放，避免变形
+
+### v2.5.24 · 下载提示优化
+
+- **下载提示改为双向兌底**：APK 下载没有进度时，会提示复制链接到系统浏览器下载完整安装包（GitHub 国内直连不稳定，需 VPN ，见安装说明）
+- README 补充了 GitHub Releases 下载链接，无 VPN 也能手动下载
+- 公告逻辑：「下载完整安装包」按钮点击后 toast 改为提示语，不等待 apk 下载回调
+
 ### v2.5.23 · 首页与设置UI全部液态玻璃化 + 修复关于面板
 
 - **首页和设置的 UI 全面液态玻璃化**：#startScreen ／ #overScreen（结算层）底色 rgba(14,20,30,0.45) + blur(12px)，Sheet 内嵌光晕渐变，按钮 .btn/.btn.ghost 加磨砂、细亮边、内发光；设置页的 setRow、开关、分段按钮、商店/音乐卡片统一玻璃文理。
@@ -320,7 +331,7 @@ survivor/
 │   ├── parse_readme_history.py    # 把 README 更新历史解析成 cloud/notice-history.json
 │   ├── release.py                 # 一键发版：升版本 → 打包 → 提交 → Release → 上传 APK
 │   └── test_sim.js                # Node 无头回归测试
-└── dist/survivor-2.5.23.apk       # 产物
+└── dist/survivor-2.5.25.apk       # 产物
 ```
 
 ## 🛠 开发者
