@@ -1,20 +1,30 @@
 /* 由 tools/gen_manifest.py 自动生成，请勿手改。
    作用：把公告与历史版本内置进 APK（冷更新），随安装包一起下发。*/
 window.__MOW_NOTICE__ = {
- "versionCode": 54,
- "versionName": "2.5.22",
+ "versionCode": 55,
+ "versionName": "2.5.23",
  "date": "2026-11-10",
- "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.22/survivor-2.5.22.apk",
+ "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.23/survivor-2.5.23.apk",
  "notice": {
   "add": [
-   "首页与设置UI全部液态玻璃化；游戏内升级卡保持原样式",
-   "修复关于面板关闭问题：删掉关闭按钮只保留返回",
-   "音频结算暂停恢复、云公告移入面板、关于面板"
+   "首页与设置UI全部液态玻璃化，游戏内升级卡保持原样式",
+   "修复关于面板：删除关闭按钮只保留返回"
   ],
   "fix": []
  },
- "noticeId": "v2.5.22-54-2026-11-10-141557",
+ "noticeId": "v2.5.23-55-2026-11-10-de23ab",
  "cloudHistory": [
+  {
+   "id": "v2.5.23-55-2026-11-10-de23ab",
+   "versionCode": 55,
+   "versionName": "2.5.23",
+   "date": "2026-11-10",
+   "add": [
+    "首页与设置UI全部液态玻璃化，游戏内升级卡保持原样式",
+    "修复关于面板：删除关闭按钮只保留返回"
+   ],
+   "fix": []
+  },
   {
    "id": "v2.5.22-54-2026-11-10-d5f1df",
    "versionCode": 54,
@@ -71,6 +81,16 @@ window.__MOW_NOTICE__ = {
   }
  ],
  "history": [
+  {
+   "versionCode": 55,
+   "versionName": "2.5.23",
+   "date": "2026-11-10",
+   "add": [
+    "首页与设置UI全部液态玻璃化，游戏内升级卡保持原样式",
+    "修复关于面板：删除关闭按钮只保留返回"
+   ],
+   "fix": []
+  },
   {
    "versionCode": 54,
    "versionName": "2.5.22",
