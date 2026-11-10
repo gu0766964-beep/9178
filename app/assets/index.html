@@ -112,7 +112,7 @@
     overflow-y: auto; -webkit-overflow-scrolling: touch;
   }
   /* 全屏阴影：极淡即可，磨砂只给面板（游戏内/视频不被模糊） */
-  /* 首页：不要磨砂不要边框，让背景视频完整可见，且不需要滑动 */
+  /* 首页：不要磨砂不要边框，让背景视频完整可见；顶部按钮不盖标题 */
   #startScreen,
   #startScreen .sheet {
     background: transparent;
@@ -126,17 +126,30 @@
   }
   #startScreen {
     overflow-y: visible;
+    align-items: flex-start;          /* 内容从顶部排，标题永远不会被裁出屏幕 */
+    justify-content: center;
+    padding-top: calc(env(safe-area-inset-top, 0px) + 6px);
   }
-  /* 首页按钮继承液态玻璃 */
+  #startScreen .sheet {
+    padding: 54px 10px 16px;          /* 给公告/检查更新/关于三个悬浮按钮让位 */
+  }
+  /* 首页按钮：更透的液态玻璃（白底更薄，视频能透出来） */
   #startScreen .btn {
-    color: #06210f; box-shadow: none; text-shadow: none;
+    background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.02));
+    border: 1px solid rgba(255,255,255,0.16);
+    color: #eafff2;
+    text-shadow: 0 1px 6px rgba(0,0,0,0.85), 0 0 2px rgba(0,0,0,0.8);
+    box-shadow: none;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
   }
   #startScreen .btn.gold {
-    background: linear-gradient(180deg, rgba(255,255,255,0.45), rgba(255,255,255,0.12));
-    border-color: rgba(255,206,92,0.55); color: #3a2c0a;
+    background: linear-gradient(180deg, rgba(255,206,92,0.18), rgba(255,206,92,0.05));
+    border-color: rgba(255,206,92,0.40); color: #ffe9b0;
+    text-shadow: 0 1px 6px rgba(0,0,0,0.9);
   }
   #startScreen .btn.ghost {
-    border-color: rgba(255,255,255,0.22);
+    background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.01));
+    border-color: rgba(255,255,255,0.14);
   }
   #startScreen .startBtn, #startScreen .continueBtn, #startScreen .btnRow3 .btn {
     box-shadow: 0 6px 16px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.4);
@@ -149,16 +162,16 @@
   .overlay.on { display: flex; }
   .sheet { position: relative; width: 100%; max-width: 560px; max-height: 100%; overflow-y: auto; text-align: center; }
 
-  .logo { font-size: 40px; font-weight: 900; letter-spacing: 4px; margin: 0 0 6px; line-height: 1.1; }
+  .logo { font-size: 34px; font-weight: 900; letter-spacing: 3px; margin: 0 0 4px; line-height: 1.1; }
   .logo em {
     font-style: normal;
     color: rgba(240,255,248,0.88);
     text-shadow: 0 2px 14px rgba(0,0,0,0.95), 0 0 4px rgba(0,0,0,0.95);
     filter: drop-shadow(0 0 22px rgba(124,245,158,0.25));
   }
-  .sub { color: rgba(232,242,236,0.62); font-size: 13px; letter-spacing: 2px; margin-bottom: 26px; }
+  .sub { color: rgba(232,242,236,0.62); font-size: 12px; letter-spacing: 2px; margin-bottom: 12px; }
   .bestbox {
-    display: flex; justify-content: center; gap: 20px; margin-bottom: 26px;
+    display: flex; justify-content: center; gap: 20px; margin-bottom: 14px;
     font-size: 12px; color: rgba(232,242,236,0.72);
     background: transparent; border: none; padding: 0;
   }
@@ -567,9 +580,10 @@
   #diag.on { display: block; }
 
   @media (max-height: 640px) {
-    .logo { font-size: 34px; }
-    .sub { margin-bottom: 16px; }
-    .hint { margin-top: 12px; }
+    .logo { font-size: 30px; }
+    #startScreen .sheet { padding-top: 50px; }
+    .sub { margin-bottom: 8px; }
+    .bestbox { margin-bottom: 10px; }
   }
 </style>
   <script>
@@ -817,10 +831,6 @@
         <button class="btn ghost" id="jobBtn">角 色</button>
         <button class="btn ghost" id="shopBtn1">商 店</button>
         <button class="btn ghost" id="setBtn1">设 置</button>
-      </div>
-      <div class="hint">
-        摇杆移动 · 拾取经验升级三选一 · 一波清完休息 10 秒 · 每 5 波一个 BOSS<br />
-        <kbd>WASD</kbd> / <kbd>方向键</kbd> 也支持键盘
       </div>
       <div class="curJobLine">当前职业：<b id="curJob">游侠</b></div>
     </div>
