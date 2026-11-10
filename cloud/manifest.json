@@ -1,21 +1,33 @@
 {
   "schema": 2,
-  "versionCode": 56,
-  "versionName": "2.5.24",
+  "versionCode": 57,
+  "versionName": "2.5.25",
   "date": "2026-11-10",
-  "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.24/survivor-2.5.24.apk",
+  "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.25/survivor-2.5.25.apk",
   "apkSize": 160454895,
-  "apkSha256": "b995f61baf46cfc4e0d1d37fe8566ef690f109dbeb5d18122b22cac0447e2417",
-  "assetsHash": "44a8f723d18f1d2d3665469e5b661e17",
+  "apkSha256": "1bc2b01119b4aedf398b6bdc362e2c7628a8ef4836e66ede12c8c65d174fc0d7",
+  "assetsHash": "d20f98de42cd49617ec7e0c9f194162c",
   "assetsCount": 26,
   "notice": {
     "add": [
-      "下载提示加系统浏览器备选入口；README补充GitHub下载链接，无VPN也能装"
+      "开头动画与玻璃化",
+      "起页面UI停止缩放"
     ],
     "fix": []
   },
-  "noticeId": "v2.5.24-56-2026-11-10-e9734c",
+  "noticeId": "v2.5.25-57-2026-11-10-ac82b4",
   "noticeHistory": [
+    {
+      "id": "v2.5.25-57-2026-11-10-ac82b4",
+      "versionCode": 57,
+      "versionName": "2.5.25",
+      "date": "2026-11-10",
+      "add": [
+        "开头动画与玻璃化",
+        "起页面UI停止缩放"
+      ],
+      "fix": []
+    },
     {
       "id": "v2.5.24-56-2026-11-10-e9734c",
       "versionCode": 56,
@@ -93,6 +105,16 @@
     }
   ],
   "history": [
+    {
+      "versionCode": 57,
+      "versionName": "2.5.25",
+      "date": "2026-11-10",
+      "add": [
+        "开头动画与玻璃化",
+        "起页面UI停止缩放"
+      ],
+      "fix": []
+    },
     {
       "versionCode": 56,
       "versionName": "2.5.24",

@@ -111,30 +111,28 @@
     backdrop-filter: blur(3px);
     overflow-y: auto; -webkit-overflow-scrolling: touch;
   }
-  /* 液态玻璃：首页/结算层透出背景视频，但 UI 整体带磨砂玻璃质感 */
+  /* 全屏阴影：极淡即可，磨砂只给面板（游戏内/视频不被模糊） */
   #startScreen, #overScreen {
-    background: rgba(14,20,30,0.45);
-    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    background: rgba(14,20,30,0.03);
+    backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
   }
   #startScreen .sheet, #overScreen .sheet {
-    background: radial-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.03));
-    border: 1px solid rgba(255,255,255,0.22);
-    box-shadow: 0 8px 40px rgba(79,208,122,0.14), inset 0 1px 0 rgba(255,255,255,0.4);
-    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    
     border-radius: 16px; padding: 18px 14px;
   }
   /* 首页按钮继承液态玻璃 */
   #startScreen .btn {
     color: #06210f; box-shadow: none; text-shadow: none;
-    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
   }
   #startScreen .btn.gold {
     background: linear-gradient(180deg, rgba(255,255,255,0.45), rgba(255,255,255,0.12));
     border-color: rgba(255,206,92,0.55); color: #3a2c0a;
-    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
   }
   #startScreen .btn.ghost {
-    border-color: rgba(255,255,255,0.22); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border-color: rgba(255,255,255,0.22);
   }
   #startScreen .startBtn, #startScreen .continueBtn, #startScreen .btnRow3 .btn {
     box-shadow: 0 6px 16px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.4);

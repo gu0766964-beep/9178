@@ -1,18 +1,30 @@
 /* 由 tools/gen_manifest.py 自动生成，请勿手改。
    作用：把公告与历史版本内置进 APK（冷更新），随安装包一起下发。*/
 window.__MOW_NOTICE__ = {
- "versionCode": 56,
- "versionName": "2.5.24",
+ "versionCode": 57,
+ "versionName": "2.5.25",
  "date": "2026-11-10",
- "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.24/survivor-2.5.24.apk",
+ "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.25/survivor-2.5.25.apk",
  "notice": {
   "add": [
-   "下载提示加系统浏览器备选入口；README补充GitHub下载链接，无VPN也能装"
+   "开头动画与玻璃化",
+   "起页面UI停止缩放"
   ],
   "fix": []
  },
- "noticeId": "v2.5.24-56-2026-11-10-e9734c",
+ "noticeId": "v2.5.25-57-2026-11-10-ac82b4",
  "cloudHistory": [
+  {
+   "id": "v2.5.25-57-2026-11-10-ac82b4",
+   "versionCode": 57,
+   "versionName": "2.5.25",
+   "date": "2026-11-10",
+   "add": [
+    "开头动画与玻璃化",
+    "起页面UI停止缩放"
+   ],
+   "fix": []
+  },
   {
    "id": "v2.5.24-56-2026-11-10-e9734c",
    "versionCode": 56,
@@ -90,6 +102,16 @@ window.__MOW_NOTICE__ = {
   }
  ],
  "history": [
+  {
+   "versionCode": 57,
+   "versionName": "2.5.25",
+   "date": "2026-11-10",
+   "add": [
+    "开头动画与玻璃化",
+    "起页面UI停止缩放"
+   ],
+   "fix": []
+  },
   {
    "versionCode": 56,
    "versionName": "2.5.24",
