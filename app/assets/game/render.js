@@ -15,6 +15,8 @@
     return c
   }
 
+  var rendererHeroReady = false   // hero_cat.png 加载完成标记
+
   function Renderer(canvas) {
     this.canvas = canvas
     this.ctx = canvas.getContext('2d')
@@ -28,6 +30,15 @@
       gold: makeGlow('rgba(255,210,90,0.5)', 128),
       purple: makeGlow('rgba(200,110,255,0.5)', 128),
     }
+    // 角色贴图（像素风猫耳娘）：加载成功后替换默认像素小人；失败自动回退
+    this.heroImg = null
+    try {
+      var hi = new Image()
+      hi.onload = function () { rendererHeroReady = true }
+      hi.onerror = function () { rendererHeroReady = false }
+      hi.src = 'game/sprite/hero_cat.png'
+      this.heroImg = hi
+    } catch (e) { this.heroImg = null }
     this.resize()
   }
 
@@ -1227,35 +1238,63 @@
     }
 
     if (!blink) {
-      var PAL = playerPal(hurt, s.job)
-      var legs = PLAYER_LEGS[walk] || PLAYER_LEGS[0]
-      var rows = PLAYER_TOP.concat(legs)
-      var H = rows.length, W = rows[0].length
-      var bob = moving ? Math.sin(p.walkPhase || 0) * 0.7 : 0
-      var ox = -W * PX / 2, oy = -H * PX / 2 + bob - PX * 0.4
-      for (var r = 0; r < H; r++) {
-        var line = rows[r]
-        for (var c = 0; c < W; c++) {
-          var ch = line.charAt(face >= 0 ? c : (W - 1 - c))
-          var col = PAL[ch]
-          if (!col) continue
-          ctx.fillStyle = col
-          ctx.fillRect(ox + c * PX, oy + r * PX, PX + 0.6, PX + 0.6)
+      var bob = moving ? Math.sin(p.walkPhase || 0) * 1.3 : Math.sin(time * 2.2) * 0.7
+      var img = (this.heroImg && rendererHeroReady && this.heroImg.naturalWidth > 0) ? this.heroImg : null
+      if (img) {
+        // 猫耳娘贴图：原图面向左；face=1（向右）时水平翻转
+        var hw = R * 2.1
+        var hh = hw * img.naturalHeight / img.naturalWidth
+        var baseY = R * 0.98 - hh + bob   // 脚底贴住阴影
+        ctx.save()
+        ctx.scale(face < 0 ? 1 : -1, 1)
+        if (hurt) ctx.filter = 'saturate(1.4) brightness(1.18)'
+        ctx.drawImage(img, -hw / 2, baseY, hw, hh)
+        ctx.filter = 'none'
+        ctx.restore()
+        // 像素剑：从肩部沿 aim 方向伸出
+        ctx.save()
+        ctx.translate(face * hw * 0.16, baseY + hh * 0.46)
+        ctx.rotate(aim)
+        ctx.fillStyle = hurt ? '#ffd0d8' : '#e8f6ff'   // 刀身
+        ctx.fillRect(hw * 0.10, -PX * 0.42, PX * 4.0, PX * 0.84)
+        ctx.fillStyle = '#9fb6c9'                      // 刀刃暗面
+        ctx.fillRect(hw * 0.10, PX * 0.14, PX * 4.0, PX * 0.28)
+        ctx.fillStyle = hurt ? '#ffc9d4' : '#f4cba0'   // 手
+        ctx.fillRect(hw * 0.05, -PX * 0.42, PX * 1.0, PX * 0.84)
+        ctx.fillStyle = '#8a5a2b'                      // 剑柄
+        ctx.fillRect(hw * 0.05, -PX * 0.56, PX * 0.7, PX * 1.12)
+        ctx.restore()
+      } else {
+        // 回退：原像素小人
+        var PAL = playerPal(hurt, s.job)
+        var legs = PLAYER_LEGS[walk] || PLAYER_LEGS[0]
+        var rows = PLAYER_TOP.concat(legs)
+        var H = rows.length, W = rows[0].length
+        var ox = -W * PX / 2, oy = -H * PX / 2 + bob - PX * 0.4
+        for (var r = 0; r < H; r++) {
+          var line = rows[r]
+          for (var cc = 0; cc < W; cc++) {
+            var ch = line.charAt(face >= 0 ? cc : (W - 1 - cc))
+            var col = PAL[ch]
+            if (!col) continue
+            ctx.fillStyle = col
+            ctx.fillRect(ox + cc * PX, oy + r * PX, PX + 0.6, PX + 0.6)
+          }
         }
+        // 像素剑：从肩部沿 aim 方向伸出（手臂 2 格 + 刀身 4 格）
+        ctx.save()
+        ctx.translate(face * PX * 2.2, oy + PX * 7)
+        ctx.rotate(aim)
+        ctx.fillStyle = hurt ? '#ffd0d8' : '#e8f6ff'   // 刀身
+        ctx.fillRect(PX * 2.2, -PX * 0.42, PX * 4.0, PX * 0.84)
+        ctx.fillStyle = '#9fb6c9'                      // 刀刃暗面
+        ctx.fillRect(PX * 2.2, PX * 0.14, PX * 4.0, PX * 0.28)
+        ctx.fillStyle = hurt ? '#ffc9d4' : '#f4cba0'   // 手
+        ctx.fillRect(PX * 1.4, -PX * 0.42, PX * 1.0, PX * 0.84)
+        ctx.fillStyle = '#8a5a2b'                      // 剑柄
+        ctx.fillRect(PX * 1.4, -PX * 0.56, PX * 0.7, PX * 1.12)
+        ctx.restore()
       }
-      // 像素剑：从肩部沿 aim 方向伸出（手臂 2 格 + 刀身 4 格）
-      ctx.save()
-      ctx.translate(face * PX * 2.2, oy + PX * 7)
-      ctx.rotate(aim)
-      ctx.fillStyle = hurt ? '#ffd0d8' : '#e8f6ff'   // 刀身
-      ctx.fillRect(PX * 2.2, -PX * 0.42, PX * 4.0, PX * 0.84)
-      ctx.fillStyle = '#9fb6c9'                      // 刀刃暗面
-      ctx.fillRect(PX * 2.2, PX * 0.14, PX * 4.0, PX * 0.28)
-      ctx.fillStyle = hurt ? '#ffc9d4' : '#f4cba0'   // 手
-      ctx.fillRect(PX * 1.4, -PX * 0.42, PX * 1.0, PX * 0.84)
-      ctx.fillStyle = '#8a5a2b'                      // 剑柄
-      ctx.fillRect(PX * 1.4, -PX * 0.56, PX * 0.7, PX * 1.12)
-      ctx.restore()
     }
     ctx.restore()
   }

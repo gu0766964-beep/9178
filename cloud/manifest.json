@@ -1,22 +1,37 @@
 {
   "schema": 2,
-  "versionCode": 63,
-  "versionName": "2.5.31",
+  "versionCode": 64,
+  "versionName": "2.5.32",
   "date": "2026-11-10",
-  "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.31/survivor-2.5.31.apk",
-  "apkSize": 160454895,
-  "apkSha256": "ed048dc7088c0ec4f0dc42eb301da8f7338f07d1e5906bedfcd4f610ae05a961",
-  "assetsHash": "99bda4937fe49cdb6e765759d70b1b6f",
-  "assetsCount": 26,
+  "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.32/survivor-2.5.32.apk",
+  "apkSize": 160471356,
+  "apkSha256": "4ed5f72b0e5bfecfae797de889ed65bbef31ec888596cff4b6cbd960b9a3267b",
+  "assetsHash": "54802a748062eb285d2db9e2c5ca6acf",
+  "assetsCount": 27,
   "notice": {
     "add": [
-      "公告弹窗按钮收窄更紧凑",
-      "更新弹窗下载按钮同步收窄"
+      "全新像素风猫耳娘角色立绘登场",
+      "保留行走弹跳与受击闪烁，战斗手感不变"
     ],
-    "fix": []
+    "fix": [
+      "清理角色数据文件尾部残留字符"
+    ]
   },
-  "noticeId": "v2.5.31-63-2026-11-10-0d7168",
+  "noticeId": "v2.5.32-64-2026-11-10-45f1c5",
   "noticeHistory": [
+    {
+      "id": "v2.5.32-64-2026-11-10-45f1c5",
+      "versionCode": 64,
+      "versionName": "2.5.32",
+      "date": "2026-11-10",
+      "add": [
+        "全新像素风猫耳娘角色立绘登场",
+        "保留行走弹跳与受击闪烁，战斗手感不变"
+      ],
+      "fix": [
+        "清理角色数据文件尾部残留字符"
+      ]
+    },
     {
       "id": "v2.5.31-63-2026-11-10-0d7168",
       "versionCode": 63,
@@ -175,6 +190,18 @@
     }
   ],
   "history": [
+    {
+      "versionCode": 64,
+      "versionName": "2.5.32",
+      "date": "2026-11-10",
+      "add": [
+        "全新像素风猫耳娘角色立绘登场",
+        "保留行走弹跳与受击闪烁，战斗手感不变"
+      ],
+      "fix": [
+        "清理角色数据文件尾部残留字符"
+      ]
+    },
     {
       "versionCode": 63,
       "versionName": "2.5.31",
