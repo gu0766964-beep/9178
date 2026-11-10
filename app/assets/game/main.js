@@ -22,9 +22,11 @@
     'cheatScreen', 'cheatInput', 'cheatOkBtn', 'cheatBackBtn', 'cheatMsg',
     'noticeScreen', 'noticeVer', 'noticeAdd', 'noticeFix', 'noticeFixHead', 'noticeDl', 'noticeOk', 'noticeBackBtn', 'noticeTags', 'noticeHistoryBtn',
     'noticeHistoryScreen', 'noticeHistoryVer', 'noticeHistoryList', 'noticeHistoryBackBtn', 'noticeOkHistory',
+    'noticeCloudNoticeBtn', 'noticeCloudDot',
     'noticeEntryBtn', 'noticeEntryDot',
-    'cloudNoticeBtn', 'cloudNoticeDot', 'cloudNoticeHistoryScreen', 'cloudHistoryVer', 'cloudHistoryList', 'cloudHistoryBackBtn', 'cloudHistoryOk',
+    'cloudNoticeHistoryScreen', 'cloudHistoryVer', 'cloudHistoryList', 'cloudHistoryBackBtn', 'cloudHistoryOk',
     'updateScreen', 'updTitle', 'updVer', 'updTags', 'updAdd', 'updFix', 'updAddHead', 'updFixHead', 'updDl', 'updOk',
+    'aboutScreen', 'aboutBtn', 'aboutBackBtn', 'aboutOk',
     'updBtn',
     'diffScreen', 'diffList', 'diffTip', 'diffBackBtn',
     'jobScreen', 'jobList', 'jobBackBtn', 'jobBtn', 'curJob',
@@ -650,6 +652,7 @@
     show(el.noticeHistoryScreen, false)
     show(el.cloudNoticeHistoryScreen, false)
     show(el.updateScreen, false)
+    show(el.aboutScreen, false)
   }
 
   function refreshBestLabels() {
@@ -822,6 +825,7 @@
     show(el.levelScreen, false)
     show(el.pauseScreen, false)
     show(el.gShopScreen, false)
+    if (settings.music) pauseMenuMusic()  // 结算面暂停音乐，再来一局时恢复
     show(el.musicCard, false)
     show(el.overScreen, true)
     setBgOn(true)
@@ -1556,6 +1560,7 @@
       if (phase === 'notice') {
         if (popupOpen) { closePopup(); return true }
         if (el.cloudNoticeHistoryScreen.classList.contains('on')) { closeCloudHistory(); return true }
+if (el.aboutScreen.classList.contains('on')) { closeAbout(); return true }
         if (el.noticeHistoryScreen.classList.contains('on')) { closeNoticeHistory(); return true }
         closeNotice(); return true
       }
@@ -2185,6 +2190,23 @@
     sfx.click()
   }
 
+
+  /* ---------------- 关于面板（首页「关于」按钮） ---------------- */
+  function openAbout() {
+    hideMenuOverlays()
+    show(el.startScreen, false)
+    phase = 'notice'
+    show(el.aboutScreen, true)
+    sfx.level()
+  }
+
+  function closeAbout() {
+    show(el.aboutScreen, false)
+    phase = 'menu'
+    show(el.startScreen, true)
+    sfx.click()
+  }
+
   /* ================= 居中弹窗（需求 3/4/5/7） =================
      - 每次进游戏自动检测版本：有新版就居中弹「版本更新」，带「下载完整安装包」按钮
      - 装新包后第一次进游戏：弹一次本版内置公告（冷更新）
@@ -2224,7 +2246,7 @@
     // 弹过即标记已读：云公告按 noticeId 去重，本版公告按 versionCode 去重
     if (it.markCloudId) {
       setStore(CLOUD_ID_KEY, String(it.markCloudId))
-      el.cloudNoticeBtn.classList.remove('hasNew')
+      el.noticeCloudNoticeBtn.classList.remove('hasNew')
     }
     if (it.markLocalVc) {
       setStore(LOCAL_VC_KEY, String(it.markLocalVc))
@@ -2300,7 +2322,7 @@
             markLocalVc: LOCAL_VC // 更新公告已含最新内容，不再重复弹本版公告
           })
           el.noticeEntryBtn.classList.add('hasNew')
-          if (cloudPending) el.cloudNoticeBtn.classList.add('hasNew')
+          if (cloudPending) el.noticeCloudNoticeBtn.classList.add('hasNew')
         } else if (cloudPending) {
           // 需求 5：云公告必弹，只弹最新一条，弹完不再弹
           enqueuePopup({
@@ -2310,7 +2332,7 @@
             add: cloudAdd, fix: cloudFix,
             markCloudId: cloudId
           })
-          el.cloudNoticeBtn.classList.add('hasNew')
+          el.noticeCloudNoticeBtn.classList.add('hasNew')
         }
         if (!needPkg && localPending) {
           // 需求 4：装新包后第一次进游戏，弹一次本版内置公告（与云公告可以先后各弹一次）
@@ -2343,6 +2365,7 @@
 
   el.updBtn.addEventListener('click', function () { sfx.click(); checkUpdate(false) })
   el.noticeEntryBtn.addEventListener('click', function () { sfx.click(); showNotice(cloudManifest) })
+  el.aboutBtn.addEventListener('click', function () { sfx.click(); openAbout() })
   el.noticeOk.addEventListener('click', closeNotice)
   el.noticeBackBtn.addEventListener('click', closeNotice)
   el.noticeDl.addEventListener('click', function () {
@@ -2364,7 +2387,7 @@
     sfx.click()
     toast('正在下载安装包 · 完成后点通知栏安装')
   })
-  el.cloudNoticeBtn.addEventListener('click', function () { sfx.click(); openCloudHistory() })
+  el.noticeCloudNoticeBtn.addEventListener('click', function () { sfx.click(); openCloudHistory() })
   el.cloudHistoryBackBtn.addEventListener('click', function () { closeCloudHistory() })
   el.cloudHistoryOk.addEventListener('click', function () { closeCloudHistory() })
   bindHistoryToggle(el.cloudHistoryList)
