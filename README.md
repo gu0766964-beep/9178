@@ -4,8 +4,8 @@
 
 | | |
 |---|---|
-| **安装包** | `dist/survivor-2.5.25.apk`（约 160 MB · 已含 8 个首页背景视频） |
-| **版本** | 2.5.25 · versionCode 57 · minSdk 24（Android 7.0+） |
+| **安装包** | `dist/survivor-2.5.28.apk`（约 160 MB · 已含 8 个首页背景视频） |
+| **版本** | 2.5.28 · versionCode 60 · minSdk 24（Android 7.0+） |
 | **包名 / 签名** | `com.mow.survivor` · debug keystore（v2/v3 签名，2.1.1 起固定） |
 | **技术栈** | Android 原生壳（横屏全屏 WebView）+ 纯本地 Canvas2D 游戏逻辑 |
 | **更新方式** | **全冷更新 + 公告热更新** — 游戏本体全部内置在 APK 里，装新 APK 才更新；只有「公告」会运行时从云端拉取，改公告不必发版 |
@@ -143,6 +143,20 @@ python3 tools/release.py --no-bump --skip-build --force  # 不升版本，重发
 ---
 
 ## 📜 更新历史
+### v2.5.28 · 首页磨砂框已删除、背景视频完整可见
+
+- **首页磨砂框已删除**：`#startScreen` / `#startScreen .sheet` 改为背景透明、去掉磨砂与边框，只保留极淡全屏视频层，背景视频完全可见、不再被模糊
+- **完整 UI 无需滑动**：`#startScreen { overflow-y: visible }`，[公告] | [检查更新] | [关于] 加游戏菜单、商店、设置等按钮无需滚动就能看到
+- **保留的玻璃化**：Sheet（设置/商店/活动面板）仍带磨砂，按钮 .btn .gold .ghost 玻璃半透明细亮边不变
+
+### v2.5.27 · 打包修复
+
+- **构建修复**：`tools/build_apk.py` 的 d8 打包增加 `-Xmx2048m`，解决发布时 `Error occurred during initialization of VM - Too small maximum heap` 导致发版中断的问题
+
+### v2.5.26 · 海外发布修复（同 v2.5.28）
+
+- **发布流程**：`release.py` 在 `git push` 失败时自动通过 Git Data API 向 `main` 提交（已在 README 已知限制中说明）
+
 ### v2.5.25 · 玻璃化调透亮 + 下载页UI不缩放
 
 - **玻璃化 UI 更透亮**：把全屏模糊从 12px 降为 3px（滚动时可透出背景视频），面板 Sheet 保留磨碙（blur 14px），按钮 .btn .gold .ghost 去掉自身 blur；背景视频不再被糟死
