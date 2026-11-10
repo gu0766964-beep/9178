@@ -1,19 +1,40 @@
 /* 由 tools/gen_manifest.py 自动生成，请勿手改。
    作用：把公告与历史版本内置进 APK（冷更新），随安装包一起下发。*/
 window.__MOW_NOTICE__ = {
- "versionCode": 57,
- "versionName": "2.5.25",
+ "versionCode": 59,
+ "versionName": "2.5.27",
  "date": "2026-11-10",
- "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.25/survivor-2.5.25.apk",
+ "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.27/survivor-2.5.27.apk",
  "notice": {
   "add": [
-   "开头动画与玻璃化",
-   "起页面UI停止缩放"
+   "界面与公告面板更新",
+   "游戏逻辑更新（notice-data.js）"
   ],
   "fix": []
  },
- "noticeId": "v2.5.25-57-2026-11-10-ac82b4",
+ "noticeId": "v2.5.27-59-2026-11-10-65b283",
  "cloudHistory": [
+  {
+   "id": "v2.5.27-59-2026-11-10-65b283",
+   "versionCode": 59,
+   "versionName": "2.5.27",
+   "date": "2026-11-10",
+   "add": [
+    "界面与公告面板更新",
+    "游戏逻辑更新（notice-data.js）"
+   ],
+   "fix": []
+  },
+  {
+   "id": "v2.5.26-58-2026-11-10-728493",
+   "versionCode": 58,
+   "versionName": "2.5.26",
+   "date": "2026-11-10",
+   "add": [
+    "首页磨砂框已删除，背景视频完整可见，无需滑动"
+   ],
+   "fix": []
+  },
   {
    "id": "v2.5.25-57-2026-11-10-ac82b4",
    "versionCode": 57,
@@ -102,6 +123,25 @@ window.__MOW_NOTICE__ = {
   }
  ],
  "history": [
+  {
+   "versionCode": 59,
+   "versionName": "2.5.27",
+   "date": "2026-11-10",
+   "add": [
+    "界面与公告面板更新",
+    "游戏逻辑更新（notice-data.js）"
+   ],
+   "fix": []
+  },
+  {
+   "versionCode": 58,
+   "versionName": "2.5.26",
+   "date": "2026-11-10",
+   "add": [
+    "首页磨砂框已删除，背景视频完整可见，无需滑动"
+   ],
+   "fix": []
+  },
   {
    "versionCode": 57,
    "versionName": "2.5.25",

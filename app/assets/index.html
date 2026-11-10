@@ -112,16 +112,20 @@
     overflow-y: auto; -webkit-overflow-scrolling: touch;
   }
   /* 全屏阴影：极淡即可，磨砂只给面板（游戏内/视频不被模糊） */
-  #startScreen, #overScreen {
-    background: rgba(14,20,30,0.03);
-    backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+  /* 首页：不要磨砂不要边框，让背景视频完整可见，且不需要滑动 */
+  #startScreen,
+  #startScreen .sheet {
+    background: transparent;
+    border: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    box-shadow: none;
+    border-radius: 0;
+    max-height: none;
+    overflow: visible;
   }
-  #startScreen .sheet, #overScreen .sheet {
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.15);
-    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
-    
-    border-radius: 16px; padding: 18px 14px;
+  #startScreen {
+    overflow-y: visible;
   }
   /* 首页按钮继承液态玻璃 */
   #startScreen .btn {

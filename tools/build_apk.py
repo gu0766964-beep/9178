@@ -145,7 +145,7 @@ def step_javac():
 def step_dex(class_files):
     dexdir = os.path.join(BUILD, 'dex')
     os.makedirs(dexdir)
-    run([JAVA, '-cp', D8_JAR, 'com.android.tools.r8.D8', '--release',
+    run([JAVA, '-Xmx2048m', '-cp', D8_JAR, 'com.android.tools.r8.D8', '--release',
          '--min-api', str(MIN_SDK), '--lib', ANDROID_JAR,
          '--output', dexdir] + class_files)
     dex = os.path.join(dexdir, 'classes.dex')

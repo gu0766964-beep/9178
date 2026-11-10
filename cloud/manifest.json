@@ -1,22 +1,43 @@
 {
   "schema": 2,
-  "versionCode": 57,
-  "versionName": "2.5.25",
+  "versionCode": 59,
+  "versionName": "2.5.27",
   "date": "2026-11-10",
-  "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.25/survivor-2.5.25.apk",
+  "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.27/survivor-2.5.27.apk",
   "apkSize": 160454895,
-  "apkSha256": "1bc2b01119b4aedf398b6bdc362e2c7628a8ef4836e66ede12c8c65d174fc0d7",
-  "assetsHash": "d20f98de42cd49617ec7e0c9f194162c",
+  "apkSha256": "66d624036f48e436b30d34e45b3863f0139812d8c4f191decc02139d7a5f9336",
+  "assetsHash": "13d1e7590b461ea9151ab5b33f122656",
   "assetsCount": 26,
   "notice": {
     "add": [
-      "开头动画与玻璃化",
-      "起页面UI停止缩放"
+      "界面与公告面板更新",
+      "游戏逻辑更新（notice-data.js）"
     ],
     "fix": []
   },
-  "noticeId": "v2.5.25-57-2026-11-10-ac82b4",
+  "noticeId": "v2.5.27-59-2026-11-10-65b283",
   "noticeHistory": [
+    {
+      "id": "v2.5.27-59-2026-11-10-65b283",
+      "versionCode": 59,
+      "versionName": "2.5.27",
+      "date": "2026-11-10",
+      "add": [
+        "界面与公告面板更新",
+        "游戏逻辑更新（notice-data.js）"
+      ],
+      "fix": []
+    },
+    {
+      "id": "v2.5.26-58-2026-11-10-728493",
+      "versionCode": 58,
+      "versionName": "2.5.26",
+      "date": "2026-11-10",
+      "add": [
+        "首页磨砂框已删除，背景视频完整可见，无需滑动"
+      ],
+      "fix": []
+    },
     {
       "id": "v2.5.25-57-2026-11-10-ac82b4",
       "versionCode": 57,
@@ -105,6 +126,25 @@
     }
   ],
   "history": [
+    {
+      "versionCode": 59,
+      "versionName": "2.5.27",
+      "date": "2026-11-10",
+      "add": [
+        "界面与公告面板更新",
+        "游戏逻辑更新（notice-data.js）"
+      ],
+      "fix": []
+    },
+    {
+      "versionCode": 58,
+      "versionName": "2.5.26",
+      "date": "2026-11-10",
+      "add": [
+        "首页磨砂框已删除，背景视频完整可见，无需滑动"
+      ],
+      "fix": []
+    },
     {
       "versionCode": 57,
       "versionName": "2.5.25",
