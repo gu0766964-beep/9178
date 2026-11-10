@@ -257,19 +257,21 @@
   .noticeSec { font-size: 13px; font-weight: 800; letter-spacing: 2px; color: #d8e2f2; margin: 12px 0 6px; text-align: left; }
   .noticeList { margin: 0 0 4px; padding-left: 20px; text-align: left; }
   .noticeList li { font-size: 13px; color: #c3cee0; line-height: 1.65; margin-bottom: 4px; }
-  /* ---------- 公告面板：屏幕右侧滑帘（冷更新 + 热更新同展示） ---------- */
-  #noticeScreen { align-items: flex-start; justify-content: flex-end; background: transparent; backdrop-filter: none; }
+  /* ---------- 游戏公告：居中弹窗（原右侧滑帘改为居中） ----------
+   * 置顶 z-index: 21：首页与公告同显时，公告永远盖在首家里，历史面板返回后
+   * 也能点“知道了”，不会被首页挡住。 */
+  #noticeScreen { z-index: 21; }
   #noticeScreen .sheet {
-    width: 350px; max-width: 100%; height: 100%; overflow-y: auto;
-    background: var(--panel); border-left: 1px solid var(--line);
-    box-shadow: -8px 0 30px rgba(0,0,0,0.5); border-radius: 0; padding: 0;
+    width: 100%; max-width: 560px; max-height: calc(100% - 28px); overflow-y: auto;
+    background: var(--panel); border-radius: 14px; padding: 0;
   }
   #noticeScreen .backTop {
-    position: relative; display: inline-block; top: 12px; left: 14px;
+    position: absolute; top: 10px; left: 10px; z-index: 3;
+    padding: 6px 14px 6px 10px; font-size: 14px; font-weight: 700;
   }
   #noticeScreen .menuTitle {
-    font-size: 22px; letter-spacing: 4px; color: #fff; margin: 0 0 8px; padding: 14px 16px;
-    background: rgba(0,0,0,0.25);
+    font-size: 22px; letter-spacing: 4px; color: #fff; margin: 0 0 12px;
+    padding: 14px 86px; background: rgba(0,0,0,0.25);
   }
   .noticeVer {
     font-size: 15px; color: var(--accent-2); margin: 0 16px 12px;
