@@ -26,7 +26,7 @@
     'noticeEntryBtn', 'noticeEntryDot',
     'cloudNoticeHistoryScreen', 'cloudHistoryVer', 'cloudHistoryList', 'cloudHistoryBackBtn', 'cloudHistoryOk',
     'updateScreen', 'updTitle', 'updVer', 'updTags', 'updAdd', 'updFix', 'updAddHead', 'updFixHead', 'updDl', 'updOk',
-    'aboutScreen', 'aboutBtn', 'aboutBackBtn', 'aboutOk',
+    'aboutScreen', 'aboutBtn', 'aboutBackBtn',
     'updBtn',
     'diffScreen', 'diffList', 'diffTip', 'diffBackBtn',
     'jobScreen', 'jobList', 'jobBackBtn', 'jobBtn', 'curJob',
@@ -2366,6 +2366,7 @@ if (el.aboutScreen.classList.contains('on')) { closeAbout(); return true }
   el.updBtn.addEventListener('click', function () { sfx.click(); checkUpdate(false) })
   el.noticeEntryBtn.addEventListener('click', function () { sfx.click(); showNotice(cloudManifest) })
   el.aboutBtn.addEventListener('click', function () { sfx.click(); openAbout() })
+  el.aboutBackBtn.addEventListener('click', function () { sfx.click(); closeAbout() })
   el.noticeOk.addEventListener('click', closeNotice)
   el.noticeBackBtn.addEventListener('click', closeNotice)
   el.noticeDl.addEventListener('click', function () {

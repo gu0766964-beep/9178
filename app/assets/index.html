@@ -111,22 +111,33 @@
     backdrop-filter: blur(3px);
     overflow-y: auto; -webkit-overflow-scrolling: touch;
   }
-  /* 首页 UI 全透明：不挡背景视频（文字靠描边阴影保证可读） */
+  /* 液态玻璃：首页/结算层透出背景视频，但 UI 整体带磨砂玻璃质感 */
   #startScreen, #overScreen {
-    background: transparent; backdrop-filter: none;
+    background: rgba(14,20,30,0.45);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
   }
-  #startScreen .sheet, #overScreen .sheet { background: transparent; }
+  #startScreen .sheet, #overScreen .sheet {
+    background: radial-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.03));
+    border: 1px solid rgba(255,255,255,0.22);
+    box-shadow: 0 8px 40px rgba(79,208,122,0.14), inset 0 1px 0 rgba(255,255,255,0.4);
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    border-radius: 16px; padding: 18px 14px;
+  }
+  /* 首页按钮继承液态玻璃 */
   #startScreen .btn {
-    background: transparent; color: #eaf6ef; box-shadow: none;
-    border: 1px solid rgba(255,255,255,0.30);
-    -webkit-backdrop-filter: none; backdrop-filter: none;
-    text-shadow: 0 1px 6px rgba(0,0,0,0.9);
+    color: #06210f; box-shadow: none; text-shadow: none;
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
   }
   #startScreen .btn.gold {
-    background: transparent; border-color: rgba(255,206,92,0.55); color: #ffe9ae;
+    background: linear-gradient(180deg, rgba(255,255,255,0.45), rgba(255,255,255,0.12));
+    border-color: rgba(255,206,92,0.55); color: #3a2c0a;
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
   }
   #startScreen .btn.ghost {
-    background: transparent; border-color: rgba(255,255,255,0.22);
+    border-color: rgba(255,255,255,0.22); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  }
+  #startScreen .startBtn, #startScreen .continueBtn, #startScreen .btnRow3 .btn {
+    box-shadow: 0 6px 16px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.4);
   }
   #startScreen .logo, #startScreen .sub, #startScreen .hint, #startScreen .bestbox b {
     text-shadow: 0 1px 8px rgba(0,0,0,0.95), 0 0 3px rgba(0,0,0,0.95);
@@ -151,17 +162,21 @@
   }
   .bestbox b { display: block; font-size: 20px; color: var(--gold); margin-bottom: 2px; font-variant-numeric: tabular-nums; }
 
+  /* 液态玻璃按钮：磨砂半透明 + 微光边框 + 内发光 */
   .btn {
-    display: block; width: 100%; padding: 15px; border: 0; border-radius: 16px;
-    font-size: 17px; font-weight: 800; letter-spacing: 3px; color: #06210f;
-    background: linear-gradient(180deg, #a6ffc4, #4fd07a);
-    box-shadow: 0 10px 30px rgba(79,208,122,0.28), inset 0 1px 0 rgba(255,255,255,0.6);
+    display: block; width: 100%; padding: 15px; border: 1px solid rgba(255,255,255,0.26);
+    border-radius: 16px; font-size: 17px; font-weight: 800; letter-spacing: 3px; color: #06210f;
+    background: linear-gradient(180deg, rgba(255,255,255,0.25), rgba(255,255,255,0.05));
+    box-shadow: 0 4px 20px rgba(79,208,122,0.20), inset 0 1px 0 rgba(255,255,255,0.5);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
   }
   .btn:active { transform: translateY(1px) scale(0.995); }
   .btn.ghost {
-    background: rgba(255,255,255,0.06); color: #d8ece1; box-shadow: none;
-    border: 1px solid rgba(255,255,255,0.14); font-size: 14px; font-weight: 600; letter-spacing: 2px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.02));
+    color: #d8ece1; box-shadow: 0 2px 10px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.3);
+    border: 1px solid rgba(255,255,255,0.20); font-size: 14px; font-weight: 600; letter-spacing: 2px;
     margin-top: 10px; padding: 12px;
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
   }
   .hint { margin-top: 20px; font-size: 12px; line-height: 1.9; color: rgba(232,242,236,0.68); }
   /* 首页次级按钮三列行（角色 / 商店 / 设置） */
@@ -433,15 +448,21 @@
 
   .setRow {
     display: flex; align-items: center; justify-content: space-between; gap: 10px;
-    padding: 10px 14px; border-radius: 14px; background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.09); margin-bottom: 8px; text-align: left;
+    padding: 10px 14px; border-radius: 14px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.03));
+    border: 1px solid rgba(255,255,255,0.20); margin-bottom: 8px; text-align: left;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.3);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
   }
   .setRow .lbl { font-size: 15px; font-weight: 700; letter-spacing: 1px; }
   .setRow .sub2 { font-size: 11px; color: rgba(232,242,236,0.45); margin-top: 2px; }
   .switch {
     position: relative; width: 52px; height: 30px; border-radius: 999px; flex: none;
-    background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.16); cursor: pointer;
+    background: linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0.04));
+    border: 1px solid rgba(255,255,255,0.24); cursor: pointer;
     transition: background 0.18s;
+    box-shadow: inset 0 2px 6px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.12);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
   }
   .switch::after {
     content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%;
@@ -452,8 +473,11 @@
   .segBtns { display: flex; gap: 6px; }
   .segBtns button {
     padding: 7px 12px; border-radius: 10px; font-size: 12px; font-weight: 700; letter-spacing: 1px;
-    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.14); color: #b9cfc3;
+    background: linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.03));
+    border: 1px solid rgba(255,255,255,0.22); color: #b9cfc3;
     font-family: inherit;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.3);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
   }
   .segBtns button.on { background: rgba(124,245,158,0.2); color: var(--accent); border-color: rgba(124,245,158,0.5); }
   .segBtns button.add { margin-left: auto; color: var(--gold); border-color: rgba(255,206,92,0.4); background: rgba(255,206,92,0.1); }
@@ -464,8 +488,10 @@
   .shopItem {
     display: flex; align-items: center; gap: 9px; text-align: left;
     padding: 9px 12px; border-radius: 12px; width: 100%; font-family: inherit;
-    background: linear-gradient(180deg, rgba(30,44,38,0.95), rgba(16,24,22,0.95));
-    border: 1px solid rgba(124,245,158,0.18); color: #e8f2ec;
+    background: linear-gradient(180deg, rgba(30,54,48,0.92), rgba(16,36,30,0.92));
+    border: 1px solid rgba(255,255,255,0.24); color: #e8f2ec;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.2);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
   }
   .shopItem:active { transform: scale(0.99); }
   .shopItem .ico { font-size: 19px; width: 26px; text-align: center; flex: none; }
@@ -502,8 +528,10 @@
   .track {
     display: flex; align-items: center; gap: 10px; text-align: left;
     padding: 11px 13px; border-radius: 14px; width: 100%; font-family: inherit;
-    background: linear-gradient(180deg, rgba(30,44,38,0.95), rgba(16,24,22,0.95));
-    border: 1px solid rgba(124,245,158,0.18); color: #e8f2ec;
+    background: linear-gradient(180deg, rgba(30,54,48,0.92), rgba(16,36,30,0.92));
+    border: 1px solid rgba(255,255,255,0.24); color: #e8f2ec;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.2);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
   }
   .track .ico { font-size: 18px; flex: none; width: 26px; text-align: center; }
   .track .mid { flex: 1; min-width: 0; }
@@ -598,7 +626,7 @@
       <div class="menuTitle">作 弊 码</div>
       <div style="text-align:center;font-size:12px;color:#9aa7bd;margin-bottom:14px">输入作弊码以获取奖励（仅本机单机趣味）</div>
       <input type="text" id="cheatInput" placeholder="输入作弊码…" autocomplete="off" autocapitalize="off" spellcheck="false"
-        style="width:100%;box-sizing:border-box;padding:12px 14px;border-radius:10px;border:1px solid #3a4660;background:#141a2a;color:#e8eefc;font-size:16px;outline:none;text-align:center;letter-spacing:1px" />
+        style="width:100%;box-sizing:border-box;padding:12px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.22);background:rgba(20,26,42,0.7);color:#e8eefc;font-size:16px;outline:none;text-align:center;letter-spacing:1px" />
       <div style="text-align:center;margin-top:14px">
         <button class="btn" id="cheatOkBtn">确 认</button>
       </div>
@@ -664,7 +692,6 @@
         </div>
         <div class="aboutNotice">本内容仅作分享交流，不用于商业用途，若版权问题烦请原作者联系我（联系方式：2214274255@qq.com），我会第一时间删除处理</div>
       </div>
-      <button class="btn ghost" id="aboutOk">关 闭</button>
     </div>
   </div>
 
@@ -716,7 +743,7 @@
       </div>
       <div class="setRow" id="musicEntryRow">
         <div><div class="lbl">音乐</div><div class="sub2">打开播放卡片：切歌 / 播放模式 / 导入</div></div>
-        <button class="btn ghost" id="musicEntry" style="padding:7px 16px;font-size:13px">播 放 卡 片</button>
+        <button class="btn" id="musicEntry" style="background:linear-gradient(180deg,rgba(255,255,255,0.25),rgba(255,255,255,0.08));border:1px solid rgba(255,255,255,0.3);box-shadow:0 2px 10px rgba(0,0,0,0.15),inset 0 1px 0 rgba(255,255,255,0.4);padding:7px 16px;font-size:13px">播 放 卡 片</button>
       </div>
       <div class="setRow">
         <div><div class="lbl">摇杆模式</div><div class="sub2">固定：常驻左下角 · 浮动：按哪出哪</div></div>

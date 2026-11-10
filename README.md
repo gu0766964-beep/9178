@@ -4,8 +4,8 @@
 
 | | |
 |---|---|
-| **安装包** | `dist/survivor-2.5.22.apk`（约 160 MB · 已含 8 个首页背景视频） |
-| **版本** | 2.5.22 · versionCode 54 · minSdk 24（Android 7.0+） |
+| **安装包** | `dist/survivor-2.5.23.apk`（约 160 MB · 已含 8 个首页背景视频） |
+| **版本** | 2.5.23 · versionCode 55 · minSdk 24（Android 7.0+） |
 | **包名 / 签名** | `com.mow.survivor` · debug keystore（v2/v3 签名，2.1.1 起固定） |
 | **技术栈** | Android 原生壳（横屏全屏 WebView）+ 纯本地 Canvas2D 游戏逻辑 |
 | **更新方式** | **全冷更新 + 公告热更新** — 游戏本体全部内置在 APK 里，装新 APK 才更新；只有「公告」会运行时从云端拉取，改公告不必发版 |
@@ -31,7 +31,7 @@
 
 ## 📲 安装
 
-1. 把 `dist/survivor-2.5.22.apk` 传到手机（微信传文件 / 数据线 / 网盘都行）。
+1. 把 `dist/survivor-2.5.23.apk` 传到手机（微信传文件 / 数据线 / 网盘都行）。
 2. 点击安装；系统提示「未知来源应用」属正常（自签名测试包）。
 3. 桌面出现「无尽割草」图标（你上传的那张图），点开直接进游戏。
 
@@ -143,6 +143,13 @@ python3 tools/release.py --no-bump --skip-build --force  # 不升版本，重发
 ---
 
 ## 📜 更新历史
+### v2.5.23 · 首页与设置UI全部液态玻璃化 + 修复关于面板
+
+- **首页和设置的 UI 全面液态玻璃化**：#startScreen ／ #overScreen（结算层）底色 rgba(14,20,30,0.45) + blur(12px)，Sheet 内嵌光晕渐变，按钮 .btn/.btn.ghost 加磨砂、细亮边、内发光；设置页的 setRow、开关、分段按钮、商店/音乐卡片统一玻璃文理。
+- **游戏内升级三选卡保持原样式**（不磨砂、不 blur，保持绿色主题），结算界面同理
+- **修复关于面板关闭问题**：删掉原来的「关 闭」按钮只保留「返 回」（底部手势/物理键同样能回），点了深入首页链路
+
+
 
 ### v2.5.22 · 结算音乐暂停恢复 + 云公告移入公告面板 + 首页增加关于面板
 
@@ -313,7 +320,7 @@ survivor/
 │   ├── parse_readme_history.py    # 把 README 更新历史解析成 cloud/notice-history.json
 │   ├── release.py                 # 一键发版：升版本 → 打包 → 提交 → Release → 上传 APK
 │   └── test_sim.js                # Node 无头回归测试
-└── dist/survivor-2.5.22.apk       # 产物
+└── dist/survivor-2.5.23.apk       # 产物
 ```
 
 ## 🛠 开发者
