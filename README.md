@@ -4,8 +4,8 @@
 
 | | |
 |---|---|
-| **安装包** | `dist/survivor-2.5.29.apk`（约 160 MB · 已含 8 个首页背景视频） |
-| **版本** | 2.5.29 · versionCode 61 · minSdk 24（Android 7.0+） |
+| **安装包** | `dist/survivor-2.5.30.apk`（约 160 MB · 已含 8 个首页背景视频） |
+| **版本** | 2.5.30 · versionCode 62 · minSdk 24（Android 7.0+） |
 | **包名 / 签名** | `com.mow.survivor` · debug keystore（v2/v3 签名，2.1.1 起固定） |
 | **技术栈** | Android 原生壳（横屏全屏 WebView）+ 纯本地 Canvas2D 游戏逻辑 |
 | **更新方式** | **全冷更新 + 公告热更新** — 游戏本体全部内置在 APK 里，装新 APK 才更新；只有「公告」会运行时从云端拉取，改公告不必发版 |
@@ -143,6 +143,12 @@ python3 tools/release.py --no-bump --skip-build --force  # 不升版本，重发
 ---
 
 ## 📜 更新历史
+### v2.5.30 · 公告栏禁止左右滑动
+
+- **横向滚动禁用**：所有弹层面板（公告/历史版本/云公告/更新弹窗/关于/设置/商店）`overflow-x: hidden`，内容再也不会左右拖动
+- **公告文本强制断行**：公告条目、版本号、提示语加 `overflow-wrap: anywhere`，长英文/链接自动折行，不再撑宽面板
+- **触摸手势限定**：公告类面板 `touch-action: pan-y`，WebView 层只响应纵向滑动
+
 ### v2.5.29 · 首页标题显示修复 + 冗余小字删除 + 按钮玻璃调透
 
 - **标题显示修复**：`#startScreen` 由垂直居中改为 `align-items: flex-start` + 顶部安全区内边距，内容从屏幕顶部排布，标题「无尽割草」在任何屏幕高度下都不会再被裁切
