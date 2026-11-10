@@ -1,22 +1,31 @@
 {
   "schema": 2,
-  "versionCode": 55,
-  "versionName": "2.5.23",
+  "versionCode": 56,
+  "versionName": "2.5.24",
   "date": "2026-11-10",
-  "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.23/survivor-2.5.23.apk",
+  "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.24/survivor-2.5.24.apk",
   "apkSize": 160454895,
-  "apkSha256": "7f546d66827875cda41c1d084c70022677b6b3198f231abbeb7a90f2c9db4d8e",
-  "assetsHash": "396b7a29bc42ef0417daeafb29933e81",
+  "apkSha256": "b995f61baf46cfc4e0d1d37fe8566ef690f109dbeb5d18122b22cac0447e2417",
+  "assetsHash": "44a8f723d18f1d2d3665469e5b661e17",
   "assetsCount": 26,
   "notice": {
     "add": [
-      "首页与设置UI全部液态玻璃化，游戏内升级卡保持原样式",
-      "修复关于面板：删除关闭按钮只保留返回"
+      "下载提示加系统浏览器备选入口；README补充GitHub下载链接，无VPN也能装"
     ],
     "fix": []
   },
-  "noticeId": "v2.5.23-55-2026-11-10-de23ab",
+  "noticeId": "v2.5.24-56-2026-11-10-e9734c",
   "noticeHistory": [
+    {
+      "id": "v2.5.24-56-2026-11-10-e9734c",
+      "versionCode": 56,
+      "versionName": "2.5.24",
+      "date": "2026-11-10",
+      "add": [
+        "下载提示加系统浏览器备选入口；README补充GitHub下载链接，无VPN也能装"
+      ],
+      "fix": []
+    },
     {
       "id": "v2.5.23-55-2026-11-10-de23ab",
       "versionCode": 55,
@@ -84,6 +93,15 @@
     }
   ],
   "history": [
+    {
+      "versionCode": 56,
+      "versionName": "2.5.24",
+      "date": "2026-11-10",
+      "add": [
+        "下载提示加系统浏览器备选入口；README补充GitHub下载链接，无VPN也能装"
+      ],
+      "fix": []
+    },
     {
       "versionCode": 55,
       "versionName": "2.5.23",

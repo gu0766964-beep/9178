@@ -1,19 +1,28 @@
 /* 由 tools/gen_manifest.py 自动生成，请勿手改。
    作用：把公告与历史版本内置进 APK（冷更新），随安装包一起下发。*/
 window.__MOW_NOTICE__ = {
- "versionCode": 55,
- "versionName": "2.5.23",
+ "versionCode": 56,
+ "versionName": "2.5.24",
  "date": "2026-11-10",
- "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.23/survivor-2.5.23.apk",
+ "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.24/survivor-2.5.24.apk",
  "notice": {
   "add": [
-   "首页与设置UI全部液态玻璃化，游戏内升级卡保持原样式",
-   "修复关于面板：删除关闭按钮只保留返回"
+   "下载提示加系统浏览器备选入口；README补充GitHub下载链接，无VPN也能装"
   ],
   "fix": []
  },
- "noticeId": "v2.5.23-55-2026-11-10-de23ab",
+ "noticeId": "v2.5.24-56-2026-11-10-e9734c",
  "cloudHistory": [
+  {
+   "id": "v2.5.24-56-2026-11-10-e9734c",
+   "versionCode": 56,
+   "versionName": "2.5.24",
+   "date": "2026-11-10",
+   "add": [
+    "下载提示加系统浏览器备选入口；README补充GitHub下载链接，无VPN也能装"
+   ],
+   "fix": []
+  },
   {
    "id": "v2.5.23-55-2026-11-10-de23ab",
    "versionCode": 55,
@@ -81,6 +90,15 @@ window.__MOW_NOTICE__ = {
   }
  ],
  "history": [
+  {
+   "versionCode": 56,
+   "versionName": "2.5.24",
+   "date": "2026-11-10",
+   "add": [
+    "下载提示加系统浏览器备选入口；README补充GitHub下载链接，无VPN也能装"
+   ],
+   "fix": []
+  },
   {
    "versionCode": 55,
    "versionName": "2.5.23",

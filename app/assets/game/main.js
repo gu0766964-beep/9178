@@ -2371,7 +2371,9 @@ if (el.aboutScreen.classList.contains('on')) { closeAbout(); return true }
   el.noticeBackBtn.addEventListener('click', closeNotice)
   el.noticeDl.addEventListener('click', function () {
     sfx.click()
-    toast('正在下载安装包 · 完成后点通知栏安装')
+    // Windows/国内网络访问 github.com 可能受阻：如果 DownloadManager 下载无进度，
+    // 提示玩家在系统浏览器里打开 GitHub Release 页下载完整安装包。
+    toast('已在下载 APK；如下载无进度，请复制链接到系统浏览器下载完整安装包')
   })
   el.noticeHistoryBtn.addEventListener('click', function () {
     sfx.click()
@@ -2386,7 +2388,8 @@ if (el.aboutScreen.classList.contains('on')) { closeAbout(); return true }
   el.updOk.addEventListener('click', closePopup)
   el.updDl.addEventListener('click', function () {
     sfx.click()
-    toast('正在下载安装包 · 完成后点通知栏安装')
+    // 同上：DownloadManager 下载无进度时提示系统浏览器替代
+    toast('已在下载 APK；如下载无进度，请复制链接到系统浏览器下载完整安装包')
   })
   el.noticeCloudNoticeBtn.addEventListener('click', function () { sfx.click(); openCloudHistory() })
   el.cloudHistoryBackBtn.addEventListener('click', function () { closeCloudHistory() })
