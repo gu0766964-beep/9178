@@ -1,19 +1,32 @@
 /* 由 tools/gen_manifest.py 自动生成，请勿手改。
    作用：把公告与历史版本内置进 APK（冷更新），随安装包一起下发。*/
 window.__MOW_NOTICE__ = {
- "versionCode": 59,
- "versionName": "2.5.27",
+ "versionCode": 60,
+ "versionName": "2.5.28",
  "date": "2026-11-10",
- "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.27/survivor-2.5.27.apk",
+ "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.28/survivor-2.5.28.apk",
  "notice": {
   "add": [
+   "release: v2.5.27",
    "界面与公告面板更新",
    "游戏逻辑更新（notice-data.js）"
   ],
   "fix": []
  },
- "noticeId": "v2.5.27-59-2026-11-10-65b283",
+ "noticeId": "v2.5.28-60-2026-11-10-eb33e2",
  "cloudHistory": [
+  {
+   "id": "v2.5.28-60-2026-11-10-eb33e2",
+   "versionCode": 60,
+   "versionName": "2.5.28",
+   "date": "2026-11-10",
+   "add": [
+    "release: v2.5.27",
+    "界面与公告面板更新",
+    "游戏逻辑更新（notice-data.js）"
+   ],
+   "fix": []
+  },
   {
    "id": "v2.5.27-59-2026-11-10-65b283",
    "versionCode": 59,
@@ -123,6 +136,17 @@ window.__MOW_NOTICE__ = {
   }
  ],
  "history": [
+  {
+   "versionCode": 60,
+   "versionName": "2.5.28",
+   "date": "2026-11-10",
+   "add": [
+    "release: v2.5.27",
+    "界面与公告面板更新",
+    "游戏逻辑更新（notice-data.js）"
+   ],
+   "fix": []
+  },
   {
    "versionCode": 59,
    "versionName": "2.5.27",

@@ -1,22 +1,35 @@
 {
   "schema": 2,
-  "versionCode": 59,
-  "versionName": "2.5.27",
+  "versionCode": 60,
+  "versionName": "2.5.28",
   "date": "2026-11-10",
-  "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.27/survivor-2.5.27.apk",
+  "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.28/survivor-2.5.28.apk",
   "apkSize": 160454895,
-  "apkSha256": "66d624036f48e436b30d34e45b3863f0139812d8c4f191decc02139d7a5f9336",
+  "apkSha256": "528a03c451d85ee7fa40b2f53220cc3ad2b01df7631603483e9443d7ecb9f2e7",
   "assetsHash": "13d1e7590b461ea9151ab5b33f122656",
   "assetsCount": 26,
   "notice": {
     "add": [
+      "release: v2.5.27",
       "界面与公告面板更新",
       "游戏逻辑更新（notice-data.js）"
     ],
     "fix": []
   },
-  "noticeId": "v2.5.27-59-2026-11-10-65b283",
+  "noticeId": "v2.5.28-60-2026-11-10-eb33e2",
   "noticeHistory": [
+    {
+      "id": "v2.5.28-60-2026-11-10-eb33e2",
+      "versionCode": 60,
+      "versionName": "2.5.28",
+      "date": "2026-11-10",
+      "add": [
+        "release: v2.5.27",
+        "界面与公告面板更新",
+        "游戏逻辑更新（notice-data.js）"
+      ],
+      "fix": []
+    },
     {
       "id": "v2.5.27-59-2026-11-10-65b283",
       "versionCode": 59,
@@ -126,6 +139,17 @@
     }
   ],
   "history": [
+    {
+      "versionCode": 60,
+      "versionName": "2.5.28",
+      "date": "2026-11-10",
+      "add": [
+        "release: v2.5.27",
+        "界面与公告面板更新",
+        "游戏逻辑更新（notice-data.js）"
+      ],
+      "fix": []
+    },
     {
       "versionCode": 59,
       "versionName": "2.5.27",
