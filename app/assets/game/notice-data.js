@@ -1,21 +1,32 @@
 /* 由 tools/gen_manifest.py 自动生成，请勿手改。
    作用：把公告与历史版本内置进 APK（冷更新），随安装包一起下发。*/
 window.__MOW_NOTICE__ = {
- "versionCode": 53,
- "versionName": "2.5.21",
+ "versionCode": 54,
+ "versionName": "2.5.22",
  "date": "2026-11-10",
- "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.21/survivor-2.5.21.apk",
+ "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.22/survivor-2.5.22.apk",
  "notice": {
   "add": [
-   "公告面板改为全屏居中弹窗，固定在首家里上面层（z-index 21）",
-   "历史版本面板收起时恢复游戏首页，避免遮挡"
+   "结算界面暂停音乐，再来一局恢复",
+   "云公告入口移入公告面板内（返回按钮左侧）",
+   "首页增加关于面板（作者列表+版权声明）"
   ],
-  "fix": [
-   "修复了历史版本返回后首页遮挡公告导致无法关闭的问题"
-  ]
+  "fix": []
  },
- "noticeId": "v2.5.21-53-2026-11-10-48b3ec",
+ "noticeId": "v2.5.22-54-2026-11-10-d5f1df",
  "cloudHistory": [
+  {
+   "id": "v2.5.22-54-2026-11-10-d5f1df",
+   "versionCode": 54,
+   "versionName": "2.5.22",
+   "date": "2026-11-10",
+   "add": [
+    "结算界面暂停音乐，再来一局恢复",
+    "云公告入口移入公告面板内（返回按钮左侧）",
+    "首页增加关于面板（作者列表+版权声明）"
+   ],
+   "fix": []
+  },
   {
    "id": "v2.5.21-53-2026-11-10-48b3ec",
    "versionCode": 53,
@@ -48,6 +59,17 @@ window.__MOW_NOTICE__ = {
   }
  ],
  "history": [
+  {
+   "versionCode": 54,
+   "versionName": "2.5.22",
+   "date": "2026-11-10",
+   "add": [
+    "结算界面暂停音乐，再来一局恢复",
+    "云公告入口移入公告面板内（返回按钮左侧）",
+    "首页增加关于面板（作者列表+版权声明）"
+   ],
+   "fix": []
+  },
   {
    "versionCode": 53,
    "versionName": "2.5.21",
