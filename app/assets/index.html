@@ -160,7 +160,11 @@
   #bgVideo { position: fixed; inset: 0; width: 100%; height: 100%;
     object-fit: cover; z-index: 0; display: none; background: #080b12; }
   .overlay.on { display: flex; }
-  .sheet { position: relative; width: 100%; max-width: 560px; max-height: 100%; overflow-y: auto; text-align: center; }
+  /* 公告等弹层面板：只允许纵向滚动，禁止左右拖动 */
+  #noticeScreen .sheet, .histPanel .sheet, #updateScreen .sheet, #aboutScreen .sheet {
+    touch-action: pan-y;
+  }
+  .sheet { position: relative; width: 100%; max-width: 560px; max-height: 100%; overflow-y: auto; overflow-x: hidden; text-align: center; }
 
   .logo { font-size: 34px; font-weight: 900; letter-spacing: 3px; margin: 0 0 4px; line-height: 1.1; }
   .logo em {
@@ -287,12 +291,17 @@
   .noticeSec { font-size: 13px; font-weight: 800; letter-spacing: 2px; color: #d8e2f2; margin: 12px 0 6px; text-align: left; }
   .noticeList { margin: 0 0 4px; padding-left: 20px; text-align: left; }
   .noticeList li { font-size: 13px; color: #c3cee0; line-height: 1.65; margin-bottom: 4px; }
+  /* 公告文本一律纵向断行，禁止横向撑宽（长英文/链接自动折行） */
+  .noticeSec, .noticeList li, .noticeVer, .hTip, .histPanel .hItem li, .histPanel .hItem .hBrief {
+    overflow-wrap: anywhere; word-break: break-word; min-width: 0;
+  }
   /* ---------- 游戏公告：居中弹窗（原右侧滑帘改为居中） ----------
    * 置顶 z-index: 21：首页与公告同显时，公告永远盖在首家里，历史面板返回后
    * 也能点“知道了”，不会被首页挡住。 */
   #noticeScreen { z-index: 21; }
   #noticeScreen .sheet {
-    width: 100%; max-width: 560px; max-height: calc(100% - 28px); overflow-y: auto;
+    width: 100%; max-width: 560px; max-height: calc(100% - 28px);
+    overflow-y: auto; overflow-x: hidden;
     background: var(--panel); border-radius: 14px; padding: 0;
   }
   #noticeScreen .backTop {
@@ -334,7 +343,8 @@
   .histPanel .backTop { position: absolute; top: 10px; left: 10px; z-index: 3; }
   /* 列表可独立滚动，历史版本再多也能下滑 */
   .histPanel .noticeList {
-    flex: 1 1 auto; min-height: 0; padding: 0 14px; overflow-y: auto;
+    flex: 1 1 auto; min-height: 0; padding: 0 14px;
+    overflow-y: auto; overflow-x: hidden;
     -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
   }
   .histPanel .hTip, .histPanel .btn { flex: 0 0 auto; }

@@ -1,25 +1,35 @@
 {
   "schema": 2,
-  "versionCode": 61,
-  "versionName": "2.5.29",
+  "versionCode": 62,
+  "versionName": "2.5.30",
   "date": "2026-11-10",
-  "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.29/survivor-2.5.29.apk",
+  "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.30/survivor-2.5.30.apk",
   "apkSize": 160454895,
-  "apkSha256": "173ef6e866e4d0f50761a364ded3d03b7e266e5af9d873a5b6635d49fb3910b6",
-  "assetsHash": "6c8a32672c8b8a87845e5f68dfcbd921",
+  "apkSha256": "541ed5df1422b49aa92cf077488496fb00f52b8f1e22c352908fca7200b2065a",
+  "assetsHash": "e3ff1521adcdfa639f26ecfc57f1d624",
   "assetsCount": 26,
   "notice": {
     "add": [
-      "首页标题显示不再被裁切",
-      "删除首页冗余提示小字",
-      "首页按钮玻璃质感更透明"
+      "公告栏禁止左右滑动"
     ],
     "fix": [
-      "修复首页内容在部分屏幕下标题显示不完整的问题"
+      "修复公告内容可横向拖动的问题"
     ]
   },
-  "noticeId": "v2.5.29-61-2026-11-10-c03156",
+  "noticeId": "v2.5.30-62-2026-11-10-efc82c",
   "noticeHistory": [
+    {
+      "id": "v2.5.30-62-2026-11-10-efc82c",
+      "versionCode": 62,
+      "versionName": "2.5.30",
+      "date": "2026-11-10",
+      "add": [
+        "公告栏禁止左右滑动"
+      ],
+      "fix": [
+        "修复公告内容可横向拖动的问题"
+      ]
+    },
     {
       "id": "v2.5.29-61-2026-11-10-c03156",
       "versionCode": 61,
@@ -155,6 +165,17 @@
     }
   ],
   "history": [
+    {
+      "versionCode": 62,
+      "versionName": "2.5.30",
+      "date": "2026-11-10",
+      "add": [
+        "公告栏禁止左右滑动"
+      ],
+      "fix": [
+        "修复公告内容可横向拖动的问题"
+      ]
+    },
     {
       "versionCode": 61,
       "versionName": "2.5.29",
