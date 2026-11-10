@@ -1,21 +1,28 @@
 /* 由 tools/gen_manifest.py 自动生成，请勿手改。
    作用：把公告与历史版本内置进 APK（冷更新），随安装包一起下发。*/
 window.__MOW_NOTICE__ = {
- "versionCode": 64,
- "versionName": "2.5.32",
+ "versionCode": 65,
+ "versionName": "2.5.33",
  "date": "2026-11-10",
- "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.32/survivor-2.5.32.apk",
+ "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.33/survivor-2.5.33.apk",
  "notice": {
   "add": [
-   "全新像素风猫耳娘角色立绘登场",
-   "保留行走弹跳与受击闪烁，战斗手感不变"
+   "更新弹窗「稍后再说」按钮收窄，只包住文字居中显示"
   ],
-  "fix": [
-   "清理角色数据文件尾部残留字符"
-  ]
+  "fix": []
  },
- "noticeId": "v2.5.32-64-2026-11-10-45f1c5",
+ "noticeId": "v2.5.33-65-2026-11-10-15ec8f",
  "cloudHistory": [
+  {
+   "id": "v2.5.33-65-2026-11-10-15ec8f",
+   "versionCode": 65,
+   "versionName": "2.5.33",
+   "date": "2026-11-10",
+   "add": [
+    "更新弹窗「稍后再说」按钮收窄，只包住文字居中显示"
+   ],
+   "fix": []
+  },
   {
    "id": "v2.5.32-64-2026-11-10-45f1c5",
    "versionCode": 64,
@@ -187,6 +194,15 @@ window.__MOW_NOTICE__ = {
   }
  ],
  "history": [
+  {
+   "versionCode": 65,
+   "versionName": "2.5.33",
+   "date": "2026-11-10",
+   "add": [
+    "更新弹窗「稍后再说」按钮收窄，只包住文字居中显示"
+   ],
+   "fix": []
+  },
   {
    "versionCode": 64,
    "versionName": "2.5.32",
