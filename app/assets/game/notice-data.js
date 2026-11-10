@@ -1,20 +1,36 @@
 /* 由 tools/gen_manifest.py 自动生成，请勿手改。
    作用：把公告与历史版本内置进 APK（冷更新），随安装包一起下发。*/
 window.__MOW_NOTICE__ = {
- "versionCode": 60,
- "versionName": "2.5.28",
+ "versionCode": 61,
+ "versionName": "2.5.29",
  "date": "2026-11-10",
- "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.28/survivor-2.5.28.apk",
+ "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.29/survivor-2.5.29.apk",
  "notice": {
   "add": [
-   "release: v2.5.27",
-   "界面与公告面板更新",
-   "游戏逻辑更新（notice-data.js）"
+   "首页标题显示不再被裁切",
+   "删除首页冗余提示小字",
+   "首页按钮玻璃质感更透明"
   ],
-  "fix": []
+  "fix": [
+   "修复首页内容在部分屏幕下标题显示不完整的问题"
+  ]
  },
- "noticeId": "v2.5.28-60-2026-11-10-eb33e2",
+ "noticeId": "v2.5.29-61-2026-11-10-c03156",
  "cloudHistory": [
+  {
+   "id": "v2.5.29-61-2026-11-10-c03156",
+   "versionCode": 61,
+   "versionName": "2.5.29",
+   "date": "2026-11-10",
+   "add": [
+    "首页标题显示不再被裁切",
+    "删除首页冗余提示小字",
+    "首页按钮玻璃质感更透明"
+   ],
+   "fix": [
+    "修复首页内容在部分屏幕下标题显示不完整的问题"
+   ]
+  },
   {
    "id": "v2.5.28-60-2026-11-10-eb33e2",
    "versionCode": 60,
@@ -136,6 +152,19 @@ window.__MOW_NOTICE__ = {
   }
  ],
  "history": [
+  {
+   "versionCode": 61,
+   "versionName": "2.5.29",
+   "date": "2026-11-10",
+   "add": [
+    "首页标题显示不再被裁切",
+    "删除首页冗余提示小字",
+    "首页按钮玻璃质感更透明"
+   ],
+   "fix": [
+    "修复首页内容在部分屏幕下标题显示不完整的问题"
+   ]
+  },
   {
    "versionCode": 60,
    "versionName": "2.5.28",

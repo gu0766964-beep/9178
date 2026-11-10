@@ -1,23 +1,39 @@
 {
   "schema": 2,
-  "versionCode": 60,
-  "versionName": "2.5.28",
+  "versionCode": 61,
+  "versionName": "2.5.29",
   "date": "2026-11-10",
-  "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.28/survivor-2.5.28.apk",
+  "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.29/survivor-2.5.29.apk",
   "apkSize": 160454895,
-  "apkSha256": "528a03c451d85ee7fa40b2f53220cc3ad2b01df7631603483e9443d7ecb9f2e7",
-  "assetsHash": "13d1e7590b461ea9151ab5b33f122656",
+  "apkSha256": "173ef6e866e4d0f50761a364ded3d03b7e266e5af9d873a5b6635d49fb3910b6",
+  "assetsHash": "6c8a32672c8b8a87845e5f68dfcbd921",
   "assetsCount": 26,
   "notice": {
     "add": [
-      "release: v2.5.27",
-      "界面与公告面板更新",
-      "游戏逻辑更新（notice-data.js）"
+      "首页标题显示不再被裁切",
+      "删除首页冗余提示小字",
+      "首页按钮玻璃质感更透明"
     ],
-    "fix": []
+    "fix": [
+      "修复首页内容在部分屏幕下标题显示不完整的问题"
+    ]
   },
-  "noticeId": "v2.5.28-60-2026-11-10-eb33e2",
+  "noticeId": "v2.5.29-61-2026-11-10-c03156",
   "noticeHistory": [
+    {
+      "id": "v2.5.29-61-2026-11-10-c03156",
+      "versionCode": 61,
+      "versionName": "2.5.29",
+      "date": "2026-11-10",
+      "add": [
+        "首页标题显示不再被裁切",
+        "删除首页冗余提示小字",
+        "首页按钮玻璃质感更透明"
+      ],
+      "fix": [
+        "修复首页内容在部分屏幕下标题显示不完整的问题"
+      ]
+    },
     {
       "id": "v2.5.28-60-2026-11-10-eb33e2",
       "versionCode": 60,
@@ -139,6 +155,19 @@
     }
   ],
   "history": [
+    {
+      "versionCode": 61,
+      "versionName": "2.5.29",
+      "date": "2026-11-10",
+      "add": [
+        "首页标题显示不再被裁切",
+        "删除首页冗余提示小字",
+        "首页按钮玻璃质感更透明"
+      ],
+      "fix": [
+        "修复首页内容在部分屏幕下标题显示不完整的问题"
+      ]
+    },
     {
       "versionCode": 60,
       "versionName": "2.5.28",
