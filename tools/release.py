@@ -170,58 +170,64 @@ def tag_via_api(owner, repo, token, tag, commit_sha, msg):
             {'ref': 'refs/tags/' + tag, 'sha': t['sha']})
 
 
-def upload_asset(owner, repo, release_id, token, apk_path):
-    """流式上传 APK（160MB 级，避免整个读进内存）。"""
+def _delete_assets_named(owner, repo, release_id, token, name):
+    """删除 Release 下同名资产（重试前清理，避免 422 already_exists）。"""
+    try:
+        rel = api('GET', '/repos/%s/%s/releases/%s' % (owner, repo, release_id), token)
+    except Exception:
+        return
+    for a in (rel or {}).get('assets', []):
+        if a.get('name') == name:
+            try:
+                api('DELETE', '/repos/%s/%s/releases/assets/%s' % (owner, repo, a['id']), token)
+                print('  已清理残留资产 id=%s' % a['id'], flush=True)
+            except Exception as e:
+                print('  清理残留资产失败: %s' % e, flush=True)
+
+
+def upload_asset(owner, repo, release_id, token, apk_path, attempts=4):
+    """上传 APK（160MB 级）。
+
+    改用 curl 而不是 http.client：本机网络到 uploads.github.com 的 TCP 连接在
+    大体积传输中会中途被 RST（[Errno 103] Software caused connection abort），
+    发生在 40%~50% 处。curl 走同样的 HTTP/1.1 但发送节奏与重传更稳，且失败可重试。
+    """
     name = os.path.basename(apk_path)
     size = os.path.getsize(apk_path)
-    url = '/repos/%s/%s/releases/%s/assets?name=%s' % (owner, repo, release_id, urllib.parse.quote(name))
-    req = urllib.request.Request('https://uploads.github.com' + url, method='POST')
-    req.add_header('Authorization', 'Bearer ' + token)
-    req.add_header('Accept', 'application/vnd.github+json')
-    req.add_header('User-Agent', 'mow-survivor-release')
-    req.add_header('Content-Type', 'application/vnd.android.package-archive')
-    req.add_header('Content-Length', str(size))
-    print('上传 %s (%.1f MB) ...' % (name, size / 1048576.0))
+    url = ('https://uploads.github.com/repos/%s/%s/releases/%s/assets?name=%s'
+           % (owner, repo, release_id, urllib.parse.quote(name)))
+    print('上传 %s (%.1f MB) ...' % (name, size / 1048576.0), flush=True)
 
-    class Reader:
-        def __init__(self, f, total):
-            self.f, self.total, self.sent = f, total, 0
-            self.last = 0
-
-        def read(self, n=-1):
-            chunk = self.f.read(n)
-            self.sent += len(chunk)
-            pct = int(self.sent * 100 / max(1, self.total))
-            if pct >= self.last + 10:
-                self.last = pct - (pct % 10)
-                print('  %d%%' % pct, flush=True)
-            return chunk
-
-    with open(apk_path, 'rb') as f:
-        req.data = None
-        try:
-            import http.client
-            conn = http.client.HTTPSConnection('uploads.github.com', timeout=1800)
-            conn.putrequest('POST', url)
-            for k, v in req.header_items():
-                conn.putheader(k, v)
-            conn.endheaders()
-            r = Reader(f, size)
-            while True:
-                chunk = r.read(1 << 20)
-                if not chunk:
-                    break
-                conn.send(chunk)
-            resp = conn.getresponse()
-            raw = resp.read().decode('utf-8', 'replace')
-            conn.close()
-        except Exception as e:
-            raise SystemExit('上传失败: %s' % e)
-    if resp.status not in (200, 201):
-        raise SystemExit('上传失败 HTTP %s: %s' % (resp.status, raw[:400]))
-    data = json.loads(raw)
-    print('上传完成: %s (%d bytes)' % (data.get('name'), data.get('size') or 0))
-    return data
+    last_err = None
+    for attempt in range(1, attempts + 1):
+        if attempt > 1:
+            print('  第 %d 次重试上传 ...' % (attempt - 1), flush=True)
+            _delete_assets_named(owner, repo, release_id, token, name)
+            time.sleep(3)
+        cmd = [
+            'curl', '-sS', '--http1.1', '--max-time', '3600', '-X', 'POST',
+            '-H', 'Authorization: Bearer ' + token,
+            '-H', 'Accept: application/vnd.github+json',
+            '-H', 'User-Agent: mow-survivor-release',
+            '-H', 'Content-Type: application/vnd.android.package-archive',
+            '--data-binary', '@' + apk_path,
+            url,
+            '-w', '\n%{http_code}',
+        ]
+        p = subprocess.run(cmd, capture_output=True, text=True)
+        out = p.stdout or ''
+        code = out.strip().rsplit('\n', 1)[-1].strip() if out.strip() else ''
+        body = out.rsplit('\n', 1)[0] if '\n' in out else ''
+        if code in ('200', '201'):
+            try:
+                data = json.loads(body)
+            except Exception:
+                data = {'name': name}
+            print('上传完成: %s (%d bytes)' % (data.get('name'), data.get('size') or size))
+            return data
+        last_err = 'HTTP %s %s %s' % (code, body[:200], (p.stderr or '')[:200])
+        print('  上传失败: %s' % last_err, flush=True)
+    raise SystemExit('上传失败（已重试 %d 次）: %s' % (attempts - 1, last_err))
 
 
 def changed_asset_files():
