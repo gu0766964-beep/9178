@@ -468,8 +468,13 @@ def do_resume(owner, repo, token, tag, apk_path):
     if rel is None:
         raise SystemExit('Release %s 不存在，请先正常发版（不要加 --resume）' % tag)
     apk_name = os.path.basename(apk_path)
+    want = os.path.getsize(apk_path)
     for a in (rel.get('assets') or []):
         if a.get('name') == apk_name:
+            # 已经传好了就什么都不做（--resume 必须是幂等的，否则会删掉好包重传）
+            if a.get('state') == 'uploaded' and a.get('size') == want:
+                print('asset 已存在且大小一致（%d bytes），无需补传' % want)
+                return 0
             print('删除旧 asset: %s' % apk_name)
             api('DELETE', '/repos/%s/%s/releases/assets/%s' % (owner, repo, a['id']), token)
     upload_asset(owner, repo, rel['id'], token, apk_path)
