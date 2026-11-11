@@ -1,21 +1,30 @@
 /* 由 tools/gen_manifest.py 自动生成，请勿手改。
    作用：把公告与历史版本内置进 APK（冷更新），随安装包一起下发。*/
 window.__MOW_NOTICE__ = {
- "versionCode": 66,
- "versionName": "2.5.34",
+ "versionCode": 67,
+ "versionName": "2.5.35",
  "date": "2026-11-11",
- "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.34/survivor-2.5.34.apk",
+ "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.35/survivor-2.5.35.apk",
  "notice": {
   "add": [
-   "画面整体回退到 v2.5.31：撤销猫耳娘立绘与矢量角色，角色回到像素小人版本",
-   "公告 / 更新检查 / 冷更新发版链路保持最新实现"
+   "vivo/iQOO/OPPO 安装时『超级守护·应用核准（备案）』拦截：下载页与安装说明新增放行指引（点「授权本次安装」/ 关闭安装前安全检测 / 断网安装）",
+   "发布包移除调试标记（debuggable=false），降低被手机厂商安装管控判为调试包、额外弹安全提示的概率"
   ],
-  "fix": [
-   "猫耳娘角色观感问题（已回退到 v2.5.31）"
-  ]
+  "fix": []
  },
- "noticeId": "v2.5.34-66-2026-11-11-82888f",
+ "noticeId": "v2.5.35-67-2026-11-11-f07a24",
  "cloudHistory": [
+  {
+   "id": "v2.5.35-67-2026-11-11-f07a24",
+   "versionCode": 67,
+   "versionName": "2.5.35",
+   "date": "2026-11-11",
+   "add": [
+    "vivo/iQOO/OPPO 安装时『超级守护·应用核准（备案）』拦截：下载页与安装说明新增放行指引（点「授权本次安装」/ 关闭安装前安全检测 / 断网安装）",
+    "发布包移除调试标记（debuggable=false），降低被手机厂商安装管控判为调试包、额外弹安全提示的概率"
+   ],
+   "fix": []
+  },
   {
    "id": "v2.5.34-66-2026-11-11-82888f",
    "versionCode": 66,
@@ -210,6 +219,16 @@ window.__MOW_NOTICE__ = {
   }
  ],
  "history": [
+  {
+   "versionCode": 67,
+   "versionName": "2.5.35",
+   "date": "2026-11-11",
+   "add": [
+    "vivo/iQOO/OPPO 安装时『超级守护·应用核准（备案）』拦截：下载页与安装说明新增放行指引（点「授权本次安装」/ 关闭安装前安全检测 / 断网安装）",
+    "发布包移除调试标记（debuggable=false），降低被手机厂商安装管控判为调试包、额外弹安全提示的概率"
+   ],
+   "fix": []
+  },
   {
    "versionCode": 66,
    "versionName": "2.5.34",

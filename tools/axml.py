@@ -214,7 +214,9 @@ def manifest_bytes(package='com.mow.survivor', label='无尽割草', version_cod
         B('hasCode', True),
         B('allowBackup', False),
         B('hardwareAccelerated', True),
-        B('debuggable', True),
+        # 正式发布包不能是可调试包：debuggable=true 会被部分厂商安装管控判为「测试/调试应用」，
+        # 也更容易触发额外的安全提示（v2.5.35 起关闭）。
+        B('debuggable', False),
     ]).add(
         Element('activity', [
             S('name', activity),

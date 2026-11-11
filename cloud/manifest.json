@@ -1,24 +1,33 @@
 {
   "schema": 2,
-  "versionCode": 66,
-  "versionName": "2.5.34",
+  "versionCode": 67,
+  "versionName": "2.5.35",
   "date": "2026-11-11",
-  "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.34/survivor-2.5.34.apk",
-  "apkSize": 160471356,
-  "apkSha256": "4dbf4345fc801131cb86ab450033b04fecdb6c16e7185ad8e935f65507c9cea9",
-  "assetsHash": "b8d81a3c92c8ad7b49203a8d62286931",
-  "assetsCount": 27,
+  "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.35/survivor-2.5.35.apk",
+  "apkSize": 160454895,
+  "apkSha256": "9cd7f8c6bf6fa98a023b6c12d039508c518e2ab659adea0c41d9e2ea2b51e7f7",
+  "assetsHash": "99bda4937fe49cdb6e765759d70b1b6f",
+  "assetsCount": 26,
   "notice": {
     "add": [
-      "画面整体回退到 v2.5.31：撤销猫耳娘立绘与矢量角色，角色回到像素小人版本",
-      "公告 / 更新检查 / 冷更新发版链路保持最新实现"
+      "vivo/iQOO/OPPO 安装时『超级守护·应用核准（备案）』拦截：下载页与安装说明新增放行指引（点「授权本次安装」/ 关闭安装前安全检测 / 断网安装）",
+      "发布包移除调试标记（debuggable=false），降低被手机厂商安装管控判为调试包、额外弹安全提示的概率"
     ],
-    "fix": [
-      "猫耳娘角色观感问题（已回退到 v2.5.31）"
-    ]
+    "fix": []
   },
-  "noticeId": "v2.5.34-66-2026-11-11-82888f",
+  "noticeId": "v2.5.35-67-2026-11-11-f07a24",
   "noticeHistory": [
+    {
+      "id": "v2.5.35-67-2026-11-11-f07a24",
+      "versionCode": 67,
+      "versionName": "2.5.35",
+      "date": "2026-11-11",
+      "add": [
+        "vivo/iQOO/OPPO 安装时『超级守护·应用核准（备案）』拦截：下载页与安装说明新增放行指引（点「授权本次安装」/ 关闭安装前安全检测 / 断网安装）",
+        "发布包移除调试标记（debuggable=false），降低被手机厂商安装管控判为调试包、额外弹安全提示的概率"
+      ],
+      "fix": []
+    },
     {
       "id": "v2.5.34-66-2026-11-11-82888f",
       "versionCode": 66,
@@ -213,6 +222,16 @@
     }
   ],
   "history": [
+    {
+      "versionCode": 67,
+      "versionName": "2.5.35",
+      "date": "2026-11-11",
+      "add": [
+        "vivo/iQOO/OPPO 安装时『超级守护·应用核准（备案）』拦截：下载页与安装说明新增放行指引（点「授权本次安装」/ 关闭安装前安全检测 / 断网安装）",
+        "发布包移除调试标记（debuggable=false），降低被手机厂商安装管控判为调试包、额外弹安全提示的概率"
+      ],
+      "fix": []
+    },
     {
       "versionCode": 66,
       "versionName": "2.5.34",

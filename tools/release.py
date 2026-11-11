@@ -39,6 +39,20 @@ ASSETS = os.path.join(ROOT, 'app', 'assets')
 CDN_MANIFEST = 'https://raw.githubusercontent.com/gu0766964-beep/9178/main/cloud/manifest.json'
 PY = sys.executable or 'python3'
 
+# 每个 Release 说明末尾都附的安装提示：vivo/iQOO/OPPO 的「超级守护」会拿包名去云端查 ICP 备案库，
+# 查不到就拦一次安装。这发生在「安装前」，APK 内部无法屏蔽，只能靠说明引导用户放行。
+INSTALL_TIP = '''
+
+---
+
+**安装提示（vivo / iQOO / OPPO）**：若安装时弹「超级守护 · 无法识别应用核准（备案）情况」，这不是病毒提示，
+而是系统查不到本应用的 ICP 备案信息（个人分发、未上架应用商店的 APK 都会被拦一次）。任选一种放行：
+
+1. 点弹窗正文里的蓝色「**授权本次安装**」；
+2. 设置 → 安全 / 应用与权限 → 应用安装 → 关闭「安装前安全检测」；
+3. 先开飞行模式断网安装，装好再联网。
+'''
+
 
 def sh(cmd, cwd=ROOT, check=True):
     p = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True)
@@ -109,23 +123,34 @@ def pending_changes():
 
 
 def commit_via_api(owner, repo, token, base_sha, changes, msg):
-    """github.com:443 不通时，用 Git Data API 把改动直接提交到 main。"""
+    """github.com:443 不通时，用 Git Data API 把改动直接提交到 main。
+
+    建树策略：先递归取 base 树的全部条目，再按 changes 覆盖/删除，最后整树提交。
+    直接在 tree 请求里写 mode 000000 删文件会被 GitHub 以 422 拒掉，只能整树重建。
+    """
+    base = api('GET', '/repos/%s/%s/git/commits/%s' % (owner, repo, base_sha), token)
+    base_tree = api('GET', '/repos/%s/%s/git/trees/%s?recursive=true'
+                    % (owner, repo, base['tree']['sha']), token)
+    by_path = {}
+    for e in base_tree['tree']:
+        by_path[e['path']] = e
     entries = []
     for path, st in changes:
         full = os.path.join(ROOT, path)
         if st == 'D' or not os.path.exists(full):
-            entries.append({'path': path, 'mode': '100644', 'type': 'blob', 'sha': None})
+            by_path.pop(path, None)
             print('  删除 ' + path)
             continue
         with open(full, 'rb') as f:
             content = base64.b64encode(f.read()).decode('ascii')
         blob = api('POST', '/repos/%s/%s/git/blobs' % (owner, repo), token,
                    {'content': content, 'encoding': 'base64'})
-        entries.append({'path': path, 'mode': '100644', 'type': 'blob', 'sha': blob['sha']})
+        by_path[path] = {'path': path, 'mode': '100644', 'type': 'blob', 'sha': blob['sha']}
         print('  上传 %s (%d KB)' % (path, len(content) * 3 // 4 // 1024))
-    base = api('GET', '/repos/%s/%s/git/commits/%s' % (owner, repo, base_sha), token)
+    for e in by_path.values():
+        entries.append({'path': e['path'], 'mode': e['mode'], 'type': e['type'], 'sha': e['sha']})
     tree = api('POST', '/repos/%s/%s/git/trees' % (owner, repo), token,
-               {'base_tree': base['tree']['sha'], 'tree': entries})
+               {'tree': entries})
     commit = api('POST', '/repos/%s/%s/git/commits' % (owner, repo), token,
                  {'message': msg, 'tree': tree['sha'], 'parents': [base_sha]})
     api('PATCH', '/repos/%s/%s/git/refs/heads/main' % (owner, repo), token,
@@ -390,6 +415,7 @@ def main():
     body = '### v%s\n\n' % vn + '\n'.join('- ' + t for t in add)
     if fix:
         body += '\n\n**修复**\n\n' + '\n'.join('- ' + t for t in fix)
+    body += INSTALL_TIP
     if rel is None:
         rel = api('POST', '/repos/%s/%s/releases' % (owner, repo), token, {
             'tag_name': tag, 'name': 'v' + vn, 'body': body,
