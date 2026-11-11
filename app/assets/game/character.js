@@ -50,3 +50,4 @@ window.MowCharacter.FRAMES = [
 ];
 
 console.log('[Character] 角色精灵数据已加载');
+EOF

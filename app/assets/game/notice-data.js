@@ -1,18 +1,34 @@
 /* 由 tools/gen_manifest.py 自动生成，请勿手改。
    作用：把公告与历史版本内置进 APK（冷更新），随安装包一起下发。*/
 window.__MOW_NOTICE__ = {
- "versionCode": 65,
- "versionName": "2.5.33",
- "date": "2026-11-10",
- "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.33/survivor-2.5.33.apk",
+ "versionCode": 66,
+ "versionName": "2.5.34",
+ "date": "2026-11-11",
+ "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.34/survivor-2.5.34.apk",
  "notice": {
   "add": [
-   "更新弹窗「稍后再说」按钮收窄，只包住文字居中显示"
+   "画面整体回退到 v2.5.31：撤销猫耳娘立绘与矢量角色，角色回到像素小人版本",
+   "公告 / 更新检查 / 冷更新发版链路保持最新实现"
   ],
-  "fix": []
+  "fix": [
+   "猫耳娘角色观感问题（已回退到 v2.5.31）"
+  ]
  },
- "noticeId": "v2.5.33-65-2026-11-10-15ec8f",
+ "noticeId": "v2.5.34-66-2026-11-11-82888f",
  "cloudHistory": [
+  {
+   "id": "v2.5.34-66-2026-11-11-82888f",
+   "versionCode": 66,
+   "versionName": "2.5.34",
+   "date": "2026-11-11",
+   "add": [
+    "画面整体回退到 v2.5.31：撤销猫耳娘立绘与矢量角色，角色回到像素小人版本",
+    "公告 / 更新检查 / 冷更新发版链路保持最新实现"
+   ],
+   "fix": [
+    "猫耳娘角色观感问题（已回退到 v2.5.31）"
+   ]
+  },
   {
    "id": "v2.5.33-65-2026-11-10-15ec8f",
    "versionCode": 65,
@@ -194,6 +210,18 @@ window.__MOW_NOTICE__ = {
   }
  ],
  "history": [
+  {
+   "versionCode": 66,
+   "versionName": "2.5.34",
+   "date": "2026-11-11",
+   "add": [
+    "画面整体回退到 v2.5.31：撤销猫耳娘立绘与矢量角色，角色回到像素小人版本",
+    "公告 / 更新检查 / 冷更新发版链路保持最新实现"
+   ],
+   "fix": [
+    "猫耳娘角色观感问题（已回退到 v2.5.31）"
+   ]
+  },
   {
    "versionCode": 65,
    "versionName": "2.5.33",
