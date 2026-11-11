@@ -15,8 +15,6 @@
     return c
   }
 
-  var rendererHeroReady = false   // hero_cat.png 加载完成标记
-
   function Renderer(canvas) {
     this.canvas = canvas
     this.ctx = canvas.getContext('2d')
@@ -30,15 +28,7 @@
       gold: makeGlow('rgba(255,210,90,0.5)', 128),
       purple: makeGlow('rgba(200,110,255,0.5)', 128),
     }
-    // 角色贴图（像素风猫耳娘）：加载成功后替换默认像素小人；失败自动回退
-    this.heroImg = null
-    try {
-      var hi = new Image()
-      hi.onload = function () { rendererHeroReady = true }
-      hi.onerror = function () { rendererHeroReady = false }
-      hi.src = 'game/sprite/hero_cat.png'
-      this.heroImg = hi
-    } catch (e) { this.heroImg = null }
+    // 角色为程序化矢量绘制（见 heroDraw），不加载任何贴图
     this.resize()
   }
 
@@ -1162,47 +1152,379 @@
     ctx.restore()
   }
 
-  function playerPal(hurt, jobId) {
-    var classes = root.MowSim && root.MowSim.CLASSES
-    var jp = (classes && jobId && classes[jobId] && classes[jobId].pal) || null
+  /* ===== 程序化猫耳娘 =====
+     以导入立绘为原型（白发猫耳 + 红风衣 + 黑裙 + 过膝长靴 + 猫尾），整只角色由 Canvas2D
+     矢量图形逐帧绘制，不加载任何贴图。双腿为「髋-膝-脚」两段骨骼 + IK：脚掌随 walkPhase
+     前后迈步、抬脚、着地，膝盖自动朝前弯，因此跑动时双腿真实交替摆动，静止时自然微屈。 */
+  function heroPal(hurt) {
+    if (hurt) {
+      return {
+        coat: '#ff9fb0', coatHi: '#ffd3da', coatDk: '#c95568',
+        skin: '#ffd7de', skinDk: '#e0a2b2',
+        hair: '#fff2f6', hairDk: '#eec0ce', hairHi: '#ffffff',
+        skirt: '#39435c', skirtHi: '#50607f', skirtDk: '#242c3f',
+        boot: '#39435c', bootHi: '#5b6c92',
+        earIn: '#ffc0cd', eye: '#a05a70', tail: '#fff2f6', tailTip: '#eec0ce',
+        collar: '#ffffff', belt: '#5a3a44'
+      }
+    }
     return {
-      H: hurt ? '#ff8fa3' : jp ? jp.H : '#14663c',   // 兜帽（职业色）
-      h: hurt ? '#c24a5e' : jp ? jp.h : '#0d4a2b',   // 兜帽暗部
-      S: hurt ? '#ffc9d4' : '#f4cba0',               // 皮肤
-      E: '#17304a',                                  // 眼睛
-      C: hurt ? '#ff9fb0' : jp ? jp.C : '#3ddc84',   // 外套亮面（职业色）
-      c: hurt ? '#c95568' : jp ? jp.c : '#1d9457',   // 外套暗面
-      B: '#1b2436',                                  // 靴子
+      coat: '#e04a58', coatHi: '#ff7482', coatDk: '#a42b3a',
+      skin: '#f7d0a9', skinDk: '#dcae86',
+      hair: '#eef4ff', hairDk: '#c2d1e6', hairHi: '#ffffff',
+      skirt: '#232a3a', skirtHi: '#3d4863', skirtDk: '#171c28',
+      boot: '#1e2534', bootHi: '#3b4762',
+      earIn: '#f4a7b8', eye: '#3f7cae', tail: '#eef4ff', tailTip: '#c2d1e6',
+      collar: '#f6f7fb', belt: '#3a2630'
     }
   }
 
-  /* 像素小人：12 列 × 13 行，顶部位图共用，腿部两帧走路动画 */
-  var PLAYER_TOP = [
-    '....HHHH....',
-    '...HhhhhH...',
-    '...HSSSSH...',
-    '...HSEESH...',
-    '....SSSS....',
-    '..CCCCCCCC..',
-    '.CCccccccCC.',
-    '.CCCCCCCCCC.',
-    '..CCCCCCCC..',
-  ]
-  var PLAYER_LEGS = [
-    ['...C....C...', '...C....C...', '...B....B...'],
-    ['....C..C....', '....C..C....', '....B..B....'],
-  ]
+  /* 两段骨骼 IK：已知髋/脚求膝，膝盖恒朝 +x（面朝方向）弯 */
+  function heroKnee(hx, hy, fx, fy, l1, l2) {
+    var dx = fx - hx, dy = fy - hy
+    var raw = Math.sqrt(dx * dx + dy * dy)
+    var ux = raw > 0.0001 ? dx / raw : 0
+    var uy = raw > 0.0001 ? dy / raw : 1
+    var d = raw
+    var maxd = (l1 + l2) * 0.995
+    var mind = Math.abs(l1 - l2) + 0.01 * (l1 + l2)
+    if (d > maxd) d = maxd
+    if (d < mind) d = mind
+    var a = (l1 * l1 - l2 * l2 + d * d) / (2 * d)
+    var h = Math.sqrt(Math.max(0, l1 * l1 - a * a))
+    var px = -uy, py = ux
+    if (px < 0) { px = -px; py = -py }
+    return { x: hx + ux * a + px * h, y: hy + uy * a + py * h }
+  }
+
+  function heroLimb(ctx, x1, y1, x2, y2, w, color) {
+    ctx.strokeStyle = color
+    ctx.lineWidth = w
+    ctx.lineCap = 'round'
+    ctx.beginPath()
+    ctx.moveTo(x1, y1)
+    ctx.lineTo(x2, y2)
+    ctx.stroke()
+  }
+
+  /* 靴尖：朝前的小圆头 */
+  function heroFoot(ctx, x, y, R, color, hi) {
+    ctx.fillStyle = color
+    ctx.beginPath()
+    ctx.ellipse(x + 0.12 * R, y - 0.03 * R, 0.21 * R, 0.12 * R, 0, 0, Math.PI * 2)
+    ctx.fill()
+    ctx.fillStyle = hi
+    ctx.beginPath()
+    ctx.ellipse(x + 0.17 * R, y - 0.095 * R, 0.085 * R, 0.04 * R, 0, 0, Math.PI * 2)
+    ctx.fill()
+  }
+
+  /* 主绘制：局部坐标原点=脚下，+x=面朝方向。返回剑的握持点（局部坐标）。 */
+  function heroDraw(ctx, p, time, R, hurt, blink) {
+    var pal = heroPal(hurt)
+    var phi = p.walkPhase || 0
+    var spd = Math.sqrt(p.vx * p.vx + p.vy * p.vy)
+    var moving = spd > 8
+    var face = p.face || 1
+
+    // 比例（单位 R）
+    var hipY = -1.60 * R
+    var shoY = -2.62 * R
+    var headY = -3.42 * R
+    var headX = 0.05 * R
+    var headR = 0.78 * R
+    var L1 = 0.90 * R
+    var L2 = 0.86 * R
+
+    // 躯干起伏：走动时随步伐上下弹动，静止时呼吸
+    var bob = moving ? (-Math.abs(Math.sin(phi)) * 0.10 * R - 0.02 * R) : Math.sin(time * 2.1) * 0.05 * R
+    var lean = moving ? 0.10 : 0
+
+    ctx.save()
+    ctx.scale(face < 0 ? -1 : 1, 1)
+    ctx.translate(0, bob)
+    if (lean) {
+      ctx.translate(0, hipY)
+      ctx.rotate(lean)
+      ctx.translate(0, -hipY)
+    }
+
+    // ---------- 1) 猫尾（最里层，随步伐甩动）----------
+    var tsw = Math.sin(phi + 0.7) * 0.20 * R + (moving ? 0 : Math.sin(time * 1.7) * 0.10 * R)
+    ctx.lineCap = 'round'
+    ctx.strokeStyle = pal.tail
+    ctx.lineWidth = 0.24 * R
+    ctx.beginPath()
+    ctx.moveTo(-0.24 * R, -1.66 * R)
+    ctx.quadraticCurveTo(-1.00 * R, -1.72 * R + tsw * 0.5, -0.78 * R, -2.52 * R + tsw)
+    ctx.stroke()
+    ctx.strokeStyle = pal.tailTip
+    ctx.lineWidth = 0.17 * R
+    ctx.beginPath()
+    ctx.moveTo(-0.80 * R, -2.34 * R + tsw * 0.85)
+    ctx.quadraticCurveTo(-0.80 * R, -2.44 * R + tsw, -0.78 * R, -2.52 * R + tsw)
+    ctx.stroke()
+
+    // ---------- 2) 双腿（远腿先画，近腿后画）----------
+    var drawLeg = function (ph, back) {
+      var swing = Math.sin(ph)
+      var liftM = Math.max(0, Math.cos(ph))       // 前摆相抬脚，后蹬相落地
+      var fx = swing * 0.62 * R + (back ? -0.03 * R : 0.04 * R)
+      var fy = -liftM * 0.32 * R
+      var kn = heroKnee(0, hipY, fx, fy, L1, L2)
+      var skin = back ? pal.skinDk : pal.skin
+      var boot = back ? pal.skirtDk : pal.boot
+      var bootHi = back ? pal.skirtHi : pal.bootHi
+      heroLimb(ctx, 0, hipY, kn.x, kn.y, 0.26 * R, skin)              // 大腿
+      heroLimb(ctx, kn.x, kn.y, fx, fy - 0.05 * R, 0.29 * R, boot)    // 小腿＝过膝长靴
+      ctx.strokeStyle = bootHi
+      ctx.lineWidth = 0.06 * R
+      ctx.beginPath()
+      ctx.moveTo(kn.x - 0.13 * R, kn.y + 0.02 * R)
+      ctx.lineTo(kn.x + 0.13 * R, kn.y + 0.02 * R)
+      ctx.stroke()
+      heroFoot(ctx, fx, fy, R, boot, bootHi)
+      // 落地点投影：抬脚时变淡
+      ctx.fillStyle = 'rgba(0,0,0,' + (0.26 * (1 - liftM) + 0.05).toFixed(3) + ')'
+      ctx.beginPath()
+      ctx.ellipse(fx + 0.10 * R, 0.02 * R, 0.24 * R, 0.075 * R, 0, 0, Math.PI * 2)
+      ctx.fill()
+    }
+    drawLeg(phi + Math.PI, true)
+    drawLeg(phi, false)
+
+    // ---------- 3) 裙摆（盖住胯部与大腿根）----------
+    var hemY = -1.00 * R
+    var sway = (moving ? Math.sin(phi) * 0.05 * R : 0) + Math.sin(time * 1.7) * 0.015 * R
+    ctx.beginPath()
+    ctx.moveTo(-0.42 * R, -1.82 * R)
+    ctx.quadraticCurveTo(-0.80 * R + sway, -1.44 * R, -0.70 * R + sway, hemY)
+    ctx.quadraticCurveTo(-0.02 * R, hemY + 0.06 * R + sway * 0.3, 0.64 * R + sway * 0.6, hemY)
+    ctx.quadraticCurveTo(0.78 * R, -1.42 * R, 0.46 * R, -1.82 * R)
+    ctx.closePath()
+    ctx.fillStyle = pal.skirt
+    ctx.fill()
+    ctx.strokeStyle = pal.skirtHi
+    ctx.lineWidth = 0.055 * R
+    ctx.beginPath()
+    ctx.moveTo(-0.70 * R + sway, hemY + 0.03 * R)
+    ctx.quadraticCurveTo(-0.02 * R, hemY + 0.07 * R + sway * 0.3, 0.64 * R + sway * 0.6, hemY + 0.02 * R)
+    ctx.stroke()
+    ctx.strokeStyle = pal.skirtDk
+    ctx.lineWidth = 0.05 * R
+    ctx.beginPath()
+    ctx.moveTo(-0.10 * R, -1.78 * R)
+    ctx.lineTo(-0.02 * R + sway * 0.5, hemY + 0.04 * R)
+    ctx.moveTo(-0.44 * R + sway * 0.5, -1.62 * R)
+    ctx.lineTo(-0.50 * R + sway, hemY + 0.02 * R)
+    ctx.stroke()
+
+    // ---------- 4) 远侧手臂（身体后面）----------
+    var farHandX = -0.42 * R, farHandY = -1.72 * R + Math.sin(time * 3.4) * 0.03 * R
+    heroLimb(ctx, -0.12 * R, shoY + 0.16 * R, -0.34 * R, -2.10 * R, 0.20 * R, pal.coatDk)
+    heroLimb(ctx, -0.34 * R, -2.10 * R, farHandX, farHandY, 0.18 * R, pal.coatDk)
+    ctx.fillStyle = pal.skinDk
+    ctx.beginPath()
+    ctx.arc(farHandX, farHandY, 0.10 * R, 0, Math.PI * 2)
+    ctx.fill()
+
+    // ---------- 5) 风衣主体 ----------
+    var coatG = ctx.createLinearGradient(-0.55 * R, 0, 0.55 * R, 0)
+    coatG.addColorStop(0, pal.coatDk)
+    coatG.addColorStop(0.5, pal.coat)
+    coatG.addColorStop(1, pal.coatHi)
+    ctx.beginPath()
+    ctx.moveTo(-0.26 * R, shoY + 0.06 * R)
+    ctx.quadraticCurveTo(-0.50 * R, -2.16 * R, -0.36 * R, -1.76 * R)
+    ctx.lineTo(-0.54 * R, -1.20 * R)
+    ctx.quadraticCurveTo(-0.10 * R, -1.10 * R, 0.56 * R, -1.24 * R)
+    ctx.lineTo(0.42 * R, -1.72 * R)
+    ctx.quadraticCurveTo(0.50 * R, -2.22 * R, 0.30 * R, shoY + 0.06 * R)
+    ctx.closePath()
+    ctx.fillStyle = coatG
+    ctx.fill()
+    // 前襟
+    ctx.strokeStyle = pal.coatDk
+    ctx.lineWidth = 0.05 * R
+    ctx.beginPath()
+    ctx.moveTo(0.30 * R, shoY + 0.06 * R)
+    ctx.quadraticCurveTo(0.20 * R, -2.14 * R, 0.10 * R, -1.72 * R)
+    ctx.stroke()
+    // 白衬衫领口 + 领巾
+    ctx.fillStyle = pal.collar
+    ctx.beginPath()
+    ctx.moveTo(-0.06 * R, shoY - 0.06 * R)
+    ctx.lineTo(0.22 * R, shoY + 0.30 * R)
+    ctx.lineTo(0.04 * R, shoY + 0.40 * R)
+    ctx.closePath()
+    ctx.fill()
+    ctx.fillStyle = pal.coatDk
+    ctx.beginPath()
+    ctx.moveTo(0.06 * R, shoY + 0.32 * R)
+    ctx.lineTo(0.22 * R, shoY + 0.38 * R)
+    ctx.lineTo(0.12 * R, shoY + 0.66 * R)
+    ctx.closePath()
+    ctx.fill()
+    // 腰带 + 金扣
+    ctx.fillStyle = pal.belt
+    ctx.fillRect(-0.42 * R, -1.88 * R, 0.86 * R, 0.16 * R)
+    ctx.fillStyle = '#f0c05a'
+    ctx.fillRect(0.08 * R, -1.88 * R, 0.16 * R, 0.16 * R)
+    // 衣摆褶
+    ctx.strokeStyle = pal.coatDk
+    ctx.lineWidth = 0.045 * R
+    ctx.beginPath()
+    ctx.moveTo(-0.22 * R, -1.20 * R)
+    ctx.lineTo(-0.26 * R, -1.62 * R)
+    ctx.moveTo(-0.02 * R, -1.16 * R)
+    ctx.lineTo(-0.04 * R, -1.60 * R)
+    ctx.stroke()
+
+    // ---------- 6) 近侧持剑手臂 ----------
+    var handX = 0.62 * R, handY = -2.06 * R
+    heroLimb(ctx, 0.20 * R, shoY + 0.16 * R, 0.44 * R, -2.24 * R, 0.21 * R, pal.coat)
+    heroLimb(ctx, 0.44 * R, -2.24 * R, handX, handY, 0.19 * R, pal.coat)
+    ctx.fillStyle = pal.coatHi
+    ctx.beginPath()
+    ctx.ellipse(0.50 * R, -2.15 * R, 0.10 * R, 0.065 * R, -0.9, 0, Math.PI * 2)
+    ctx.fill()
+
+    // ---------- 7) 头发 / 脸 / 刘海 / 猫耳 / 五官 ----------
+    ctx.fillStyle = pal.hair
+    ctx.beginPath()
+    ctx.ellipse(headX - 0.04 * R, headY + 0.04 * R, headR * 1.16, headR * 1.14, 0, 0, Math.PI * 2)
+    ctx.fill()
+    // 背后长发
+    ctx.beginPath()
+    ctx.moveTo(headX - 0.62 * R, headY + 0.10 * R)
+    ctx.quadraticCurveTo(headX - 1.04 * R, headY + 0.92 * R, headX - 0.72 * R, headY + 1.62 * R)
+    ctx.quadraticCurveTo(headX - 0.52 * R, headY + 1.00 * R, headX - 0.34 * R, headY + 0.42 * R)
+    ctx.closePath()
+    ctx.fill()
+    // 脸
+    ctx.fillStyle = pal.skin
+    ctx.beginPath()
+    ctx.ellipse(headX + 0.10 * R, headY + 0.16 * R, headR * 0.82, headR * 0.86, 0, 0, Math.PI * 2)
+    ctx.fill()
+    // 腮红
+    ctx.fillStyle = hurt ? 'rgba(255,140,160,0.55)' : 'rgba(255,150,165,0.45)'
+    ctx.beginPath()
+    ctx.ellipse(headX + 0.42 * R, headY + 0.42 * R, 0.14 * R, 0.085 * R, 0, 0, Math.PI * 2)
+    ctx.fill()
+    // 刘海（带尖角碎发）
+    ctx.fillStyle = pal.hair
+    ctx.beginPath()
+    ctx.moveTo(headX - 0.74 * R, headY + 0.06 * R)
+    ctx.quadraticCurveTo(headX - 0.60 * R, headY - 0.86 * R, headX + 0.16 * R, headY - 0.80 * R)
+    ctx.quadraticCurveTo(headX + 0.78 * R, headY - 0.74 * R, headX + 0.80 * R, headY + 0.02 * R)
+    ctx.lineTo(headX + 0.56 * R, headY - 0.16 * R)
+    ctx.lineTo(headX + 0.42 * R, headY + 0.06 * R)
+    ctx.lineTo(headX + 0.24 * R, headY - 0.18 * R)
+    ctx.lineTo(headX + 0.04 * R, headY + 0.10 * R)
+    ctx.lineTo(headX - 0.16 * R, headY - 0.14 * R)
+    ctx.lineTo(headX - 0.34 * R, headY + 0.12 * R)
+    ctx.closePath()
+    ctx.fill()
+    // 鬓角
+    ctx.beginPath()
+    ctx.moveTo(headX - 0.64 * R, headY - 0.10 * R)
+    ctx.quadraticCurveTo(headX - 0.86 * R, headY + 0.52 * R, headX - 0.62 * R, headY + 0.86 * R)
+    ctx.quadraticCurveTo(headX - 0.54 * R, headY + 0.40 * R, headX - 0.44 * R, headY + 0.02 * R)
+    ctx.closePath()
+    ctx.fill()
+    // 呆毛
+    ctx.strokeStyle = pal.hair
+    ctx.lineWidth = 0.075 * R
+    ctx.lineCap = 'round'
+    ctx.beginPath()
+    ctx.moveTo(headX + 0.02 * R, headY - 0.76 * R)
+    ctx.quadraticCurveTo(headX + 0.10 * R, headY - 1.08 * R, headX + 0.40 * R, headY - 1.02 * R)
+    ctx.stroke()
+
+    // 猫耳（随呼吸与步伐轻微摆动）
+    var earSw = Math.sin(time * 2.6 + phi * 0.5) * 0.06 + (moving ? Math.sin(phi * 2) * 0.05 : 0)
+    var ear = function (ex, ey, rot, sc) {
+      ctx.save()
+      ctx.translate(ex, ey)
+      ctx.rotate(rot + earSw)
+      ctx.scale(sc, sc)
+      ctx.fillStyle = pal.hair
+      ctx.beginPath()
+      ctx.moveTo(-0.30 * R, 0.20 * R)
+      ctx.quadraticCurveTo(-0.10 * R, -0.62 * R, 0.04 * R, -0.74 * R)
+      ctx.quadraticCurveTo(0.22 * R, -0.60 * R, 0.34 * R, 0.18 * R)
+      ctx.closePath()
+      ctx.fill()
+      ctx.fillStyle = pal.earIn
+      ctx.beginPath()
+      ctx.moveTo(-0.15 * R, 0.13 * R)
+      ctx.quadraticCurveTo(-0.02 * R, -0.42 * R, 0.03 * R, -0.50 * R)
+      ctx.quadraticCurveTo(0.13 * R, -0.40 * R, 0.19 * R, 0.12 * R)
+      ctx.closePath()
+      ctx.fill()
+      ctx.restore()
+    }
+    ear(headX - 0.30 * R, headY - 0.58 * R, -0.26, 1.0)
+    ear(headX + 0.34 * R, headY - 0.64 * R, 0.30, 0.94)
+
+    // 眼睛（炫技：ifram 闪烁时闭眼画弧线）
+    var eyeY = headY + 0.22 * R
+    var eye = function (ex, sc) {
+      if (blink) {
+        ctx.strokeStyle = pal.eye
+        ctx.lineWidth = 0.07 * R * sc
+        ctx.lineCap = 'round'
+        ctx.beginPath()
+        ctx.arc(ex, eyeY - 0.02 * R, 0.13 * R * sc, Math.PI * 0.15, Math.PI * 0.85)
+        ctx.stroke()
+        return
+      }
+      ctx.fillStyle = pal.eye
+      ctx.beginPath()
+      ctx.ellipse(ex, eyeY, 0.115 * R * sc, 0.155 * R * sc, 0, 0, Math.PI * 2)
+      ctx.fill()
+      ctx.fillStyle = '#ffffff'
+      ctx.beginPath()
+      ctx.arc(ex + 0.04 * R * sc, eyeY - 0.06 * R * sc, 0.042 * R * sc, 0, Math.PI * 2)
+      ctx.fill()
+    }
+    eye(headX - 0.10 * R, 0.66)
+    eye(headX + 0.42 * R, 1.0)
+    // 眉毛
+    ctx.strokeStyle = pal.hairDk
+    ctx.lineWidth = 0.045 * R
+    ctx.beginPath()
+    ctx.moveTo(headX - 0.22 * R, eyeY - 0.22 * R)
+    ctx.lineTo(headX - 0.02 * R, eyeY - 0.25 * R)
+    ctx.moveTo(headX + 0.30 * R, eyeY - 0.26 * R)
+    ctx.lineTo(headX + 0.54 * R, eyeY - 0.21 * R)
+    ctx.stroke()
+    // 嘴
+    ctx.strokeStyle = hurt ? '#c95568' : '#c98a6a'
+    ctx.lineWidth = 0.045 * R
+    ctx.beginPath()
+    ctx.arc(headX + 0.28 * R, eyeY + 0.34 * R, 0.10 * R, Math.PI * 0.15, Math.PI * 0.75)
+    ctx.stroke()
+
+    ctx.restore()
+
+    // 剑握持点（父坐标系，未镜像；已补偿躯干起伏与前倾）
+    var hxw = handX, hyw = handY + bob
+    if (lean) {
+      var ldx = hxw, ldy = hyw - hipY
+      hxw = ldx * Math.cos(lean) - ldy * Math.sin(lean)
+      hyw = hipY + ldx * Math.sin(lean) + ldy * Math.cos(lean)
+    }
+    return { x: face < 0 ? -hxw : hxw, y: hyw }
+  }
 
   Renderer.prototype.drawPlayer = function (ctx, s, time) {
     var p = s.player
     var blink = p.iframe > 0 && Math.floor(time * 20) % 2 === 0
     var hurt = p.hurtFlash > 0
-    var face = p.face || 1
-    var moving = Math.hypot(p.vx, p.vy) > 8
-    var walk = moving ? Math.floor((p.walkPhase || 0) / Math.PI) % 2 : 0
     var aim = p.aim || 0
     var R = p.r
-    var PX = 2.5   // 每个「像素」的边长（游戏单位）
+    var groundY = R * 0.95      // 脚底落在阴影线上
 
     ctx.save()
     ctx.translate(p.x, p.y)
@@ -1210,7 +1532,7 @@
     // 阴影
     ctx.fillStyle = 'rgba(0,0,0,0.4)'
     ctx.beginPath()
-    ctx.ellipse(0, R * 0.95, R * 0.78, R * 0.3, 0, 0, Math.PI * 2)
+    ctx.ellipse(0, R * 0.95, R * 0.84, R * 0.30, 0, 0, Math.PI * 2)
     ctx.fill()
 
     // 光环
@@ -1237,65 +1559,42 @@
       ctx.restore()
     }
 
-    if (!blink) {
-      var bob = moving ? Math.sin(p.walkPhase || 0) * 1.3 : Math.sin(time * 2.2) * 0.7
-      var img = (this.heroImg && rendererHeroReady && this.heroImg.naturalWidth > 0) ? this.heroImg : null
-      if (img) {
-        // 猫耳娘贴图：原图面向左；face=1（向右）时水平翻转
-        var hw = R * 2.1
-        var hh = hw * img.naturalHeight / img.naturalWidth
-        var baseY = R * 0.98 - hh + bob   // 脚底贴住阴影
-        ctx.save()
-        ctx.scale(face < 0 ? 1 : -1, 1)
-        if (hurt) ctx.filter = 'saturate(1.4) brightness(1.18)'
-        ctx.drawImage(img, -hw / 2, baseY, hw, hh)
-        ctx.filter = 'none'
-        ctx.restore()
-        // 像素剑：从肩部沿 aim 方向伸出
-        ctx.save()
-        ctx.translate(face * hw * 0.16, baseY + hh * 0.46)
-        ctx.rotate(aim)
-        ctx.fillStyle = hurt ? '#ffd0d8' : '#e8f6ff'   // 刀身
-        ctx.fillRect(hw * 0.10, -PX * 0.42, PX * 4.0, PX * 0.84)
-        ctx.fillStyle = '#9fb6c9'                      // 刀刃暗面
-        ctx.fillRect(hw * 0.10, PX * 0.14, PX * 4.0, PX * 0.28)
-        ctx.fillStyle = hurt ? '#ffc9d4' : '#f4cba0'   // 手
-        ctx.fillRect(hw * 0.05, -PX * 0.42, PX * 1.0, PX * 0.84)
-        ctx.fillStyle = '#8a5a2b'                      // 剑柄
-        ctx.fillRect(hw * 0.05, -PX * 0.56, PX * 0.7, PX * 1.12)
-        ctx.restore()
-      } else {
-        // 回退：原像素小人
-        var PAL = playerPal(hurt, s.job)
-        var legs = PLAYER_LEGS[walk] || PLAYER_LEGS[0]
-        var rows = PLAYER_TOP.concat(legs)
-        var H = rows.length, W = rows[0].length
-        var ox = -W * PX / 2, oy = -H * PX / 2 + bob - PX * 0.4
-        for (var r = 0; r < H; r++) {
-          var line = rows[r]
-          for (var cc = 0; cc < W; cc++) {
-            var ch = line.charAt(face >= 0 ? cc : (W - 1 - cc))
-            var col = PAL[ch]
-            if (!col) continue
-            ctx.fillStyle = col
-            ctx.fillRect(ox + cc * PX, oy + r * PX, PX + 0.6, PX + 0.6)
-          }
-        }
-        // 像素剑：从肩部沿 aim 方向伸出（手臂 2 格 + 刀身 4 格）
-        ctx.save()
-        ctx.translate(face * PX * 2.2, oy + PX * 7)
-        ctx.rotate(aim)
-        ctx.fillStyle = hurt ? '#ffd0d8' : '#e8f6ff'   // 刀身
-        ctx.fillRect(PX * 2.2, -PX * 0.42, PX * 4.0, PX * 0.84)
-        ctx.fillStyle = '#9fb6c9'                      // 刀刃暗面
-        ctx.fillRect(PX * 2.2, PX * 0.14, PX * 4.0, PX * 0.28)
-        ctx.fillStyle = hurt ? '#ffc9d4' : '#f4cba0'   // 手
-        ctx.fillRect(PX * 1.4, -PX * 0.42, PX * 1.0, PX * 0.84)
-        ctx.fillStyle = '#8a5a2b'                      // 剑柄
-        ctx.fillRect(PX * 1.4, -PX * 0.56, PX * 0.7, PX * 1.12)
-        ctx.restore()
-      }
-    }
+    // 角色本体（程序化矢量猫耳娘）
+    ctx.save()
+    ctx.translate(0, groundY)
+    var hand = heroDraw(ctx, p, time, R, hurt, blink)
+    ctx.restore()
+
+    // 武器：从握持点沿 aim 伸出
+    var pal = heroPal(hurt)
+    ctx.save()
+    ctx.translate(hand.x, hand.y + groundY)
+    ctx.rotate(aim)
+    ctx.fillStyle = hurt ? '#ffd0d8' : '#e8f6ff'
+    ctx.beginPath()
+    ctx.moveTo(0.16 * R, -0.085 * R)
+    ctx.lineTo(1.02 * R, -0.055 * R)
+    ctx.lineTo(1.16 * R, 0)
+    ctx.lineTo(1.02 * R, 0.055 * R)
+    ctx.lineTo(0.16 * R, 0.085 * R)
+    ctx.closePath()
+    ctx.fill()
+    ctx.strokeStyle = 'rgba(255,255,255,0.9)'
+    ctx.lineWidth = 0.03 * R
+    ctx.beginPath()
+    ctx.moveTo(0.24 * R, -0.03 * R)
+    ctx.lineTo(1.00 * R, -0.02 * R)
+    ctx.stroke()
+    ctx.fillStyle = '#c9a24a'
+    ctx.fillRect(0.11 * R, -0.15 * R, 0.07 * R, 0.30 * R)
+    ctx.fillStyle = '#6b4a2a'
+    ctx.fillRect(-0.07 * R, -0.06 * R, 0.19 * R, 0.12 * R)
+    ctx.fillStyle = pal.skin
+    ctx.beginPath()
+    ctx.arc(0.02 * R, 0, 0.10 * R, 0, Math.PI * 2)
+    ctx.fill()
+    ctx.restore()
+
     ctx.restore()
   }
 
