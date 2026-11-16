@@ -4,7 +4,7 @@ window.__MOW_NOTICE__ = {
  "versionCode": 68,
  "versionName": "2.5.36",
  "date": "2026-11-16",
- "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.35/survivor-2.5.35.apk",
+ "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.36/survivor-2.5.36.apk",
  "notice": {
   "add": [
    "签名迁移：原签名密钥丢失，本版改用新密钥签名 —— 升级本版需先卸载旧版一次（首次），从本版起签名固定，以后可直接覆盖安装、存档保留"
