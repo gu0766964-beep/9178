@@ -225,6 +225,66 @@ def run_tool(name, *args):
         raise SystemExit('%s 失败（退出码 %d）' % (name, p.returncode))
 
 
+def do_sync_notice(token, commit_sha, tree_sha, remote_files, vc, apk_url):
+    """只把清单 + 内置公告推到 main：这就是「云更新 + 公告下发」的最小动作。
+
+    不打 APK、不建 Release、不传 asset。玩家下次开游戏 1.5 秒后就会拉到新公告。
+    """
+    local = scan_local()
+    targets = ['cloud/manifest.json', 'app/assets/game/notice-data.js']
+    entries = []
+    for rel in targets:
+        if rel not in local:
+            raise SystemExit('本地缺少 %s' % rel)
+        if remote_files.get(rel) == local[rel][0]:
+            log('    = %-48s （云端一致，跳过）' % rel)
+            continue
+        sha, size = upload_blob(token, rel)
+        entries.append({'path': rel, 'mode': '100644', 'type': 'blob', 'sha': sha})
+        log('    + %-48s %8d' % (rel, size))
+    if not entries:
+        log('  清单与公告均已是最新，无需提交')
+    else:
+        new_tree = api('POST', '/repos/%s/%s/git/trees' % (OWNER, REPO), token,
+                       {'base_tree': tree_sha, 'tree': entries}, timeout=300)
+        new_commit = api('POST', '/repos/%s/%s/git/commits' % (OWNER, REPO), token,
+                         {'message': 'notice: 云更新下发（v%s）' % read_manifest().get('versionName'),
+                          'tree': new_tree['sha'], 'parents': [commit_sha]})
+        api('PATCH', '/repos/%s/%s/git/refs/heads/%s' % (OWNER, REPO, BRANCH), token,
+            {'sha': new_commit['sha'], 'force': False})
+        log('  已提交 %s' % new_commit['sha'][:12])
+
+    local_m = read_manifest()
+    want_id = local_m.get('noticeId')
+    want_add = (local_m.get('notice') or {}).get('add') or []
+    apk_sha = local_m.get('apkSha256')
+    raw = 'https://raw.githubusercontent.com/%s/%s/%s/cloud/manifest.json' % (OWNER, REPO, BRANCH)
+    log('\n[校验] %s' % raw)
+    log('  期望 noticeId : %s' % want_id)
+    log('  期望 apkUrl   : %s' % apk_url)
+    for i in range(24):
+        try:
+            with urllib.request.urlopen(raw + '?t=%d' % int(time.time()), timeout=30) as r:
+                got = json.loads(r.read().decode('utf-8'))
+            if (got.get('noticeId') == want_id
+                    and (got.get('notice') or {}).get('add') == want_add
+                    and got.get('apkUrl') == apk_url):
+                log('  云端已生效：v%s noticeId=%s' % (got.get('versionName'), got.get('noticeId')))
+                log('  apkUrl  : %s' % got.get('apkUrl'))
+                log('  apkSize : %s' % got.get('apkSize'))
+                log('  apkSha  : %s' % got.get('apkSha256'))
+                if apk_sha and got.get('apkSha256') != apk_sha:
+                    log('  [警告] 云端 apkSha256 与本地清单不一致')
+                return 0
+            log('  等待 CDN 刷新（第 %d/24 次）：noticeId=%s apkUrl=%s'
+                % (i + 1, got.get('noticeId'), (got.get('apkUrl') or '')[-40:]))
+        except Exception as e:
+            log('  等待 CDN 刷新（第 %d/24 次）：%s' % (i + 1, e))
+        time.sleep(5)
+    log('  [警告] CDN 未在 2 分钟内刷新，稍后再看 raw 地址')
+    return 1
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--add', action='append', default=[])
@@ -235,6 +295,10 @@ def main():
     ap.add_argument('--skip-build', action='store_true')
     ap.add_argument('--no-bump', action='store_true')
     ap.add_argument('--force', action='store_true', help='没有资源改动也发版')
+    ap.add_argument('--apk-url', default=None, help='覆盖清单里的 apkUrl')
+    ap.add_argument('--sync-notice', action='store_true',
+                    help='只把 cloud/manifest.json 与内置公告推到 main（云更新 + 公告下发），'
+                         '不打包、不建 Release、不传 APK')
     args = ap.parse_args()
 
     token, token_src = load_token()
@@ -269,7 +333,8 @@ def main():
     tag = 'v' + vn
     apk_name = 'survivor-%s.apk' % vn
     apk_path = os.path.join(ROOT, 'dist', apk_name)
-    apk_url = 'https://github.com/%s/%s/releases/download/%s/%s' % (OWNER, REPO, tag, apk_name)
+    apk_url = args.apk_url or 'https://github.com/%s/%s/releases/download/%s/%s' % (
+        OWNER, REPO, tag, apk_name)
 
     log('仓库    : %s/%s @ %s' % (OWNER, REPO, BRANCH))
     log('版本    : v%s (versionCode %d)' % (vn, vc))
@@ -303,7 +368,17 @@ def main():
         return 0
 
     # ---- 清单 + 打包 ----
-    if args.no_bump:
+    if args.sync_notice:
+        log('\n[云更新] 只下发公告：重建清单（保留版本与公告条目，刷新 apkUrl 与资源指纹）')
+        gen = ['--no-bump', '--apk-url', apk_url]
+        for t in args.add:
+            gen += ['--add', t]
+        for t in args.fix:
+            gen += ['--fix', t]
+        if os.path.exists(apk_path):
+            gen += ['--apk', apk_path]
+        run_tool('gen_manifest.py', *gen)
+    elif args.no_bump:
         log('\n[1/6] 跳过清单生成（--no-bump：沿用现有版本与公告，只在下一步回填 APK 元信息）')
     else:
         log('\n[1/6] 生成清单与内置公告')
@@ -313,6 +388,9 @@ def main():
         for t in args.fix:
             gen += ['--fix', t]
         run_tool('gen_manifest.py', *gen)
+
+    if args.sync_notice:
+        return do_sync_notice(token, commit_sha, tree_sha, remote_files, vc, apk_url)
 
     log('\n[2/6] 打包 APK')
     if args.skip_build and os.path.exists(apk_path):
