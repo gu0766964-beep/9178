@@ -1,21 +1,33 @@
 {
   "schema": 2,
-  "versionCode": 68,
-  "versionName": "2.5.36",
+  "versionCode": 69,
+  "versionName": "2.5.37",
   "date": "2026-11-16",
-  "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.36/survivor-2.5.36.apk",
+  "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.37/survivor-2.5.37.apk",
   "apkSize": 160454895,
-  "apkSha256": "74c76814434d681c5bcf96f39d56924ddd57ad7f973ad29c3a464f4df43afa84",
-  "assetsHash": "99bda4937fe49cdb6e765759d70b1b6f",
+  "apkSha256": "a03961204147fb2057c445274a6cb27a604943a6ddaf490babe718c2b1977140",
+  "assetsHash": "f3ea11c4ce54957c243ecf7fbf92eb32",
   "assetsCount": 26,
   "notice": {
     "add": [
-      "签名迁移：原签名密钥丢失，本版改用新密钥签名 —— 升级本版需先卸载旧版一次（首次），从本版起签名固定，以后可直接覆盖安装、存档保留"
+      "公告面板「下载完整安装包」按钮收窄：由通栏满宽改为只包住文字（左右内边距 34px）、水平居中，与下方「查看历史版本」「知道了」对齐",
+      "更新弹窗「稍后再说」按钮同样收窄，与「下载完整安装包」成一列居中"
     ],
     "fix": []
   },
-  "noticeId": "v2.5.36-68-2026-11-16-7ce9b1",
+  "noticeId": "v2.5.37-69-2026-11-16-6ffa4f",
   "noticeHistory": [
+    {
+      "id": "v2.5.37-69-2026-11-16-6ffa4f",
+      "versionCode": 69,
+      "versionName": "2.5.37",
+      "date": "2026-11-16",
+      "add": [
+        "公告面板「下载完整安装包」按钮收窄：由通栏满宽改为只包住文字（左右内边距 34px）、水平居中，与下方「查看历史版本」「知道了」对齐",
+        "更新弹窗「稍后再说」按钮同样收窄，与「下载完整安装包」成一列居中"
+      ],
+      "fix": []
+    },
     {
       "id": "v2.5.36-68-2026-11-16-7ce9b1",
       "versionCode": 68,
@@ -231,6 +243,16 @@
     }
   ],
   "history": [
+    {
+      "versionCode": 69,
+      "versionName": "2.5.37",
+      "date": "2026-11-16",
+      "add": [
+        "公告面板「下载完整安装包」按钮收窄：由通栏满宽改为只包住文字（左右内边距 34px）、水平居中，与下方「查看历史版本」「知道了」对齐",
+        "更新弹窗「稍后再说」按钮同样收窄，与「下载完整安装包」成一列居中"
+      ],
+      "fix": []
+    },
     {
       "versionCode": 68,
       "versionName": "2.5.36",
