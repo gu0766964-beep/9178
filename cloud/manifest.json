@@ -1,22 +1,31 @@
 {
   "schema": 2,
-  "versionCode": 67,
-  "versionName": "2.5.35",
-  "date": "2026-11-11",
+  "versionCode": 68,
+  "versionName": "2.5.36",
+  "date": "2026-11-16",
   "apkUrl": "https://github.com/gu0766964-beep/9178/releases/download/v2.5.35/survivor-2.5.35.apk",
   "apkSize": 160454895,
-  "apkSha256": "9cd7f8c6bf6fa98a023b6c12d039508c518e2ab659adea0c41d9e2ea2b51e7f7",
+  "apkSha256": "74c76814434d681c5bcf96f39d56924ddd57ad7f973ad29c3a464f4df43afa84",
   "assetsHash": "99bda4937fe49cdb6e765759d70b1b6f",
   "assetsCount": 26,
   "notice": {
     "add": [
-      "vivo/iQOO/OPPO 安装时『超级守护·应用核准（备案）』拦截：下载页与安装说明新增放行指引（点「授权本次安装」/ 关闭安装前安全检测 / 断网安装）",
-      "发布包移除调试标记（debuggable=false），降低被手机厂商安装管控判为调试包、额外弹安全提示的概率"
+      "签名迁移：原签名密钥丢失，本版改用新密钥签名 —— 升级本版需先卸载旧版一次（首次），从本版起签名固定，以后可直接覆盖安装、存档保留"
     ],
     "fix": []
   },
-  "noticeId": "v2.5.35-67-2026-11-11-f07a24",
+  "noticeId": "v2.5.36-68-2026-11-16-7ce9b1",
   "noticeHistory": [
+    {
+      "id": "v2.5.36-68-2026-11-16-7ce9b1",
+      "versionCode": 68,
+      "versionName": "2.5.36",
+      "date": "2026-11-16",
+      "add": [
+        "签名迁移：原签名密钥丢失，本版改用新密钥签名 —— 升级本版需先卸载旧版一次（首次），从本版起签名固定，以后可直接覆盖安装、存档保留"
+      ],
+      "fix": []
+    },
     {
       "id": "v2.5.35-67-2026-11-11-f07a24",
       "versionCode": 67,
@@ -222,6 +231,15 @@
     }
   ],
   "history": [
+    {
+      "versionCode": 68,
+      "versionName": "2.5.36",
+      "date": "2026-11-16",
+      "add": [
+        "签名迁移：原签名密钥丢失，本版改用新密钥签名 —— 升级本版需先卸载旧版一次（首次），从本版起签名固定，以后可直接覆盖安装、存档保留"
+      ],
+      "fix": []
+    },
     {
       "versionCode": 67,
       "versionName": "2.5.35",
